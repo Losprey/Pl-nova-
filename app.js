@@ -157,6 +157,7 @@ const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
 const dailyNote = document.querySelector("#dailyNote");
 const themeToggle = document.querySelector("#themeToggle");
+const densityToggle = document.querySelector("#densityToggle");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
 const importDataInput = document.querySelector("#importDataInput");
@@ -252,10 +253,12 @@ function loadTasksState() {
 }
 
 function loadSettingsState() {
+  const fallback = { theme: "dark", density: "compact" };
+
   try {
-    return JSON.parse(localStorage.getItem(settingsStorageKey)) || { theme: "dark" };
+    return { ...fallback, ...(JSON.parse(localStorage.getItem(settingsStorageKey)) || {}) };
   } catch {
-    return { theme: "dark" };
+    return fallback;
   }
 }
 
@@ -326,6 +329,12 @@ function saveFavoritesState() {
 function applyTheme() {
   document.body.dataset.theme = state.settings.theme;
   themeToggle.checked = state.settings.theme === "light";
+}
+
+function applyDensity() {
+  state.settings.density ||= "compact";
+  document.body.dataset.density = state.settings.density;
+  densityToggle.checked = state.settings.density === "compact";
 }
 
 function addDays(date, count) {
@@ -967,6 +976,7 @@ function renderCurrentView() {
   renderRhythm();
   renderDailyNote();
   applyTheme();
+  applyDensity();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
 
@@ -1238,6 +1248,13 @@ themeToggle.addEventListener("change", () => {
   renderCurrentView();
 });
 
+densityToggle.addEventListener("change", () => {
+  state.settings.density = densityToggle.checked ? "compact" : "full";
+  saveSettingsState();
+  applyDensity();
+  settingsStatus.textContent = densityToggle.checked ? "Kompaktný prehľad" : "Plný prehľad";
+});
+
 exportDataButton.addEventListener("click", () => {
   const payload = {
     version: 1,
@@ -1303,7 +1320,7 @@ resetAllButton.addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   state.shopping = { checked: {}, manual: {} };
   state.tasks = clone(starterTasks);
-  state.settings = { theme: "dark" };
+  state.settings = { theme: "dark", density: "compact" };
   state.checkins = {};
   state.notes = {};
   state.rhythm = {};
