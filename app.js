@@ -141,6 +141,12 @@ const homeFocusTitle = document.querySelector("#homeFocusTitle");
 const homeFocusDetail = document.querySelector("#homeFocusDetail");
 const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeActionList = document.querySelector("#homeActionList");
+const homeMealVisualValue = document.querySelector("#homeMealVisualValue");
+const homeTaskVisualValue = document.querySelector("#homeTaskVisualValue");
+const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue");
+const homeMealMeter = document.querySelector("#homeMealMeter");
+const homeTaskMeter = document.querySelector("#homeTaskMeter");
+const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
@@ -525,6 +531,13 @@ function formatDueDate(value) {
   return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
 }
 
+function taskSuggestion(task) {
+  if (task.done) return "Hotovo. Môžeš to nechať tak alebo si pripraviť ďalší malý krok.";
+  if (task.priority === "high") return "Daj tomu 10 minút a potom sa rozhodni, či treba pokračovať.";
+  if (task.due) return "Skús si k tomu pridať krátky čas v dni, nech to nevisí v hlave.";
+  return "Ak je to väčšie, rozdeľ to na jednu drobnú vec, ktorá sa dá urobiť hneď.";
+}
+
 function renderTasks() {
   const tasks = currentTasks();
   const openCount = tasks.filter((task) => !task.done).length;
@@ -541,6 +554,7 @@ function renderTasks() {
             <span>
               <strong>${escapeHtml(task.title)}</strong>
               <span>${formatDueDate(task.due)}</span>
+              <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
             </span>
             <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
             <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť úlohu ${escapeHtml(task.title)}">
@@ -606,6 +620,11 @@ function showToast(message) {
   }, 2200);
 }
 
+function progressPercent(done, total) {
+  if (!total) return 100;
+  return Math.max(0, Math.min(100, Math.round((done / total) * 100)));
+}
+
 function buildDashboardActions(meals, openTasks, openShopping) {
   const actions = [];
 
@@ -665,8 +684,10 @@ function renderHome() {
   const meals = allMeals();
   const tasks = currentTasks();
   const openTasks = tasks.filter((task) => !task.done);
+  const doneTasks = tasks.length - openTasks.length;
   const checked = new Set(checkedShoppingIds());
-  const openShopping = shoppingItems().filter((item) => !checked.has(item.id));
+  const shopping = shoppingItems();
+  const openShopping = shopping.filter((item) => !checked.has(item.id));
   const plan = currentPlan();
   const mood = currentMood();
 
@@ -679,6 +700,12 @@ function renderHome() {
   homeMealsHint.textContent = meals.length === 1 ? "jedlo v pláne" : "jedál v pláne";
   homeTasksHint.textContent = openTasks.length === 1 ? "otvorená úloha" : "otvorených úloh";
   homeShoppingHint.textContent = openShopping.length === 1 ? "položka chýba" : "položiek chýba";
+  homeMealVisualValue.textContent = String(meals.length);
+  homeTaskVisualValue.textContent = `${doneTasks}/${tasks.length || 0}`;
+  homeShoppingVisualValue.textContent = `${shopping.length - openShopping.length}/${shopping.length || 0}`;
+  homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
+  homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
+  homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
 
   const actions = buildDashboardActions(meals, openTasks, openShopping);
   const focus = actions[0];

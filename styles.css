@@ -56,6 +56,7 @@ body[data-theme="light"] .daily-checkin,
 body[data-theme="light"] .daily-rhythm,
 body[data-theme="light"] .family-note,
 body[data-theme="light"] .mini-panel,
+body[data-theme="light"] .glance-card,
 body[data-theme="light"] .quick-add input,
 body[data-theme="light"] .task-form input,
 body[data-theme="light"] .task-form select,
@@ -565,9 +566,9 @@ svg {
 }
 
 .dashboard-hero {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px auto;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   padding: 6px 6px 2px;
 }
@@ -582,6 +583,178 @@ svg {
   margin: 0;
   font-size: 28px;
   line-height: 1.05;
+}
+
+.dashboard-art {
+  position: relative;
+  min-width: 128px;
+  height: 86px;
+  overflow: hidden;
+  border: 1px solid rgba(53, 66, 89, 0.78);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(39, 210, 138, 0.16), rgba(255, 140, 74, 0.1)),
+    #111a2d;
+}
+
+.art-sun,
+.art-home,
+.art-table,
+.art-plate {
+  position: absolute;
+  display: block;
+}
+
+.art-sun {
+  top: 12px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f8c66d;
+  box-shadow: 0 0 24px rgba(248, 198, 109, 0.48);
+}
+
+.art-home {
+  left: 18px;
+  bottom: 19px;
+  width: 46px;
+  height: 34px;
+  border-radius: 8px 8px 5px 5px;
+  background: #5547f4;
+}
+
+.art-home::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: -14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: #6757ff;
+  transform: rotate(45deg);
+}
+
+.art-home::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  bottom: 0;
+  width: 12px;
+  height: 18px;
+  border-radius: 6px 6px 0 0;
+  background: #111a2d;
+}
+
+.art-table {
+  right: 18px;
+  bottom: 22px;
+  width: 50px;
+  height: 15px;
+  border-radius: 999px;
+  background: #27d28a;
+  box-shadow: 0 19px 0 rgba(39, 210, 138, 0.2);
+}
+
+.art-plate {
+  bottom: 43px;
+  width: 17px;
+  height: 17px;
+  border: 4px solid #edf2fb;
+  border-radius: 50%;
+  background: #111a2d;
+}
+
+.art-plate-one {
+  right: 49px;
+}
+
+.art-plate-two {
+  right: 28px;
+}
+
+.home-glance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.glance-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 11px;
+  min-height: 96px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  background: #182337;
+  text-align: left;
+}
+
+.glance-illustration {
+  position: relative;
+  display: grid;
+  grid-row: span 3;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  background: rgba(85, 71, 244, 0.22);
+  font-size: 22px;
+}
+
+.glance-card.tasks .glance-illustration {
+  background: rgba(39, 210, 138, 0.2);
+}
+
+.glance-card.shopping .glance-illustration {
+  background: rgba(255, 140, 74, 0.2);
+}
+
+.glance-dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #182337;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.glance-card strong {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.glance-card span:not(.glance-illustration, .glance-main, .glance-dot) {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.glance-card i {
+  display: block;
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(154, 166, 186, 0.22);
+}
+
+.glance-card b {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6757ff, #27d28a);
+  transition: width 180ms ease;
+}
+
+.glance-card.shopping b {
+  background: linear-gradient(90deg, #ff8c4a, #f8c66d);
 }
 
 .daily-checkin {
@@ -1083,6 +1256,16 @@ svg {
   font-weight: 800;
 }
 
+.task-suggestion {
+  display: block;
+  margin-top: 6px;
+  color: #8ee0bf;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
 .shopping-item.is-done strong,
 .task-item.is-done strong {
   color: var(--muted);
@@ -1336,8 +1519,22 @@ svg {
     padding: 14px;
   }
 
+  .dashboard-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dashboard-art {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+
   .dashboard-hero h2 {
     font-size: 24px;
+  }
+
+  .home-glance {
+    grid-template-columns: 1fr;
   }
 
   .stats-grid {

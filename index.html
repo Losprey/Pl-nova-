@@ -52,8 +52,45 @@
                 <p id="homeEyebrow">Domáci Rytmus</p>
                 <h2 id="homeTitle">Prehľad týždňa</h2>
               </div>
+              <div class="dashboard-art" aria-hidden="true">
+                <span class="art-sun"></span>
+                <span class="art-home"></span>
+                <span class="art-table"></span>
+                <span class="art-plate art-plate-one"></span>
+                <span class="art-plate art-plate-two"></span>
+              </div>
               <span class="count-pill" id="homeAudience">Deti</span>
             </div>
+
+            <section class="home-glance" aria-label="Vizuálny prehľad týždňa">
+              <button class="glance-card meals" type="button" data-jump-tab="meals">
+                <span class="glance-illustration" aria-hidden="true">
+                  <span class="glance-main">🍽️</span>
+                  <span class="glance-dot"></span>
+                </span>
+                <strong id="homeMealVisualValue">0</strong>
+                <span>jedlá</span>
+                <i><b id="homeMealMeter"></b></i>
+              </button>
+              <button class="glance-card tasks" type="button" data-jump-tab="tasks">
+                <span class="glance-illustration" aria-hidden="true">
+                  <span class="glance-main">✓</span>
+                  <span class="glance-dot"></span>
+                </span>
+                <strong id="homeTaskVisualValue">0</strong>
+                <span>hotové</span>
+                <i><b id="homeTaskMeter"></b></i>
+              </button>
+              <button class="glance-card shopping" type="button" data-jump-tab="shopping">
+                <span class="glance-illustration" aria-hidden="true">
+                  <span class="glance-main">🛒</span>
+                  <span class="glance-dot"></span>
+                </span>
+                <strong id="homeShoppingVisualValue">0</strong>
+                <span>vybavené</span>
+                <i><b id="homeShoppingMeter"></b></i>
+              </button>
+            </section>
 
             <section class="daily-checkin" aria-label="Denný pocit domácnosti">
               <div>
