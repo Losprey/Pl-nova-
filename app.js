@@ -133,25 +133,36 @@ const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
 
 const ingredientRules = [
-  { match: ["chleb", "toast", "rožok"], items: ["Pečivo", "Maslo"] },
-  { match: ["vajíč", "omeleta"], items: ["Vajcia"] },
-  { match: ["avokád"], items: ["Avokádo"] },
-  { match: ["ovoc", "jablko", "hruška", "banán", "malin"], items: ["Ovocie"] },
-  { match: ["kapsič"], items: ["Ovocné kapsičky"] },
-  { match: ["tvaroh", "cottage"], items: ["Tvaroh"] },
-  { match: ["jogurt", "skyr", "kefír", "termix"], items: ["Jogurty a mliečne"] },
-  { match: ["kaša", "oats"], items: ["Ovsené vločky", "Mlieko"] },
-  { match: ["spaghetti", "cestoviny"], items: ["Cestoviny", "Paradajkový základ"] },
-  { match: ["bolognese"], items: ["Mleté mäso"] },
-  { match: ["kurac", "morčac"], items: ["Hydina"] },
-  { match: ["ryža", "rizoto"], items: ["Ryža"] },
-  { match: ["zemiak"], items: ["Zemiaky"] },
-  { match: ["polievka", "vývar"], items: ["Zelenina do polievky"] },
-  { match: ["losos", "tuniak"], items: ["Ryba"] },
-  { match: ["šalát", "zelenin", "mrkv"], items: ["Zelenina"] },
-  { match: ["hummus", "cícer"], items: ["Cícer"] },
-  { match: ["orechy"], items: ["Orechy"] },
-  { match: ["palacinky"], items: ["Múka", "Vajcia", "Mlieko"] },
+  { match: ["chleb", "toast", "rožok"], items: [["Pečivo", "Pečivo"], ["Maslo", "Mliečne"]] },
+  { match: ["vajíč", "omeleta"], items: [["Vajcia", "Mliečne"]] },
+  { match: ["avokád"], items: [["Avokádo", "Ovocie a zelenina"]] },
+  { match: ["ovoc", "jablko", "hruška", "banán", "malin"], items: [["Ovocie", "Ovocie a zelenina"]] },
+  { match: ["kapsič"], items: [["Ovocné kapsičky", "Detské"]] },
+  { match: ["tvaroh", "cottage"], items: [["Tvaroh", "Mliečne"]] },
+  { match: ["jogurt", "skyr", "kefír", "termix"], items: [["Jogurty a mliečne", "Mliečne"]] },
+  { match: ["kaša", "oats"], items: [["Ovsené vločky", "Suché potraviny"], ["Mlieko", "Mliečne"]] },
+  { match: ["spaghetti", "cestoviny"], items: [["Cestoviny", "Suché potraviny"], ["Paradajkový základ", "Konzervy a omáčky"]] },
+  { match: ["bolognese"], items: [["Mleté mäso", "Mäso a ryby"]] },
+  { match: ["kurac", "morčac"], items: [["Hydina", "Mäso a ryby"]] },
+  { match: ["ryža", "rizoto"], items: [["Ryža", "Suché potraviny"]] },
+  { match: ["zemiak"], items: [["Zemiaky", "Ovocie a zelenina"]] },
+  { match: ["polievka", "vývar"], items: [["Zelenina do polievky", "Ovocie a zelenina"]] },
+  { match: ["losos", "tuniak"], items: [["Ryba", "Mäso a ryby"]] },
+  { match: ["šalát", "zelenin", "mrkv"], items: [["Zelenina", "Ovocie a zelenina"]] },
+  { match: ["hummus", "cícer"], items: [["Cícer", "Konzervy a omáčky"]] },
+  { match: ["orechy"], items: [["Orechy", "Suché potraviny"]] },
+  { match: ["palacinky"], items: [["Múka", "Suché potraviny"], ["Vajcia", "Mliečne"], ["Mlieko", "Mliečne"]] },
+];
+
+const shoppingCategoryOrder = [
+  "Ovocie a zelenina",
+  "Pečivo",
+  "Mliečne",
+  "Mäso a ryby",
+  "Suché potraviny",
+  "Konzervy a omáčky",
+  "Detské",
+  "Ostatné",
 ];
 
 function clone(value) {
@@ -235,8 +246,60 @@ function applyTheme() {
   themeToggle.checked = state.settings.theme === "light";
 }
 
+function addDays(date, count) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + count);
+  return next;
+}
+
+function currentMonday() {
+  const today = new Date();
+  const day = today.getDay() || 7;
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  monday.setDate(monday.getDate() - day + 1);
+  return monday;
+}
+
+function formatShortDate(date) {
+  return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
+}
+
+function formatDayName(date) {
+  const weekday = new Intl.DateTimeFormat("sk-SK", { weekday: "long" }).format(date);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${formatShortDate(date)}`;
+}
+
+function weekMeta(weekKey) {
+  const start = addDays(currentMonday(), weekKey === "next" ? 7 : 0);
+  const end = addDays(start, 6);
+
+  return {
+    label: weekKey === "next" ? "Budúci týždeň" : "Tento týždeň",
+    range: `${formatShortDate(start)} - ${formatShortDate(end)}`,
+    start,
+  };
+}
+
+function ensureSevenDays(plan) {
+  while (plan.days.length < 7) {
+    plan.days.push({ name: "", meals: [] });
+  }
+}
+
 function currentPlan() {
-  return state.plans[state.audience][state.week];
+  const basePlan = state.plans[state.audience][state.week];
+  const meta = weekMeta(state.week);
+  ensureSevenDays(basePlan);
+
+  return {
+    ...basePlan,
+    label: meta.label,
+    range: meta.range,
+    days: basePlan.days.map((day, index) => ({
+      ...day,
+      name: formatDayName(addDays(meta.start, index)),
+    })),
+  };
 }
 
 function contextKey() {
@@ -280,11 +343,12 @@ function generatedShoppingItems() {
 
       ingredientRules.forEach((rule) => {
         if (rule.match.some((term) => mealName.includes(term))) {
-          rule.items.forEach((item) => {
+          rule.items.forEach(([item, category]) => {
             if (!items.has(item)) {
               items.set(item, {
                 id: `auto:${slug(item)}`,
                 name: item,
+                category,
                 source: "Z jedálnička",
                 automatic: true,
               });
@@ -299,7 +363,10 @@ function generatedShoppingItems() {
 }
 
 function manualShoppingItems() {
-  return state.shopping.manual[contextKey()] || [];
+  return (state.shopping.manual[contextKey()] || []).map((item) => ({
+    category: "Ostatné",
+    ...item,
+  }));
 }
 
 function shoppingItems() {
@@ -319,14 +386,27 @@ function renderShopping() {
   const checked = new Set(checkedShoppingIds());
   const items = shoppingItems();
   const openCount = items.filter((item) => !checked.has(item.id)).length;
+  const groups = shoppingCategoryOrder
+    .map((category) => ({
+      category,
+      items: items.filter((item) => (item.category || "Ostatné") === category),
+    }))
+    .filter((group) => group.items.length);
 
   shoppingCount.textContent = `${openCount} z ${items.length}`;
   shoppingBadge.textContent = openCount > 9 ? "9+" : String(openCount);
   shoppingBadge.hidden = openCount === 0;
 
-  shoppingList.innerHTML = items.length
-    ? items
-        .map((item) => {
+  shoppingList.innerHTML = groups.length
+    ? groups
+        .map((group) => `
+          <section class="shopping-category">
+            <div class="shopping-category-header">
+              <h3>${group.category}</h3>
+              <span>${group.items.filter((item) => !checked.has(item.id)).length} z ${group.items.length}</span>
+            </div>
+            ${group.items
+              .map((item) => {
           const isDone = checked.has(item.id);
           const source = item.automatic ? item.source : "Ručne pridané";
           const deleteButton = item.automatic
@@ -348,6 +428,9 @@ function renderShopping() {
             </label>
           `;
         })
+        .join("")}
+          </section>
+        `)
         .join("")
     : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
 }
@@ -656,6 +739,7 @@ shoppingForm.addEventListener("submit", (event) => {
   const item = {
     id: `manual:${Date.now()}:${slug(name)}`,
     name,
+    category: "Ostatné",
     automatic: false,
   };
 

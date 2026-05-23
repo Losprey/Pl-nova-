@@ -765,6 +765,35 @@ svg {
   display: grid;
 }
 
+.shopping-category {
+  display: grid;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.72);
+}
+
+.shopping-category:last-child {
+  border-bottom: 0;
+}
+
+.shopping-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 18px;
+  background: rgba(49, 67, 93, 0.34);
+}
+
+.shopping-category-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.shopping-category-header span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .shopping-item,
 .task-item {
   display: grid;
