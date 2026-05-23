@@ -16,5 +16,6 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - ručné položky a odškrtávanie nákupu,
 - úlohy podľa týždňa s prioritou, termínom a odškrtávaním,
 - domovský dashboard so súhrnom jedál, úloh a nákupu,
+- nastavenia s témou, exportom/importom a resetom dát,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.

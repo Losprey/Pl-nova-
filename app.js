@@ -1,6 +1,7 @@
 const storageKey = "domaci-rytmus-meal-plans-v2";
 const shoppingStorageKey = "domaci-rytmus-shopping-v1";
 const tasksStorageKey = "domaci-rytmus-tasks-v1";
+const settingsStorageKey = "domaci-rytmus-settings-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -59,6 +60,7 @@ const state = {
   plans: loadPlans(),
   shopping: loadShoppingState(),
   tasks: loadTasksState(),
+  settings: loadSettingsState(),
   activeTab: "home",
 };
 
@@ -95,6 +97,12 @@ const homeShoppingCount = document.querySelector("#homeShoppingCount");
 const homeMealsList = document.querySelector("#homeMealsList");
 const homeTasksList = document.querySelector("#homeTasksList");
 const homeShoppingList = document.querySelector("#homeShoppingList");
+const themeToggle = document.querySelector("#themeToggle");
+const exportDataButton = document.querySelector("#exportDataButton");
+const importDataButton = document.querySelector("#importDataButton");
+const importDataInput = document.querySelector("#importDataInput");
+const resetAllButton = document.querySelector("#resetAllButton");
+const settingsStatus = document.querySelector("#settingsStatus");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
 
@@ -198,6 +206,14 @@ function loadTasksState() {
   }
 }
 
+function loadSettingsState() {
+  try {
+    return JSON.parse(localStorage.getItem(settingsStorageKey)) || { theme: "dark" };
+  } catch {
+    return { theme: "dark" };
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -208,6 +224,15 @@ function saveShoppingState() {
 
 function saveTasksState() {
   localStorage.setItem(tasksStorageKey, JSON.stringify(state.tasks));
+}
+
+function saveSettingsState() {
+  localStorage.setItem(settingsStorageKey, JSON.stringify(state.settings));
+}
+
+function applyTheme() {
+  document.body.dataset.theme = state.settings.theme;
+  themeToggle.checked = state.settings.theme === "light";
 }
 
 function currentPlan() {
@@ -498,6 +523,8 @@ function renderCurrentView() {
   renderShopping();
   renderTasks();
   renderHome();
+  applyTheme();
+  settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
 
 function fillFormOptions() {
@@ -710,6 +737,74 @@ taskList.addEventListener("click", (event) => {
   renderHome();
 });
 
+themeToggle.addEventListener("change", () => {
+  state.settings.theme = themeToggle.checked ? "light" : "dark";
+  saveSettingsState();
+  renderCurrentView();
+});
+
+exportDataButton.addEventListener("click", () => {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    plans: state.plans,
+    shopping: state.shopping,
+    tasks: state.tasks,
+    settings: state.settings,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `domaci-rytmus-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  settingsStatus.textContent = "Export hotový";
+});
+
+importDataButton.addEventListener("click", () => {
+  importDataInput.click();
+});
+
+importDataInput.addEventListener("change", async () => {
+  const file = importDataInput.files?.[0];
+  if (!file) return;
+
+  try {
+    const payload = JSON.parse(await file.text());
+    state.plans = payload.plans || state.plans;
+    state.shopping = payload.shopping || state.shopping;
+    state.tasks = payload.tasks || state.tasks;
+    state.settings = payload.settings || state.settings;
+    savePlans();
+    saveShoppingState();
+    saveTasksState();
+    saveSettingsState();
+    renderCurrentView();
+    settingsStatus.textContent = "Import hotový";
+  } catch {
+    settingsStatus.textContent = "Import zlyhal";
+  } finally {
+    importDataInput.value = "";
+  }
+});
+
+resetAllButton.addEventListener("click", () => {
+  if (!confirm("Naozaj vymazať lokálne dáta a vrátiť ukážkový stav?")) return;
+
+  state.plans = normalizePlans(starterPlans);
+  state.shopping = { checked: {}, manual: {} };
+  state.tasks = clone(starterTasks);
+  state.settings = { theme: "dark" };
+  savePlans();
+  saveShoppingState();
+  saveTasksState();
+  saveSettingsState();
+  renderCurrentView();
+  settingsStatus.textContent = "Reset hotový";
+});
+
 document.querySelectorAll("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => {
     document.querySelector(`.bottom-nav button[data-tab="${button.dataset.jumpTab}"]`)?.click();
@@ -727,13 +822,13 @@ document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   document.querySelectorAll(".view").forEach((view) => {
     const isActive =
       view.dataset.view === state.activeTab ||
-      (view.dataset.view === "placeholder" && !["home", "meals", "shopping", "tasks"].includes(state.activeTab));
+      (view.dataset.view === "placeholder" && !["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab));
 
     view.hidden = !isActive;
     view.classList.toggle("is-active", isActive);
   });
 
-  if (!["home", "meals", "shopping", "tasks"].includes(state.activeTab)) {
+  if (!["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {
     const labels = {
       home: "Domov",
       more: "Viac",

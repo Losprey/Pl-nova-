@@ -161,6 +161,56 @@
           </section>
         </section>
 
+        <section class="view" data-view="more" hidden>
+          <section class="settings-panel" aria-label="Nastavenia">
+            <div class="panel-header">
+              <div>
+                <p>Viac</p>
+                <h2>Nastavenia a dáta</h2>
+              </div>
+              <span class="count-pill" id="settingsStatus">Uložené lokálne</span>
+            </div>
+
+            <div class="settings-list">
+              <div class="settings-row">
+                <div>
+                  <strong>Svetlá téma</strong>
+                  <span>Prepne appku na svetlejší režim.</span>
+                </div>
+                <label class="switch-control">
+                  <input id="themeToggle" type="checkbox" aria-label="Svetlá téma">
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <strong>Export dát</strong>
+                  <span>Stiahne jedlá, úlohy, nákup a nastavenia ako JSON.</span>
+                </div>
+                <button class="ghost-action" id="exportDataButton" type="button">Export</button>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <strong>Import dát</strong>
+                  <span>Obnoví dáta z predtým exportovaného súboru.</span>
+                </div>
+                <button class="ghost-action" id="importDataButton" type="button">Import</button>
+                <input id="importDataInput" type="file" accept="application/json,.json" hidden>
+              </div>
+
+              <div class="settings-row danger-row">
+                <div>
+                  <strong>Reset appky</strong>
+                  <span>Vymaže lokálne zmeny a vráti ukážkové dáta.</span>
+                </div>
+                <button class="ghost-action danger-action" id="resetAllButton" type="button">Reset</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
         <section class="view" data-view="placeholder" hidden>
           <div class="placeholder-panel">
             <p id="placeholderEyebrow">Domáci Rytmus</p>
