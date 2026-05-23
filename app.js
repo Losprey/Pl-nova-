@@ -135,6 +135,9 @@ const homeMealsList = document.querySelector("#homeMealsList");
 const homeTasksList = document.querySelector("#homeTasksList");
 const homeShoppingList = document.querySelector("#homeShoppingList");
 const homeFavoritesList = document.querySelector("#homeFavoritesList");
+const homeTodayLabel = document.querySelector("#homeTodayLabel");
+const homeTodayTitle = document.querySelector("#homeTodayTitle");
+const homeTodayDetail = document.querySelector("#homeTodayDetail");
 const homeFocusIcon = document.querySelector("#homeFocusIcon");
 const homeFocusLabel = document.querySelector("#homeFocusLabel");
 const homeFocusTitle = document.querySelector("#homeFocusTitle");
@@ -147,6 +150,8 @@ const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue
 const homeMealMeter = document.querySelector("#homeMealMeter");
 const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
+const favoriteQuickList = document.querySelector("#favoriteQuickList");
+const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
@@ -538,29 +543,58 @@ function taskSuggestion(task) {
   return "Ak je to väčšie, rozdeľ to na jednu drobnú vec, ktorá sa dá urobiť hneď.";
 }
 
+function taskBucket(task) {
+  if (task.done) return "done";
+  if (task.priority === "high") return "now";
+  if (task.due || task.priority === "normal") return "week";
+  return "later";
+}
+
+function taskRow(task) {
+  return `
+    <label class="task-item ${task.done ? "is-done" : ""}">
+      <input type="checkbox" data-id="${task.id}" ${task.done ? "checked" : ""}>
+      <span>
+        <strong>${escapeHtml(task.title)}</strong>
+        <span>${formatDueDate(task.due)}</span>
+        <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
+      </span>
+      <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
+      <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť úlohu ${escapeHtml(task.title)}">
+        ${buttonIcon("delete")}
+      </button>
+    </label>
+  `;
+}
+
 function renderTasks() {
   const tasks = currentTasks();
   const openCount = tasks.filter((task) => !task.done).length;
+  const groups = [
+    { key: "now", title: "Teraz", hint: "Najbližšie malé kroky" },
+    { key: "week", title: "Tento týždeň", hint: "Veci, ktoré stačí držať v rytme" },
+    { key: "later", title: "Keď bude čas", hint: "Bez tlaku, len aby sa nestratili" },
+    { key: "done", title: "Hotové", hint: "Už netreba nosiť v hlave" },
+  ].map((group) => ({
+    ...group,
+    tasks: tasks.filter((task) => taskBucket(task) === group.key),
+  })).filter((group) => group.tasks.length);
 
   tasksCount.textContent = `${openCount} otvorených`;
   tasksBadge.textContent = openCount > 9 ? "9+" : String(openCount);
   tasksBadge.hidden = openCount === 0;
 
-  taskList.innerHTML = tasks.length
-    ? tasks
-        .map((task) => `
-          <label class="task-item ${task.done ? "is-done" : ""}">
-            <input type="checkbox" data-id="${task.id}" ${task.done ? "checked" : ""}>
-            <span>
-              <strong>${escapeHtml(task.title)}</strong>
-              <span>${formatDueDate(task.due)}</span>
-              <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
-            </span>
-            <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
-            <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť úlohu ${escapeHtml(task.title)}">
-              ${buttonIcon("delete")}
-            </button>
-          </label>
+  taskList.innerHTML = groups.length
+    ? groups
+        .map((group) => `
+          <section class="task-group ${group.key}">
+            <div class="task-group-header">
+              <span>${group.title}</span>
+              <em>${group.hint}</em>
+              <strong>${group.tasks.length}</strong>
+            </div>
+            ${group.tasks.map(taskRow).join("")}
+          </section>
         `)
         .join("")
     : `<div class="empty-state">Zatiaľ tu nie sú žiadne úlohy.</div>`;
@@ -623,6 +657,71 @@ function showToast(message) {
 function progressPercent(done, total) {
   if (!total) return 100;
   return Math.max(0, Math.min(100, Math.round((done / total) * 100)));
+}
+
+function todaySummary(meals, openTasks, openShopping) {
+  const firstMeal = meals[0];
+  if (firstMeal) {
+    return {
+      label: "Dnes doma",
+      title: firstMeal.name,
+      detail: `${firstMeal.type.label} v pláne. Keď bude treba, vieš ho upraviť v jedálničku.`,
+    };
+  }
+
+  if (openTasks.length) {
+    return {
+      label: "Dnes doma",
+      title: openTasks[0].title,
+      detail: "Najbližšia vec, ktorú stačí posunúť o jeden malý krok.",
+    };
+  }
+
+  if (openShopping.length) {
+    return {
+      label: "Dnes doma",
+      title: openShopping[0].name,
+      detail: "Jedna položka z nákupu, ktorú sa oplatí zobrať pri najbližšej príležitosti.",
+    };
+  }
+
+  return {
+    label: "Dnes doma",
+    title: "Doma to vyzerá pokojne",
+    detail: "Nie je tu nič, čo by si teraz musel riešiť.",
+  };
+}
+
+function nextMealSlot() {
+  const plan = currentPlan();
+  const dayIndex = plan.days.findIndex((day) => day.meals.length < mealTypes.length);
+  const safeDayIndex = dayIndex === -1 ? 0 : dayIndex;
+  const usedTypes = new Set(plan.days[safeDayIndex].meals.map((meal) => meal.typeKey));
+  const type = mealTypes.find((item) => !usedTypes.has(item.key)) || mealTypes[mealTypes.length - 1];
+  return { dayIndex: safeDayIndex, typeKey: type.key };
+}
+
+function addFavoriteToPlan(name) {
+  const slot = nextMealSlot();
+  currentPlan().days[slot.dayIndex].meals.push({ typeKey: slot.typeKey, name });
+  savePlans();
+  renderCurrentView();
+  showToast("Pridané do jedálnička z obľúbených.");
+}
+
+function renderFavoriteLibrary() {
+  favoriteLibraryCount.textContent = `${state.favorites.length} ${state.favorites.length === 1 ? "jedlo" : "jedál"}`;
+  favoriteQuickList.innerHTML = state.favorites.length
+    ? state.favorites
+        .map((name) => `
+          <div class="favorite-chip-row">
+            <span class="favorite-chip-icon" aria-hidden="true">★</span>
+            <strong>${escapeHtml(name)}</strong>
+            <button type="button" data-favorite-add="${escapeHtml(name)}">Pridať</button>
+          </div>
+        `)
+        .join("")
+    : `<div class="empty-state">Označ hviezdičkou jedlá v pláne a vytvoríš si vlastnú knižnicu.</div>`;
 }
 
 function buildDashboardActions(meals, openTasks, openShopping) {
@@ -706,6 +805,11 @@ function renderHome() {
   homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
+
+  const today = todaySummary(meals, openTasks, openShopping);
+  homeTodayLabel.textContent = today.label;
+  homeTodayTitle.textContent = today.title;
+  homeTodayDetail.textContent = today.detail;
 
   const actions = buildDashboardActions(meals, openTasks, openShopping);
   const focus = actions[0];
@@ -858,6 +962,7 @@ function renderCurrentView() {
   renderShopping();
   renderTasks();
   renderHome();
+  renderFavoriteLibrary();
   renderCheckin();
   renderRhythm();
   renderDailyNote();
@@ -996,6 +1101,12 @@ mealPlan.addEventListener("click", (event) => {
     savePlans();
     renderCurrentView();
   }
+});
+
+favoriteQuickList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-favorite-add]");
+  if (!button) return;
+  addFavoriteToPlan(button.dataset.favoriteAdd);
 });
 
 shoppingForm.addEventListener("submit", (event) => {

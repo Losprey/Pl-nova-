@@ -57,6 +57,8 @@ body[data-theme="light"] .daily-rhythm,
 body[data-theme="light"] .family-note,
 body[data-theme="light"] .mini-panel,
 body[data-theme="light"] .glance-card,
+body[data-theme="light"] .today-card,
+body[data-theme="light"] .favorite-library,
 body[data-theme="light"] .quick-add input,
 body[data-theme="light"] .task-form input,
 body[data-theme="light"] .task-form select,
@@ -255,6 +257,66 @@ svg {
   display: flex;
   gap: 12px;
   margin: -10px 0 22px;
+}
+
+.favorite-library {
+  display: grid;
+  margin: 0 0 22px;
+  background: var(--surface);
+}
+
+.favorite-library .mini-header span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.favorite-quick-list {
+  display: grid;
+}
+
+.favorite-chip-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+}
+
+.favorite-chip-row:last-child {
+  border-bottom: 0;
+}
+
+.favorite-chip-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(248, 198, 109, 0.16);
+  color: #f8c66d;
+}
+
+.favorite-chip-row strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorite-chip-row button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(39, 210, 138, 0.16);
+  color: #8ee0bf;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .primary-action,
@@ -551,6 +613,7 @@ svg {
 .shopping-panel,
 .tasks-panel,
 .home-dashboard,
+.favorite-library,
 .settings-panel,
 .placeholder-panel {
   overflow: hidden;
@@ -755,6 +818,100 @@ svg {
 
 .glance-card.shopping b {
   background: linear-gradient(90deg, #ff8c4a, #f8c66d);
+}
+
+.today-card {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid rgba(39, 210, 138, 0.36);
+  border-radius: 21px;
+  background:
+    linear-gradient(135deg, rgba(39, 210, 138, 0.16), rgba(85, 71, 244, 0.1)),
+    #182337;
+}
+
+.today-card-art {
+  position: relative;
+  width: 74px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(17, 26, 45, 0.82);
+}
+
+.today-bowl,
+.today-spoon,
+.today-check {
+  position: absolute;
+  display: block;
+}
+
+.today-bowl {
+  left: 14px;
+  bottom: 12px;
+  width: 42px;
+  height: 22px;
+  border-radius: 0 0 999px 999px;
+  background: #ff8c4a;
+}
+
+.today-bowl::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -8px;
+  width: 48px;
+  height: 14px;
+  border-radius: 999px;
+  background: #f8c66d;
+}
+
+.today-spoon {
+  right: 13px;
+  top: 12px;
+  width: 7px;
+  height: 35px;
+  border-radius: 999px;
+  background: #edf2fb;
+  transform: rotate(28deg);
+}
+
+.today-check {
+  left: 14px;
+  top: 11px;
+  width: 21px;
+  height: 12px;
+  border-left: 4px solid #27d28a;
+  border-bottom: 4px solid #27d28a;
+  transform: rotate(-45deg);
+}
+
+.today-card p,
+.today-card h3 {
+  margin: 0;
+}
+
+.today-card p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.today-card h3 {
+  margin-top: 3px;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.today-card span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 .daily-checkin {
@@ -1179,6 +1336,56 @@ svg {
 .shopping-list,
 .task-list {
   display: grid;
+}
+
+.task-list {
+  gap: 12px;
+  padding: 14px;
+}
+
+.task-group {
+  overflow: hidden;
+  border: 1px solid rgba(53, 66, 89, 0.72);
+  border-radius: 18px;
+  background: #182337;
+}
+
+.task-group-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.72);
+  background: rgba(49, 67, 93, 0.34);
+}
+
+.task-group-header span {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.task-group-header em {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.task-group-header strong {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  align-self: center;
+  min-width: 30px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(39, 210, 138, 0.16);
+  color: #8ee0bf;
+  text-align: center;
+}
+
+.task-group.now .task-group-header strong {
+  background: rgba(240, 68, 89, 0.18);
+  color: #ff98a6;
 }
 
 .shopping-category {

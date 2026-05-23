@@ -92,6 +92,19 @@
               </button>
             </section>
 
+            <section class="today-card" aria-label="Dnes doma">
+              <div class="today-card-art" aria-hidden="true">
+                <span class="today-bowl"></span>
+                <span class="today-spoon"></span>
+                <span class="today-check"></span>
+              </div>
+              <div>
+                <p id="homeTodayLabel">Dnes doma</p>
+                <h3 id="homeTodayTitle">Vyberieme najbližší pokojný krok</h3>
+                <span id="homeTodayDetail">Jedlo, úloha alebo nákup, ktorý dáva zmysel riešiť ako prvý.</span>
+              </div>
+            </section>
+
             <section class="daily-checkin" aria-label="Denný pocit domácnosti">
               <div>
                 <p>Ako sa dnes doma máte?</p>
@@ -210,6 +223,14 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v6h6M20 17v-6h-6M6.3 17A7.8 7.8 0 0 0 19 14.5M17.7 7A7.8 7.8 0 0 0 5 9.5"></path></svg>
               <span>Obnoviť</span>
             </button>
+          </section>
+
+          <section class="favorite-library" aria-label="Knižnica obľúbených jedál">
+            <div class="mini-header">
+              <h3>Naše stálice</h3>
+              <span id="favoriteLibraryCount">0 jedál</span>
+            </div>
+            <div id="favoriteQuickList" class="favorite-quick-list"></div>
           </section>
 
           <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
