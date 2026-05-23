@@ -54,6 +54,32 @@ const starterPlans = {
   },
 };
 
+const starterTasks = {
+  kids: {
+    current: [
+      { id: "starter:kids:current:1", title: "Nachystať desiatové boxy", priority: "high", due: "", done: false },
+      { id: "starter:kids:current:2", title: "Skontrolovať pitný režim", priority: "normal", due: "", done: false },
+      { id: "starter:kids:current:3", title: "Doplniť ovocie do zásoby", priority: "low", due: "", done: true },
+    ],
+    next: [
+      { id: "starter:kids:next:1", title: "Vybrať jedlá na budúci týždeň", priority: "high", due: "", done: false },
+      { id: "starter:kids:next:2", title: "Pripraviť nákup podľa jedálnička", priority: "normal", due: "", done: false },
+      { id: "starter:kids:next:3", title: "Skontrolovať školské desiaty", priority: "normal", due: "", done: false },
+    ],
+  },
+  adults: {
+    current: [
+      { id: "starter:adults:current:1", title: "Navariť základ na dva obedy", priority: "high", due: "", done: false },
+      { id: "starter:adults:current:2", title: "Doplniť proteínové snacky", priority: "normal", due: "", done: false },
+    ],
+    next: [
+      { id: "starter:adults:next:1", title: "Naplánovať obedové porcie", priority: "high", due: "", done: false },
+      { id: "starter:adults:next:2", title: "Skontrolovať zásoby v špajzi", priority: "normal", due: "", done: false },
+      { id: "starter:adults:next:3", title: "Pripraviť večere po tréningu", priority: "low", due: "", done: false },
+    ],
+  },
+};
+
 const state = {
   audience: "kids",
   week: "next",
@@ -105,32 +131,6 @@ const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
-
-const starterTasks = {
-  kids: {
-    current: [
-      { id: "starter:kids:current:1", title: "Nachystať desiatové boxy", priority: "high", due: "", done: false },
-      { id: "starter:kids:current:2", title: "Skontrolovať pitný režim", priority: "normal", due: "", done: false },
-      { id: "starter:kids:current:3", title: "Doplniť ovocie do zásoby", priority: "low", due: "", done: true },
-    ],
-    next: [
-      { id: "starter:kids:next:1", title: "Vybrať jedlá na budúci týždeň", priority: "high", due: "", done: false },
-      { id: "starter:kids:next:2", title: "Pripraviť nákup podľa jedálnička", priority: "normal", due: "", done: false },
-      { id: "starter:kids:next:3", title: "Skontrolovať školské desiaty", priority: "normal", due: "", done: false },
-    ],
-  },
-  adults: {
-    current: [
-      { id: "starter:adults:current:1", title: "Navariť základ na dva obedy", priority: "high", due: "", done: false },
-      { id: "starter:adults:current:2", title: "Doplniť proteínové snacky", priority: "normal", due: "", done: false },
-    ],
-    next: [
-      { id: "starter:adults:next:1", title: "Naplánovať obedové porcie", priority: "high", due: "", done: false },
-      { id: "starter:adults:next:2", title: "Skontrolovať zásoby v špajzi", priority: "normal", due: "", done: false },
-      { id: "starter:adults:next:3", title: "Pripraviť večere po tréningu", priority: "low", due: "", done: false },
-    ],
-  },
-};
 
 const ingredientRules = [
   { match: ["chleb", "toast", "rožok"], items: ["Pečivo", "Maslo"] },
