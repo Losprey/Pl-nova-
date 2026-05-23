@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#12182b">
+    <title>Domáci Rytmus - Jedálniček</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <button class="home-mark" type="button" aria-label="Domov">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path>
+            </svg>
+          </button>
+          <div>
+            <p>Domáci Rytmus</p>
+            <h1>Jedálniček</h1>
+          </div>
+        </div>
+        <button class="sync-button" type="button" aria-label="Synchronizácia">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M17.5 18H8a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 20.4 11.2 3.4 3.4 0 0 1 17.5 18z"></path>
+          </svg>
+        </button>
+      </header>
+
+      <main class="content">
+        <section class="week-switch" aria-label="Výber týždňa">
+          <button class="switch-option" data-week="current" type="button">Tento týždeň</button>
+          <button class="switch-option is-active" data-week="next" type="button">Budúci týždeň</button>
+        </section>
+
+        <section class="week-summary" aria-live="polite">
+          <div>
+            <p id="weekLabel">Budúci týždeň</p>
+            <h2 id="weekRange">13. apríla - 19. apríla</h2>
+          </div>
+          <div class="audience-toggle" role="group" aria-label="Typ jedálnička">
+            <button type="button" data-audience="adults">👥 Dospelí</button>
+            <button class="is-active" type="button" data-audience="kids">🧒 Deti</button>
+          </div>
+        </section>
+
+        <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Hlavná navigácia">
+        <button type="button" data-tab="home">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
+          <span>Domov</span>
+        </button>
+        <button type="button" data-tab="tasks">
+          <span class="badge">5</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
+          <span>Úlohy</span>
+        </button>
+        <button type="button" data-tab="shopping">
+          <span class="badge wide">9+</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
+          <span>Nákup</span>
+        </button>
+        <button class="is-active" type="button" data-tab="meals">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
+          <span>Jedálniček</span>
+        </button>
+        <button type="button" data-tab="more">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg>
+          <span>Viac</span>
+        </button>
+      </nav>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
