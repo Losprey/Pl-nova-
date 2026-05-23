@@ -45,6 +45,17 @@
           </div>
         </section>
 
+        <section class="planner-actions" aria-label="Akcie jedálnička">
+          <button class="primary-action" id="addMealButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            <span>Pridať jedlo</span>
+          </button>
+          <button class="ghost-action" id="resetPlanButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v6h6M20 17v-6h-6M6.3 17A7.8 7.8 0 0 0 19 14.5M17.7 7A7.8 7.8 0 0 0 5 9.5"></path></svg>
+            <span>Obnoviť</span>
+          </button>
+        </section>
+
         <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
       </main>
 
@@ -73,6 +84,43 @@
         </button>
       </nav>
     </div>
+
+    <dialog class="meal-dialog" id="mealDialog">
+      <form class="meal-form" id="mealForm" method="dialog">
+        <div class="form-header">
+          <div>
+            <p id="formMode">Nové jedlo</p>
+            <h2 id="formTitle">Pridať do jedálnička</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" id="closeDialogButton" aria-label="Zavrieť">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <input type="hidden" id="editDayIndex">
+        <input type="hidden" id="editMealIndex">
+
+        <label>
+          Deň
+          <select id="mealDay" required></select>
+        </label>
+
+        <label>
+          Typ jedla
+          <select id="mealType" required></select>
+        </label>
+
+        <label>
+          Názov jedla
+          <input id="mealName" type="text" autocomplete="off" maxlength="90" required placeholder="Napr. Paradajková polievka">
+        </label>
+
+        <div class="form-actions">
+          <button class="ghost-action" type="button" id="cancelDialogButton">Zrušiť</button>
+          <button class="primary-action" type="submit">Uložiť</button>
+        </div>
+      </form>
+    </dialog>
 
     <script src="app.js"></script>
   </body>

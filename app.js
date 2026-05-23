@@ -1,3 +1,5 @@
+const storageKey = "domaci-rytmus-meal-plans-v2";
+
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
   { key: "snack", label: "Desiata", icon: "🍎" },
@@ -6,7 +8,7 @@ const mealTypes = [
   { key: "dinner", label: "Večera", icon: "🌙" },
 ];
 
-const plans = {
+const starterPlans = {
   kids: {
     current: {
       label: "Tento týždeň",
@@ -52,63 +54,161 @@ const plans = {
 const state = {
   audience: "kids",
   week: "next",
-  removed: new Set(),
+  plans: loadPlans(),
 };
 
 const mealPlan = document.querySelector("#mealPlan");
 const weekLabel = document.querySelector("#weekLabel");
 const weekRange = document.querySelector("#weekRange");
+const mealDialog = document.querySelector("#mealDialog");
+const mealForm = document.querySelector("#mealForm");
+const mealDay = document.querySelector("#mealDay");
+const mealType = document.querySelector("#mealType");
+const mealName = document.querySelector("#mealName");
+const editDayIndex = document.querySelector("#editDayIndex");
+const editMealIndex = document.querySelector("#editMealIndex");
+const formMode = document.querySelector("#formMode");
+const formTitle = document.querySelector("#formTitle");
 
-function idFor(dayIndex, mealIndex) {
-  return `${state.audience}:${state.week}:${dayIndex}:${mealIndex}`;
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
 }
 
-function deleteIcon() {
-  return `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
-    </svg>
-  `;
+function normalizePlans(source) {
+  const copy = clone(source);
+
+  Object.values(copy).forEach((audience) => {
+    Object.values(audience).forEach((week) => {
+      week.days = week.days.map(([name, meals]) => ({
+        name,
+        meals: meals.map((meal, index) => (
+          typeof meal === "string"
+            ? { typeKey: mealTypes[index]?.key || "dinner", name: meal }
+            : meal
+        )),
+      }));
+    });
+  });
+
+  return copy;
+}
+
+function loadPlans() {
+  const fallback = normalizePlans(starterPlans);
+
+  try {
+    const stored = JSON.parse(localStorage.getItem(storageKey));
+    return stored || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function savePlans() {
+  localStorage.setItem(storageKey, JSON.stringify(state.plans));
+}
+
+function currentPlan() {
+  return state.plans[state.audience][state.week];
+}
+
+function mealTypeFor(key) {
+  return mealTypes.find((type) => type.key === key) || mealTypes[0];
+}
+
+function buttonIcon(kind) {
+  const paths = {
+    edit: "M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3zM13.8 8.2l3 3",
+    delete: "M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3",
+  };
+
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[kind]}"></path></svg>`;
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function renderPlan() {
-  const plan = plans[state.audience][state.week];
+  const plan = currentPlan();
   weekLabel.textContent = plan.label;
   weekRange.textContent = plan.range;
 
   mealPlan.innerHTML = plan.days
-    .map(([dayName, meals], dayIndex) => {
-      const visibleMeals = meals
-        .map((name, mealIndex) => ({ name, mealIndex, type: mealTypes[mealIndex] }))
-        .filter((meal) => !state.removed.has(idFor(dayIndex, meal.mealIndex)));
+    .map((day, dayIndex) => {
+      const rows = day.meals.length
+        ? day.meals
+            .map((meal, mealIndex) => {
+              const type = mealTypeFor(meal.typeKey);
 
-      const rows = visibleMeals.length
-        ? visibleMeals
-            .map((meal) => `
-              <div class="meal-row">
-                <span class="meal-emoji" aria-hidden="true">${meal.type.icon}</span>
-                <span class="meal-type">${meal.type.label}</span>
-                <span class="plate" aria-hidden="true">🍽️</span>
-                <span class="meal-name">${meal.name}</span>
-                <button class="delete-meal" type="button" data-day="${dayIndex}" data-meal="${meal.mealIndex}" aria-label="Odstrániť ${meal.type.label.toLowerCase()}">
-                  ${deleteIcon()}
-                </button>
-              </div>
-            `)
+              return `
+                <div class="meal-row">
+                  <span class="meal-emoji" aria-hidden="true">${type.icon}</span>
+                  <span class="meal-type">${type.label}</span>
+                  <span class="plate" aria-hidden="true">🍽️</span>
+                  <span class="meal-name">${escapeHtml(meal.name)}</span>
+                  <button class="edit-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Upraviť ${type.label.toLowerCase()}">
+                    ${buttonIcon("edit")}
+                  </button>
+                  <button class="delete-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Odstrániť ${type.label.toLowerCase()}">
+                    ${buttonIcon("delete")}
+                  </button>
+                </div>
+              `;
+            })
             .join("")
-        : `<div class="empty-state">Všetky jedlá sú odstránené.</div>`;
+        : `<div class="empty-state">Tento deň zatiaľ nemá žiadne jedlá.</div>`;
 
       return `
         <article class="day-card">
           <div class="day-header">
-            <h3>${dayName}</h3>
-            <p>${visibleMeals.length} z ${meals.length} jedál</p>
+            <h3>${day.name}</h3>
+            <p>${day.meals.length} jedál</p>
           </div>
           ${rows}
         </article>
       `;
     })
     .join("");
+}
+
+function fillFormOptions() {
+  const plan = currentPlan();
+
+  mealDay.innerHTML = plan.days
+    .map((day, index) => `<option value="${index}">${day.name}</option>`)
+    .join("");
+
+  mealType.innerHTML = mealTypes
+    .map((type) => `<option value="${type.key}">${type.icon} ${type.label}</option>`)
+    .join("");
+}
+
+function openMealDialog(mode, dayIndex = 0, mealIndex = "") {
+  const plan = currentPlan();
+  const meal = mealIndex === "" ? null : plan.days[dayIndex].meals[mealIndex];
+
+  fillFormOptions();
+  formMode.textContent = mode === "edit" ? "Úprava jedla" : "Nové jedlo";
+  formTitle.textContent = mode === "edit" ? "Upraviť jedlo" : "Pridať do jedálnička";
+  editDayIndex.value = mode === "edit" ? String(dayIndex) : "";
+  editMealIndex.value = mode === "edit" ? String(mealIndex) : "";
+  mealDay.value = String(dayIndex);
+  mealDay.disabled = mode === "edit";
+  mealType.value = meal?.typeKey || mealTypes[0].key;
+  mealName.value = meal?.name || "";
+  mealDialog.showModal();
+  mealName.focus();
+}
+
+function closeMealDialog() {
+  mealDialog.close();
+  mealDay.disabled = false;
+  mealForm.reset();
 }
 
 function setActiveButton(selector, dataName, value) {
@@ -133,11 +233,67 @@ document.querySelector(".audience-toggle").addEventListener("click", (event) => 
   renderPlan();
 });
 
-mealPlan.addEventListener("click", (event) => {
-  const button = event.target.closest(".delete-meal");
-  if (!button) return;
-  state.removed.add(idFor(Number(button.dataset.day), Number(button.dataset.meal)));
+document.querySelector("#addMealButton").addEventListener("click", () => {
+  openMealDialog("add");
+});
+
+document.querySelector("#resetPlanButton").addEventListener("click", () => {
+  state.plans = normalizePlans(starterPlans);
+  savePlans();
   renderPlan();
+});
+
+document.querySelector(".sync-button").addEventListener("click", () => {
+  state.plans = normalizePlans(starterPlans);
+  savePlans();
+  renderPlan();
+});
+
+document.querySelector("#closeDialogButton").addEventListener("click", closeMealDialog);
+document.querySelector("#cancelDialogButton").addEventListener("click", closeMealDialog);
+
+mealDialog.addEventListener("click", (event) => {
+  if (event.target === mealDialog) {
+    closeMealDialog();
+  }
+});
+
+mealForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const plan = currentPlan();
+  const name = mealName.value.trim();
+  const nextMeal = { typeKey: mealType.value, name };
+
+  if (!name) return;
+
+  if (editMealIndex.value) {
+    const dayIndex = Number(editDayIndex.value);
+    const mealIndex = Number(editMealIndex.value);
+    plan.days[dayIndex].meals[mealIndex] = nextMeal;
+  } else {
+    plan.days[Number(mealDay.value)].meals.push(nextMeal);
+  }
+
+  savePlans();
+  renderPlan();
+  closeMealDialog();
+});
+
+mealPlan.addEventListener("click", (event) => {
+  const editButton = event.target.closest(".edit-meal");
+  const deleteButton = event.target.closest(".delete-meal");
+
+  if (editButton) {
+    openMealDialog("edit", Number(editButton.dataset.day), Number(editButton.dataset.meal));
+    return;
+  }
+
+  if (deleteButton) {
+    currentPlan().days[Number(deleteButton.dataset.day)].meals.splice(Number(deleteButton.dataset.meal), 1);
+    savePlans();
+    renderPlan();
+  }
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {

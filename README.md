@@ -10,5 +10,7 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 
 - prepínanie aktuálneho a budúceho týždňa,
 - prepínanie jedálnička pre deti a dospelých,
-- odstránenie jedál s aktualizáciou počítadla,
+- pridávanie, úprava a odstránenie jedál,
+- automatické uloženie zmien do `localStorage`,
+- obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.
