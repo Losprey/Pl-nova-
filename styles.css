@@ -202,6 +202,10 @@ svg {
   gap: 25px;
 }
 
+.view[hidden] {
+  display: none;
+}
+
 .planner-actions {
   display: flex;
   gap: 12px;
@@ -487,6 +491,138 @@ svg {
   color: var(--muted);
   font-size: 18px;
   font-weight: 700;
+}
+
+.shopping-panel,
+.placeholder-panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  background: var(--surface);
+}
+
+.panel-header,
+.placeholder-panel {
+  padding: 22px 24px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-header p,
+.placeholder-panel p {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.panel-header h2,
+.placeholder-panel h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.count-pill {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: #31435d;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.quick-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 10px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.quick-add input {
+  min-width: 0;
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #111a2d;
+  color: var(--text);
+  padding: 0 15px;
+  outline: 0;
+}
+
+.quick-add input:focus {
+  border-color: var(--purple-2);
+  box-shadow: 0 0 0 3px rgba(103, 87, 255, 0.18);
+}
+
+.quick-add .primary-action {
+  min-width: 52px;
+  padding: 0;
+}
+
+.shopping-list {
+  display: grid;
+}
+
+.shopping-item {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 12px;
+  min-height: 66px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.72);
+}
+
+.shopping-item:last-child {
+  border-bottom: 0;
+}
+
+.shopping-item input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--green);
+}
+
+.shopping-item strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.shopping-item span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.shopping-item.is-done strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.delete-shopping {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #d7deeb;
+}
+
+.delete-shopping svg {
+  width: 22px;
+  height: 22px;
 }
 
 @media (max-width: 560px) {

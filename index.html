@@ -45,18 +45,48 @@
           </div>
         </section>
 
-        <section class="planner-actions" aria-label="Akcie jedálnička">
-          <button class="primary-action" id="addMealButton" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
-            <span>Pridať jedlo</span>
-          </button>
-          <button class="ghost-action" id="resetPlanButton" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v6h6M20 17v-6h-6M6.3 17A7.8 7.8 0 0 0 19 14.5M17.7 7A7.8 7.8 0 0 0 5 9.5"></path></svg>
-            <span>Obnoviť</span>
-          </button>
+        <section class="view is-active" data-view="meals">
+          <section class="planner-actions" aria-label="Akcie jedálnička">
+            <button class="primary-action" id="addMealButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              <span>Pridať jedlo</span>
+            </button>
+            <button class="ghost-action" id="resetPlanButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v6h6M20 17v-6h-6M6.3 17A7.8 7.8 0 0 0 19 14.5M17.7 7A7.8 7.8 0 0 0 5 9.5"></path></svg>
+              <span>Obnoviť</span>
+            </button>
+          </section>
+
+          <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
         </section>
 
-        <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
+        <section class="view" data-view="shopping" hidden>
+          <section class="shopping-panel" aria-label="Nákupný zoznam">
+            <div class="panel-header">
+              <div>
+                <p>Nákup</p>
+                <h2 id="shoppingTitle">Zoznam na týždeň</h2>
+              </div>
+              <span class="count-pill" id="shoppingCount">0 položiek</span>
+            </div>
+
+            <form class="quick-add" id="shoppingForm">
+              <input id="shoppingName" type="text" autocomplete="off" maxlength="70" placeholder="Pridať položku">
+              <button class="primary-action" type="submit" aria-label="Pridať položku">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              </button>
+            </form>
+
+            <div id="shoppingList" class="shopping-list"></div>
+          </section>
+        </section>
+
+        <section class="view" data-view="placeholder" hidden>
+          <div class="placeholder-panel">
+            <p id="placeholderEyebrow">Domáci Rytmus</p>
+            <h2 id="placeholderTitle">Sekcia sa pripravuje</h2>
+          </div>
+        </section>
       </main>
 
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
@@ -70,7 +100,7 @@
           <span>Úlohy</span>
         </button>
         <button type="button" data-tab="shopping">
-          <span class="badge wide">9+</span>
+          <span class="badge wide" id="shoppingBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
           <span>Nákup</span>
         </button>

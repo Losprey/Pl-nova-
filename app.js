@@ -1,4 +1,5 @@
 const storageKey = "domaci-rytmus-meal-plans-v2";
+const shoppingStorageKey = "domaci-rytmus-shopping-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -55,6 +56,8 @@ const state = {
   audience: "kids",
   week: "next",
   plans: loadPlans(),
+  shopping: loadShoppingState(),
+  activeTab: "meals",
 };
 
 const mealPlan = document.querySelector("#mealPlan");
@@ -69,6 +72,35 @@ const editDayIndex = document.querySelector("#editDayIndex");
 const editMealIndex = document.querySelector("#editMealIndex");
 const formMode = document.querySelector("#formMode");
 const formTitle = document.querySelector("#formTitle");
+const shoppingList = document.querySelector("#shoppingList");
+const shoppingForm = document.querySelector("#shoppingForm");
+const shoppingName = document.querySelector("#shoppingName");
+const shoppingCount = document.querySelector("#shoppingCount");
+const shoppingBadge = document.querySelector("#shoppingBadge");
+const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
+const placeholderTitle = document.querySelector("#placeholderTitle");
+
+const ingredientRules = [
+  { match: ["chleb", "toast", "rožok"], items: ["Pečivo", "Maslo"] },
+  { match: ["vajíč", "omeleta"], items: ["Vajcia"] },
+  { match: ["avokád"], items: ["Avokádo"] },
+  { match: ["ovoc", "jablko", "hruška", "banán", "malin"], items: ["Ovocie"] },
+  { match: ["kapsič"], items: ["Ovocné kapsičky"] },
+  { match: ["tvaroh", "cottage"], items: ["Tvaroh"] },
+  { match: ["jogurt", "skyr", "kefír", "termix"], items: ["Jogurty a mliečne"] },
+  { match: ["kaša", "oats"], items: ["Ovsené vločky", "Mlieko"] },
+  { match: ["spaghetti", "cestoviny"], items: ["Cestoviny", "Paradajkový základ"] },
+  { match: ["bolognese"], items: ["Mleté mäso"] },
+  { match: ["kurac", "morčac"], items: ["Hydina"] },
+  { match: ["ryža", "rizoto"], items: ["Ryža"] },
+  { match: ["zemiak"], items: ["Zemiaky"] },
+  { match: ["polievka", "vývar"], items: ["Zelenina do polievky"] },
+  { match: ["losos", "tuniak"], items: ["Ryba"] },
+  { match: ["šalát", "zelenin", "mrkv"], items: ["Zelenina"] },
+  { match: ["hummus", "cícer"], items: ["Cícer"] },
+  { match: ["orechy"], items: ["Orechy"] },
+  { match: ["palacinky"], items: ["Múka", "Vajcia", "Mlieko"] },
+];
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -104,12 +136,28 @@ function loadPlans() {
   }
 }
 
+function loadShoppingState() {
+  try {
+    return JSON.parse(localStorage.getItem(shoppingStorageKey)) || { checked: {}, manual: {} };
+  } catch {
+    return { checked: {}, manual: {} };
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
 
+function saveShoppingState() {
+  localStorage.setItem(shoppingStorageKey, JSON.stringify(state.shopping));
+}
+
 function currentPlan() {
   return state.plans[state.audience][state.week];
+}
+
+function contextKey() {
+  return `${state.audience}:${state.week}`;
 }
 
 function mealTypeFor(key) {
@@ -123,6 +171,96 @@ function buttonIcon(kind) {
   };
 
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[kind]}"></path></svg>`;
+}
+
+function slug(value) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function generatedShoppingItems() {
+  const items = new Map();
+
+  currentPlan().days.forEach((day) => {
+    day.meals.forEach((meal) => {
+      const mealName = meal.name.toLowerCase();
+
+      ingredientRules.forEach((rule) => {
+        if (rule.match.some((term) => mealName.includes(term))) {
+          rule.items.forEach((item) => {
+            if (!items.has(item)) {
+              items.set(item, {
+                id: `auto:${slug(item)}`,
+                name: item,
+                source: "Z jedálnička",
+                automatic: true,
+              });
+            }
+          });
+        }
+      });
+    });
+  });
+
+  return [...items.values()];
+}
+
+function manualShoppingItems() {
+  return state.shopping.manual[contextKey()] || [];
+}
+
+function shoppingItems() {
+  return [...generatedShoppingItems(), ...manualShoppingItems()];
+}
+
+function checkedShoppingIds() {
+  return state.shopping.checked[contextKey()] || [];
+}
+
+function setCheckedShoppingIds(ids) {
+  state.shopping.checked[contextKey()] = ids;
+  saveShoppingState();
+}
+
+function renderShopping() {
+  const checked = new Set(checkedShoppingIds());
+  const items = shoppingItems();
+  const openCount = items.filter((item) => !checked.has(item.id)).length;
+
+  shoppingCount.textContent = `${openCount} z ${items.length}`;
+  shoppingBadge.textContent = openCount > 9 ? "9+" : String(openCount);
+  shoppingBadge.hidden = openCount === 0;
+
+  shoppingList.innerHTML = items.length
+    ? items
+        .map((item) => {
+          const isDone = checked.has(item.id);
+          const source = item.automatic ? item.source : "Ručne pridané";
+          const deleteButton = item.automatic
+            ? `<span aria-hidden="true"></span>`
+            : `
+              <button class="delete-shopping" type="button" data-id="${item.id}" aria-label="Odstrániť položku ${escapeHtml(item.name)}">
+                ${buttonIcon("delete")}
+              </button>
+            `;
+
+          return `
+            <label class="shopping-item ${isDone ? "is-done" : ""}">
+              <input type="checkbox" data-id="${item.id}" ${isDone ? "checked" : ""}>
+              <span>
+                <strong>${escapeHtml(item.name)}</strong>
+                <span>${source}</span>
+              </span>
+              ${deleteButton}
+            </label>
+          `;
+        })
+        .join("")
+    : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
 }
 
 function escapeHtml(value) {
@@ -176,6 +314,11 @@ function renderPlan() {
     .join("");
 }
 
+function renderCurrentView() {
+  renderPlan();
+  renderShopping();
+}
+
 function fillFormOptions() {
   const plan = currentPlan();
 
@@ -222,7 +365,7 @@ document.querySelector(".week-switch").addEventListener("click", (event) => {
   if (!button) return;
   state.week = button.dataset.week;
   setActiveButton(".switch-option", "week", state.week);
-  renderPlan();
+  renderCurrentView();
 });
 
 document.querySelector(".audience-toggle").addEventListener("click", (event) => {
@@ -230,7 +373,7 @@ document.querySelector(".audience-toggle").addEventListener("click", (event) => 
   if (!button) return;
   state.audience = button.dataset.audience;
   setActiveButton(".audience-toggle button", "audience", state.audience);
-  renderPlan();
+  renderCurrentView();
 });
 
 document.querySelector("#addMealButton").addEventListener("click", () => {
@@ -240,13 +383,13 @@ document.querySelector("#addMealButton").addEventListener("click", () => {
 document.querySelector("#resetPlanButton").addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   savePlans();
-  renderPlan();
+  renderCurrentView();
 });
 
 document.querySelector(".sync-button").addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   savePlans();
-  renderPlan();
+  renderCurrentView();
 });
 
 document.querySelector("#closeDialogButton").addEventListener("click", closeMealDialog);
@@ -267,7 +410,7 @@ mealForm.addEventListener("submit", (event) => {
 
   if (!name) return;
 
-  if (editMealIndex.value) {
+  if (editMealIndex.value !== "") {
     const dayIndex = Number(editDayIndex.value);
     const mealIndex = Number(editMealIndex.value);
     plan.days[dayIndex].meals[mealIndex] = nextMeal;
@@ -276,7 +419,7 @@ mealForm.addEventListener("submit", (event) => {
   }
 
   savePlans();
-  renderPlan();
+  renderCurrentView();
   closeMealDialog();
 });
 
@@ -292,15 +435,81 @@ mealPlan.addEventListener("click", (event) => {
   if (deleteButton) {
     currentPlan().days[Number(deleteButton.dataset.day)].meals.splice(Number(deleteButton.dataset.meal), 1);
     savePlans();
-    renderPlan();
+    renderCurrentView();
   }
+});
+
+shoppingForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = shoppingName.value.trim();
+  if (!name) return;
+
+  const key = contextKey();
+  const item = {
+    id: `manual:${Date.now()}:${slug(name)}`,
+    name,
+    automatic: false,
+  };
+
+  state.shopping.manual[key] = [...manualShoppingItems(), item];
+  shoppingName.value = "";
+  saveShoppingState();
+  renderShopping();
+});
+
+shoppingList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("input[type='checkbox'][data-id]");
+  if (!checkbox) return;
+
+  const checked = new Set(checkedShoppingIds());
+  if (checkbox.checked) {
+    checked.add(checkbox.dataset.id);
+  } else {
+    checked.delete(checkbox.dataset.id);
+  }
+
+  setCheckedShoppingIds([...checked]);
+  renderShopping();
+});
+
+shoppingList.addEventListener("click", (event) => {
+  const button = event.target.closest(".delete-shopping");
+  if (!button) return;
+
+  const key = contextKey();
+  state.shopping.manual[key] = manualShoppingItems().filter((item) => item.id !== button.dataset.id);
+  state.shopping.checked[key] = checkedShoppingIds().filter((id) => id !== button.dataset.id);
+  saveShoppingState();
+  renderShopping();
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-tab]");
   if (!button) return;
+  state.activeTab = button.dataset.tab;
+
   document.querySelectorAll(".bottom-nav button").forEach((item) => item.classList.remove("is-active"));
   button.classList.add("is-active");
+
+  document.querySelectorAll(".view").forEach((view) => {
+    const isActive =
+      view.dataset.view === state.activeTab ||
+      (view.dataset.view === "placeholder" && !["meals", "shopping"].includes(state.activeTab));
+
+    view.hidden = !isActive;
+    view.classList.toggle("is-active", isActive);
+  });
+
+  if (!["meals", "shopping"].includes(state.activeTab)) {
+    const labels = {
+      home: "Domov",
+      tasks: "Úlohy",
+      more: "Viac",
+    };
+
+    placeholderEyebrow.textContent = "Domáci Rytmus";
+    placeholderTitle.textContent = `${labels[state.activeTab]} sa pripravuje`;
+  }
 });
 
-renderPlan();
+renderCurrentView();

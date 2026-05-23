@@ -12,5 +12,7 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - prepínanie jedálnička pre deti a dospelých,
 - pridávanie, úprava a odstránenie jedál,
 - automatické uloženie zmien do `localStorage`,
+- nákupný zoznam generovaný z jedál,
+- ručné položky a odškrtávanie nákupu,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.
