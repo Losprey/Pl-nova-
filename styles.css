@@ -1891,3 +1891,309 @@ svg {
     font-size: 20px;
   }
 }
+
+/* Compact home mode: keep the useful signals, reduce dashboard noise. */
+.home-dashboard {
+  gap: 8px;
+  padding: 11px;
+  border-radius: 20px;
+}
+
+.dashboard-hero {
+  display: none;
+}
+
+.dashboard-hero p {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.dashboard-hero h2 {
+  font-size: 23px;
+}
+
+.dashboard-art {
+  min-width: 82px;
+  height: 56px;
+  border-radius: 17px;
+}
+
+.art-sun {
+  top: 9px;
+  right: 11px;
+  width: 15px;
+  height: 15px;
+}
+
+.art-home {
+  left: 12px;
+  bottom: 12px;
+  width: 29px;
+  height: 22px;
+  border-radius: 6px 6px 4px 4px;
+}
+
+.art-home::before {
+  left: 4px;
+  top: -9px;
+  width: 21px;
+  height: 21px;
+  border-radius: 4px;
+}
+
+.art-home::after {
+  left: 11px;
+  width: 8px;
+  height: 11px;
+}
+
+.art-table {
+  right: 11px;
+  bottom: 14px;
+  width: 31px;
+  height: 10px;
+  box-shadow: 0 12px 0 rgba(39, 210, 138, 0.16);
+}
+
+.art-plate {
+  bottom: 28px;
+  width: 11px;
+  height: 11px;
+  border-width: 3px;
+}
+
+.art-plate-one {
+  right: 30px;
+}
+
+.art-plate-two {
+  right: 17px;
+}
+
+.home-glance {
+  gap: 7px;
+}
+
+.glance-card {
+  grid-template-columns: 30px minmax(0, 1fr);
+  min-height: 62px;
+  padding: 9px;
+  border-radius: 15px;
+}
+
+.glance-illustration {
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  font-size: 16px;
+}
+
+.glance-dot {
+  width: 10px;
+  height: 10px;
+  border-width: 2px;
+}
+
+.glance-card strong {
+  font-size: 20px;
+}
+
+.glance-card i {
+  height: 5px;
+}
+
+.today-card {
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 11px;
+  padding: 11px;
+  border-radius: 16px;
+}
+
+.today-card-art {
+  width: 48px;
+  height: 44px;
+  border-radius: 15px;
+}
+
+.today-bowl {
+  left: 9px;
+  bottom: 8px;
+  width: 28px;
+  height: 15px;
+}
+
+.today-bowl::before {
+  left: -2px;
+  top: -6px;
+  width: 32px;
+  height: 10px;
+}
+
+.today-spoon {
+  right: 8px;
+  top: 8px;
+  width: 5px;
+  height: 25px;
+}
+
+.today-check {
+  left: 9px;
+  top: 8px;
+  width: 14px;
+  height: 8px;
+  border-left-width: 3px;
+  border-bottom-width: 3px;
+}
+
+.today-card p {
+  font-size: 12px;
+}
+
+.today-card h3 {
+  font-size: 17px;
+}
+
+.today-card span {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.daily-checkin,
+.daily-rhythm,
+.family-note,
+.next-actions {
+  border-radius: 16px;
+}
+
+.daily-checkin {
+  gap: 8px;
+  padding: 10px;
+}
+
+.daily-checkin p {
+  font-size: 12px;
+}
+
+.daily-checkin h3 {
+  font-size: 15px;
+}
+
+.mood-buttons {
+  gap: 6px;
+}
+
+.mood-buttons button {
+  min-height: 31px;
+  border-radius: 11px;
+  font-size: 12px;
+}
+
+.daily-rhythm .mini-header {
+  display: none;
+}
+
+.rhythm-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rhythm-list button {
+  min-height: 44px;
+  padding: 8px 9px;
+  border-right: 1px solid rgba(53, 66, 89, 0.58);
+  border-bottom: 0;
+}
+
+.rhythm-list button:last-child {
+  border-right: 0;
+}
+
+.rhythm-list span,
+.family-note label {
+  font-size: 11px;
+}
+
+.rhythm-list strong {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.family-note {
+  gap: 5px;
+  padding: 10px;
+}
+
+.family-note textarea {
+  min-height: 40px;
+  border-radius: 12px;
+  padding: 9px 10px;
+  font-size: 13px;
+}
+
+.today-focus,
+.stats-grid,
+.dashboard-grid {
+  display: none;
+}
+
+.next-actions .mini-header {
+  padding: 9px 11px;
+}
+
+.next-actions .mini-header h3 {
+  font-size: 15px;
+}
+
+.action-row {
+  grid-template-columns: 30px minmax(0, 1fr);
+  min-height: 45px;
+  gap: 10px;
+  padding: 8px 11px;
+}
+
+.action-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  font-size: 14px;
+}
+
+.action-row strong {
+  font-size: 14px;
+}
+
+.action-row span span {
+  font-size: 12px;
+}
+
+@media (max-width: 430px) {
+  .dashboard-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dashboard-art {
+    display: none;
+  }
+
+  .home-glance {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .glance-card {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .glance-illustration {
+    display: none;
+  }
+
+  .rhythm-list {
+    grid-template-columns: 1fr;
+  }
+
+  .rhythm-list button {
+    min-height: 42px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+  }
+}
