@@ -59,7 +59,7 @@ const state = {
   plans: loadPlans(),
   shopping: loadShoppingState(),
   tasks: loadTasksState(),
-  activeTab: "meals",
+  activeTab: "home",
 };
 
 const mealPlan = document.querySelector("#mealPlan");
@@ -86,6 +86,15 @@ const taskDue = document.querySelector("#taskDue");
 const taskList = document.querySelector("#taskList");
 const tasksCount = document.querySelector("#tasksCount");
 const tasksBadge = document.querySelector("#tasksBadge");
+const homeEyebrow = document.querySelector("#homeEyebrow");
+const homeTitle = document.querySelector("#homeTitle");
+const homeAudience = document.querySelector("#homeAudience");
+const homeMealsCount = document.querySelector("#homeMealsCount");
+const homeTasksCount = document.querySelector("#homeTasksCount");
+const homeShoppingCount = document.querySelector("#homeShoppingCount");
+const homeMealsList = document.querySelector("#homeMealsList");
+const homeTasksList = document.querySelector("#homeTasksList");
+const homeShoppingList = document.querySelector("#homeShoppingList");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
 
@@ -359,6 +368,80 @@ function renderTasks() {
     : `<div class="empty-state">Zatiaľ tu nie sú žiadne úlohy.</div>`;
 }
 
+function allMeals() {
+  return currentPlan().days.flatMap((day) =>
+    day.meals.map((meal) => ({ ...meal, dayName: day.name, type: mealTypeFor(meal.typeKey) }))
+  );
+}
+
+function emptyMiniRow(text) {
+  return `<div class="empty-state">${text}</div>`;
+}
+
+function renderHome() {
+  const meals = allMeals();
+  const tasks = currentTasks();
+  const openTasks = tasks.filter((task) => !task.done);
+  const checked = new Set(checkedShoppingIds());
+  const openShopping = shoppingItems().filter((item) => !checked.has(item.id));
+  const plan = currentPlan();
+
+  homeEyebrow.textContent = plan.label;
+  homeTitle.textContent = plan.range;
+  homeAudience.textContent = state.audience === "kids" ? "Deti" : "Dospelí";
+  homeMealsCount.textContent = String(meals.length);
+  homeTasksCount.textContent = String(openTasks.length);
+  homeShoppingCount.textContent = String(openShopping.length);
+
+  homeMealsList.innerHTML = meals.length
+    ? meals
+        .slice(0, 4)
+        .map((meal) => `
+          <div class="mini-row">
+            <span class="mini-icon" aria-hidden="true">${meal.type.icon}</span>
+            <span>
+              <strong>${escapeHtml(meal.name)}</strong>
+              <span>${meal.dayName}</span>
+            </span>
+            <span class="mini-tag">${meal.type.label}</span>
+          </div>
+        `)
+        .join("")
+    : emptyMiniRow("Zatiaľ nie sú naplánované žiadne jedlá.");
+
+  homeTasksList.innerHTML = openTasks.length
+    ? openTasks
+        .slice(0, 4)
+        .map((task) => `
+          <div class="mini-row">
+            <span class="mini-icon" aria-hidden="true">✓</span>
+            <span>
+              <strong>${escapeHtml(task.title)}</strong>
+              <span>${formatDueDate(task.due)}</span>
+            </span>
+            <span class="mini-tag">${priorityLabel(task.priority)}</span>
+          </div>
+        `)
+        .join("")
+    : emptyMiniRow("Všetky úlohy sú hotové.");
+
+  homeShoppingList.innerHTML = openShopping.length
+    ? openShopping
+        .slice(0, 4)
+        .map((item) => `
+          <div class="mini-row">
+            <span class="mini-icon" aria-hidden="true">🛒</span>
+            <span>
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${item.automatic ? "Z jedálnička" : "Ručne pridané"}</span>
+            </span>
+            <span class="mini-tag">Kúpiť</span>
+          </div>
+        `)
+        .join("")
+    : emptyMiniRow("Nákup je vybavený.");
+}
+
 function escapeHtml(value) {
   return value
     .replaceAll("&", "&amp;")
@@ -414,6 +497,7 @@ function renderCurrentView() {
   renderPlan();
   renderShopping();
   renderTasks();
+  renderHome();
 }
 
 function fillFormOptions() {
@@ -567,6 +651,7 @@ shoppingList.addEventListener("change", (event) => {
 
   setCheckedShoppingIds([...checked]);
   renderShopping();
+  renderHome();
 });
 
 shoppingList.addEventListener("click", (event) => {
@@ -578,6 +663,7 @@ shoppingList.addEventListener("click", (event) => {
   state.shopping.checked[key] = checkedShoppingIds().filter((id) => id !== button.dataset.id);
   saveShoppingState();
   renderShopping();
+  renderHome();
 });
 
 taskForm.addEventListener("submit", (event) => {
@@ -598,6 +684,7 @@ taskForm.addEventListener("submit", (event) => {
   taskDue.value = "";
   saveTasksState();
   renderTasks();
+  renderHome();
 });
 
 taskList.addEventListener("change", (event) => {
@@ -610,6 +697,7 @@ taskList.addEventListener("change", (event) => {
   task.done = checkbox.checked;
   saveTasksState();
   renderTasks();
+  renderHome();
 });
 
 taskList.addEventListener("click", (event) => {
@@ -619,6 +707,13 @@ taskList.addEventListener("click", (event) => {
   state.tasks[state.audience][state.week] = currentTasks().filter((task) => task.id !== button.dataset.id);
   saveTasksState();
   renderTasks();
+  renderHome();
+});
+
+document.querySelectorAll("[data-jump-tab]").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelector(`.bottom-nav button[data-tab="${button.dataset.jumpTab}"]`)?.click();
+  });
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
@@ -632,13 +727,13 @@ document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   document.querySelectorAll(".view").forEach((view) => {
     const isActive =
       view.dataset.view === state.activeTab ||
-      (view.dataset.view === "placeholder" && !["meals", "shopping", "tasks"].includes(state.activeTab));
+      (view.dataset.view === "placeholder" && !["home", "meals", "shopping", "tasks"].includes(state.activeTab));
 
     view.hidden = !isActive;
     view.classList.toggle("is-active", isActive);
   });
 
-  if (!["meals", "shopping", "tasks"].includes(state.activeTab)) {
+  if (!["home", "meals", "shopping", "tasks"].includes(state.activeTab)) {
     const labels = {
       home: "Domov",
       more: "Viac",

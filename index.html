@@ -45,7 +45,60 @@
           </div>
         </section>
 
-        <section class="view is-active" data-view="meals">
+        <section class="view is-active" data-view="home">
+          <section class="home-dashboard" aria-label="Domáci prehľad">
+            <div class="dashboard-hero">
+              <div>
+                <p id="homeEyebrow">Domáci Rytmus</p>
+                <h2 id="homeTitle">Prehľad týždňa</h2>
+              </div>
+              <span class="count-pill" id="homeAudience">Deti</span>
+            </div>
+
+            <div class="stats-grid" aria-label="Súhrn">
+              <button class="stat-tile" type="button" data-jump-tab="meals">
+                <span>Jedlá</span>
+                <strong id="homeMealsCount">0</strong>
+              </button>
+              <button class="stat-tile" type="button" data-jump-tab="tasks">
+                <span>Úlohy</span>
+                <strong id="homeTasksCount">0</strong>
+              </button>
+              <button class="stat-tile" type="button" data-jump-tab="shopping">
+                <span>Nákup</span>
+                <strong id="homeShoppingCount">0</strong>
+              </button>
+            </div>
+
+            <div class="dashboard-grid">
+              <section class="mini-panel">
+                <div class="mini-header">
+                  <h3>Najbližšie jedlá</h3>
+                  <button type="button" data-jump-tab="meals">Otvoriť</button>
+                </div>
+                <div id="homeMealsList" class="mini-list"></div>
+              </section>
+
+              <section class="mini-panel">
+                <div class="mini-header">
+                  <h3>Otvorené úlohy</h3>
+                  <button type="button" data-jump-tab="tasks">Otvoriť</button>
+                </div>
+                <div id="homeTasksList" class="mini-list"></div>
+              </section>
+
+              <section class="mini-panel">
+                <div class="mini-header">
+                  <h3>Nákup</h3>
+                  <button type="button" data-jump-tab="shopping">Otvoriť</button>
+                </div>
+                <div id="homeShoppingList" class="mini-list"></div>
+              </section>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-view="meals" hidden>
           <section class="planner-actions" aria-label="Akcie jedálnička">
             <button class="primary-action" id="addMealButton" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
@@ -117,7 +170,7 @@
       </main>
 
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
-        <button type="button" data-tab="home">
+        <button class="is-active" type="button" data-tab="home">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
           <span>Domov</span>
         </button>
@@ -131,7 +184,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
           <span>Nákup</span>
         </button>
-        <button class="is-active" type="button" data-tab="meals">
+        <button type="button" data-tab="meals">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
           <span>Jedálniček</span>
         </button>
