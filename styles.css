@@ -494,6 +494,7 @@ svg {
 }
 
 .shopping-panel,
+.tasks-panel,
 .placeholder-panel {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -537,15 +538,25 @@ svg {
   font-weight: 900;
 }
 
-.quick-add {
+.quick-add,
+.task-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 52px;
   gap: 10px;
   padding: 16px;
   border-bottom: 1px solid var(--line);
 }
 
-.quick-add input {
+.quick-add {
+  grid-template-columns: minmax(0, 1fr) 52px;
+}
+
+.task-form {
+  grid-template-columns: minmax(0, 1fr) 124px 148px 52px;
+}
+
+.quick-add input,
+.task-form input,
+.task-form select {
   min-width: 0;
   min-height: 52px;
   border: 1px solid var(--line);
@@ -556,23 +567,27 @@ svg {
   outline: 0;
 }
 
-.quick-add input:focus {
+.quick-add input:focus,
+.task-form input:focus,
+.task-form select:focus {
   border-color: var(--purple-2);
   box-shadow: 0 0 0 3px rgba(103, 87, 255, 0.18);
 }
 
-.quick-add .primary-action {
+.quick-add .primary-action,
+.task-form .primary-action {
   min-width: 52px;
   padding: 0;
 }
 
-.shopping-list {
+.shopping-list,
+.task-list {
   display: grid;
 }
 
-.shopping-item {
+.shopping-item,
+.task-item {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 38px;
   align-items: center;
   gap: 12px;
   min-height: 66px;
@@ -580,23 +595,35 @@ svg {
   border-bottom: 1px solid rgba(53, 66, 89, 0.72);
 }
 
-.shopping-item:last-child {
+.shopping-item {
+  grid-template-columns: 34px minmax(0, 1fr) 38px;
+}
+
+.task-item {
+  grid-template-columns: 34px minmax(0, 1fr) auto 38px;
+}
+
+.shopping-item:last-child,
+.task-item:last-child {
   border-bottom: 0;
 }
 
-.shopping-item input {
+.shopping-item input,
+.task-item input {
   width: 22px;
   height: 22px;
   accent-color: var(--green);
 }
 
-.shopping-item strong {
+.shopping-item strong,
+.task-item strong {
   display: block;
   font-size: 18px;
   line-height: 1.2;
 }
 
-.shopping-item span {
+.shopping-item span,
+.task-item span {
   display: block;
   margin-top: 3px;
   color: var(--muted);
@@ -604,12 +631,34 @@ svg {
   font-weight: 800;
 }
 
-.shopping-item.is-done strong {
+.shopping-item.is-done strong,
+.task-item.is-done strong {
   color: var(--muted);
   text-decoration: line-through;
 }
 
-.delete-shopping {
+.priority-pill {
+  justify-self: end;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #31435d;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.priority-pill.high {
+  background: rgba(240, 68, 89, 0.18);
+  color: #ff98a6;
+}
+
+.priority-pill.low {
+  background: rgba(39, 210, 138, 0.16);
+  color: #8ee0bf;
+}
+
+.delete-shopping,
+.delete-task {
   display: grid;
   place-items: center;
   width: 38px;
@@ -620,7 +669,8 @@ svg {
   color: #d7deeb;
 }
 
-.delete-shopping svg {
+.delete-shopping svg,
+.delete-task svg {
   width: 22px;
   height: 22px;
 }
@@ -649,6 +699,14 @@ svg {
   .meal-row {
     grid-template-columns: 48px minmax(82px, 112px) 48px minmax(0, 1fr) 34px 34px;
     padding-inline: 22px;
+  }
+
+  .task-form {
+    grid-template-columns: minmax(0, 1fr) 118px 52px;
+  }
+
+  .task-form input[type="date"] {
+    grid-column: 1 / -1;
   }
 }
 
@@ -792,6 +850,24 @@ svg {
 
   .bottom-nav button {
     font-size: 14px;
+  }
+
+  .task-form {
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .task-form select,
+  .task-form input[type="date"] {
+    grid-column: 1 / -1;
+  }
+
+  .task-item {
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
+  }
+
+  .priority-pill {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 

@@ -1,5 +1,6 @@
 const storageKey = "domaci-rytmus-meal-plans-v2";
 const shoppingStorageKey = "domaci-rytmus-shopping-v1";
+const tasksStorageKey = "domaci-rytmus-tasks-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -57,6 +58,7 @@ const state = {
   week: "next",
   plans: loadPlans(),
   shopping: loadShoppingState(),
+  tasks: loadTasksState(),
   activeTab: "meals",
 };
 
@@ -77,8 +79,41 @@ const shoppingForm = document.querySelector("#shoppingForm");
 const shoppingName = document.querySelector("#shoppingName");
 const shoppingCount = document.querySelector("#shoppingCount");
 const shoppingBadge = document.querySelector("#shoppingBadge");
+const taskForm = document.querySelector("#taskForm");
+const taskName = document.querySelector("#taskName");
+const taskPriority = document.querySelector("#taskPriority");
+const taskDue = document.querySelector("#taskDue");
+const taskList = document.querySelector("#taskList");
+const tasksCount = document.querySelector("#tasksCount");
+const tasksBadge = document.querySelector("#tasksBadge");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
+
+const starterTasks = {
+  kids: {
+    current: [
+      { id: "starter:kids:current:1", title: "Nachystať desiatové boxy", priority: "high", due: "", done: false },
+      { id: "starter:kids:current:2", title: "Skontrolovať pitný režim", priority: "normal", due: "", done: false },
+      { id: "starter:kids:current:3", title: "Doplniť ovocie do zásoby", priority: "low", due: "", done: true },
+    ],
+    next: [
+      { id: "starter:kids:next:1", title: "Vybrať jedlá na budúci týždeň", priority: "high", due: "", done: false },
+      { id: "starter:kids:next:2", title: "Pripraviť nákup podľa jedálnička", priority: "normal", due: "", done: false },
+      { id: "starter:kids:next:3", title: "Skontrolovať školské desiaty", priority: "normal", due: "", done: false },
+    ],
+  },
+  adults: {
+    current: [
+      { id: "starter:adults:current:1", title: "Navariť základ na dva obedy", priority: "high", due: "", done: false },
+      { id: "starter:adults:current:2", title: "Doplniť proteínové snacky", priority: "normal", due: "", done: false },
+    ],
+    next: [
+      { id: "starter:adults:next:1", title: "Naplánovať obedové porcie", priority: "high", due: "", done: false },
+      { id: "starter:adults:next:2", title: "Skontrolovať zásoby v špajzi", priority: "normal", due: "", done: false },
+      { id: "starter:adults:next:3", title: "Pripraviť večere po tréningu", priority: "low", due: "", done: false },
+    ],
+  },
+};
 
 const ingredientRules = [
   { match: ["chleb", "toast", "rožok"], items: ["Pečivo", "Maslo"] },
@@ -144,6 +179,16 @@ function loadShoppingState() {
   }
 }
 
+function loadTasksState() {
+  const fallback = clone(starterTasks);
+
+  try {
+    return JSON.parse(localStorage.getItem(tasksStorageKey)) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -152,12 +197,22 @@ function saveShoppingState() {
   localStorage.setItem(shoppingStorageKey, JSON.stringify(state.shopping));
 }
 
+function saveTasksState() {
+  localStorage.setItem(tasksStorageKey, JSON.stringify(state.tasks));
+}
+
 function currentPlan() {
   return state.plans[state.audience][state.week];
 }
 
 function contextKey() {
   return `${state.audience}:${state.week}`;
+}
+
+function currentTasks() {
+  state.tasks[state.audience] ||= {};
+  state.tasks[state.audience][state.week] ||= [];
+  return state.tasks[state.audience][state.week];
 }
 
 function mealTypeFor(key) {
@@ -263,6 +318,47 @@ function renderShopping() {
     : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
 }
 
+function priorityLabel(priority) {
+  return {
+    high: "Dôležitá",
+    normal: "Bežná",
+    low: "Nízka",
+  }[priority] || "Bežná";
+}
+
+function formatDueDate(value) {
+  if (!value) return "Bez termínu";
+  const date = new Date(`${value}T12:00:00`);
+  return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
+}
+
+function renderTasks() {
+  const tasks = currentTasks();
+  const openCount = tasks.filter((task) => !task.done).length;
+
+  tasksCount.textContent = `${openCount} otvorených`;
+  tasksBadge.textContent = openCount > 9 ? "9+" : String(openCount);
+  tasksBadge.hidden = openCount === 0;
+
+  taskList.innerHTML = tasks.length
+    ? tasks
+        .map((task) => `
+          <label class="task-item ${task.done ? "is-done" : ""}">
+            <input type="checkbox" data-id="${task.id}" ${task.done ? "checked" : ""}>
+            <span>
+              <strong>${escapeHtml(task.title)}</strong>
+              <span>${formatDueDate(task.due)}</span>
+            </span>
+            <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
+            <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť úlohu ${escapeHtml(task.title)}">
+              ${buttonIcon("delete")}
+            </button>
+          </label>
+        `)
+        .join("")
+    : `<div class="empty-state">Zatiaľ tu nie sú žiadne úlohy.</div>`;
+}
+
 function escapeHtml(value) {
   return value
     .replaceAll("&", "&amp;")
@@ -317,6 +413,7 @@ function renderPlan() {
 function renderCurrentView() {
   renderPlan();
   renderShopping();
+  renderTasks();
 }
 
 function fillFormOptions() {
@@ -483,6 +580,47 @@ shoppingList.addEventListener("click", (event) => {
   renderShopping();
 });
 
+taskForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const title = taskName.value.trim();
+  if (!title) return;
+
+  currentTasks().push({
+    id: `task:${Date.now()}:${slug(title)}`,
+    title,
+    priority: taskPriority.value,
+    due: taskDue.value,
+    done: false,
+  });
+
+  taskName.value = "";
+  taskPriority.value = "normal";
+  taskDue.value = "";
+  saveTasksState();
+  renderTasks();
+});
+
+taskList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("input[type='checkbox'][data-id]");
+  if (!checkbox) return;
+
+  const task = currentTasks().find((item) => item.id === checkbox.dataset.id);
+  if (!task) return;
+
+  task.done = checkbox.checked;
+  saveTasksState();
+  renderTasks();
+});
+
+taskList.addEventListener("click", (event) => {
+  const button = event.target.closest(".delete-task");
+  if (!button) return;
+
+  state.tasks[state.audience][state.week] = currentTasks().filter((task) => task.id !== button.dataset.id);
+  saveTasksState();
+  renderTasks();
+});
+
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-tab]");
   if (!button) return;
@@ -494,16 +632,15 @@ document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   document.querySelectorAll(".view").forEach((view) => {
     const isActive =
       view.dataset.view === state.activeTab ||
-      (view.dataset.view === "placeholder" && !["meals", "shopping"].includes(state.activeTab));
+      (view.dataset.view === "placeholder" && !["meals", "shopping", "tasks"].includes(state.activeTab));
 
     view.hidden = !isActive;
     view.classList.toggle("is-active", isActive);
   });
 
-  if (!["meals", "shopping"].includes(state.activeTab)) {
+  if (!["meals", "shopping", "tasks"].includes(state.activeTab)) {
     const labels = {
       home: "Domov",
-      tasks: "Úlohy",
       more: "Viac",
     };
 
