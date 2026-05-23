@@ -67,6 +67,31 @@
               </div>
             </section>
 
+            <section class="daily-rhythm" aria-label="Denný rytmus">
+              <div class="mini-header">
+                <h3>Dnešný rytmus</h3>
+              </div>
+              <div class="rhythm-list">
+                <button type="button" data-rhythm="morning">
+                  <span>Ráno</span>
+                  <strong>Desiata, voda, prvé jedlo</strong>
+                </button>
+                <button type="button" data-rhythm="noon">
+                  <span>Deň</span>
+                  <strong>Obed, nákup, drobné veci</strong>
+                </button>
+                <button type="button" data-rhythm="evening">
+                  <span>Večer</span>
+                  <strong>Pripraviť zajtrajšok pokojnejšie</strong>
+                </button>
+              </div>
+            </section>
+
+            <section class="family-note" aria-label="Poznámka dňa">
+              <label for="dailyNote">Poznámka dňa</label>
+              <textarea id="dailyNote" maxlength="180" placeholder="Napr. dnes škôlka skôr, návšteva, jednoduchá večera..."></textarea>
+            </section>
+
             <section class="today-focus" aria-label="Čo treba spraviť">
               <div class="focus-icon" id="homeFocusIcon" aria-hidden="true">✓</div>
               <div>
@@ -125,6 +150,14 @@
                   <button type="button" data-jump-tab="shopping">Otvoriť</button>
                 </div>
                 <div id="homeShoppingList" class="mini-list"></div>
+              </section>
+
+              <section class="mini-panel">
+                <div class="mini-header">
+                  <h3>Obľúbené jedlá</h3>
+                  <button type="button" data-jump-tab="meals">Otvoriť</button>
+                </div>
+                <div id="homeFavoritesList" class="mini-list"></div>
               </section>
             </div>
           </section>
@@ -313,6 +346,8 @@
         </div>
       </form>
     </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
     <script src="app.js"></script>
   </body>

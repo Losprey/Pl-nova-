@@ -53,12 +53,16 @@ body[data-theme="light"] .audience-toggle,
 body[data-theme="light"] .ghost-action,
 body[data-theme="light"] .stat-tile,
 body[data-theme="light"] .daily-checkin,
+body[data-theme="light"] .daily-rhythm,
+body[data-theme="light"] .family-note,
 body[data-theme="light"] .mini-panel,
 body[data-theme="light"] .quick-add input,
 body[data-theme="light"] .task-form input,
 body[data-theme="light"] .task-form select,
 body[data-theme="light"] .meal-form input,
-body[data-theme="light"] .meal-form select {
+body[data-theme="light"] .meal-form select,
+body[data-theme="light"] .family-note textarea,
+body[data-theme="light"] .toast {
   background: #f4f7fc;
 }
 
@@ -305,7 +309,7 @@ svg {
 
 .meal-row {
   display: grid;
-  grid-template-columns: 52px minmax(100px, 120px) 48px minmax(0, 1fr) 38px 38px;
+  grid-template-columns: 52px minmax(100px, 120px) 48px minmax(0, 1fr) 38px 38px 38px;
   align-items: center;
   min-height: 84px;
   padding: 9px 24px;
@@ -350,6 +354,7 @@ svg {
   line-height: 1.18;
 }
 
+.favorite-meal,
 .edit-meal,
 .delete-meal {
   display: grid;
@@ -362,10 +367,19 @@ svg {
   color: #d7deeb;
 }
 
+.favorite-meal {
+  color: #f8c66d;
+}
+
+.favorite-meal.is-active {
+  background: rgba(248, 198, 109, 0.14);
+}
+
 .edit-meal {
   color: #8ee0bf;
 }
 
+.favorite-meal svg,
 .edit-meal svg,
 .delete-meal svg {
   width: 23px;
@@ -577,6 +591,66 @@ svg {
   border: 1px solid var(--line);
   border-radius: 20px;
   background: #182337;
+}
+
+.daily-rhythm,
+.family-note {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #182337;
+  overflow: hidden;
+}
+
+.rhythm-list {
+  display: grid;
+}
+
+.rhythm-list button {
+  display: grid;
+  gap: 4px;
+  min-height: 62px;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+  background: transparent;
+  text-align: left;
+}
+
+.rhythm-list button:last-child {
+  border-bottom: 0;
+}
+
+.rhythm-list span,
+.family-note label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rhythm-list strong {
+  font-size: 16px;
+}
+
+.rhythm-list button.is-done strong {
+  color: var(--green);
+}
+
+.family-note {
+  display: grid;
+  gap: 9px;
+  padding: 16px;
+}
+
+.family-note textarea {
+  min-height: 78px;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #111a2d;
+  color: var(--text);
+  padding: 12px 14px;
+  outline: 0;
 }
 
 .daily-checkin p,
@@ -1053,6 +1127,23 @@ svg {
   height: 22px;
 }
 
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  z-index: 20;
+  width: min(88vw, 420px);
+  transform: translateX(-50%);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #182337;
+  color: var(--text);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  font-weight: 900;
+  text-align: center;
+}
+
 .settings-list {
   display: grid;
 }
@@ -1162,7 +1253,7 @@ svg {
   }
 
   .meal-row {
-    grid-template-columns: 48px minmax(82px, 112px) 48px minmax(0, 1fr) 34px 34px;
+    grid-template-columns: 48px minmax(82px, 112px) 48px minmax(0, 1fr) 34px 34px 34px;
     padding-inline: 22px;
   }
 
@@ -1288,7 +1379,7 @@ svg {
   }
 
   .meal-row {
-    grid-template-columns: 44px 78px 42px minmax(0, 1fr) 30px 30px;
+    grid-template-columns: 44px 70px 42px minmax(0, 1fr) 30px 30px 30px;
     min-height: 76px;
     padding: 8px 18px;
   }
@@ -1315,8 +1406,10 @@ svg {
     font-size: 20px;
   }
 
+  .favorite-meal,
   .edit-meal,
   .delete-meal,
+  .favorite-meal svg,
   .edit-meal svg,
   .delete-meal svg {
     width: 28px;
@@ -1376,7 +1469,7 @@ svg {
 
 @media (max-width: 360px) {
   .meal-row {
-    grid-template-columns: 34px 64px 36px minmax(0, 1fr) 28px 28px;
+    grid-template-columns: 34px 58px 36px minmax(0, 1fr) 28px 28px 28px;
     padding-inline: 12px;
   }
 

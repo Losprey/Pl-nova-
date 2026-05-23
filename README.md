@@ -20,6 +20,10 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - domovský dashboard so súhrnom jedál, úloh a nákupu,
 - ľudskejší dashboard s odporúčaným najbližším krokom,
 - denný check-in nálady domácnosti bez tlaku na výkon,
+- denný rytmus pre ráno, deň a večer,
+- poznámka dňa pre rodinný kontext,
+- obľúbené jedlá označené hviezdičkou,
+- jemné potvrdenia po odškrtnutí nákupu alebo úlohy,
 - nastavenia s témou, exportom/importom a resetom dát,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.

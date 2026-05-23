@@ -3,6 +3,9 @@ const shoppingStorageKey = "domaci-rytmus-shopping-v1";
 const tasksStorageKey = "domaci-rytmus-tasks-v1";
 const settingsStorageKey = "domaci-rytmus-settings-v1";
 const checkinsStorageKey = "domaci-rytmus-checkins-v1";
+const notesStorageKey = "domaci-rytmus-notes-v1";
+const rhythmStorageKey = "domaci-rytmus-rhythm-v1";
+const favoritesStorageKey = "domaci-rytmus-favorites-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -89,6 +92,9 @@ const state = {
   tasks: loadTasksState(),
   settings: loadSettingsState(),
   checkins: loadCheckinsState(),
+  notes: loadNotesState(),
+  rhythm: loadRhythmState(),
+  favorites: loadFavoritesState(),
   activeTab: "home",
 };
 
@@ -128,6 +134,7 @@ const homeShoppingHint = document.querySelector("#homeShoppingHint");
 const homeMealsList = document.querySelector("#homeMealsList");
 const homeTasksList = document.querySelector("#homeTasksList");
 const homeShoppingList = document.querySelector("#homeShoppingList");
+const homeFavoritesList = document.querySelector("#homeFavoritesList");
 const homeFocusIcon = document.querySelector("#homeFocusIcon");
 const homeFocusLabel = document.querySelector("#homeFocusLabel");
 const homeFocusTitle = document.querySelector("#homeFocusTitle");
@@ -136,12 +143,15 @@ const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeActionList = document.querySelector("#homeActionList");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
+const rhythmButtons = document.querySelectorAll("[data-rhythm]");
+const dailyNote = document.querySelector("#dailyNote");
 const themeToggle = document.querySelector("#themeToggle");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
 const importDataInput = document.querySelector("#importDataInput");
 const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
+const toast = document.querySelector("#toast");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
 
@@ -246,6 +256,30 @@ function loadCheckinsState() {
   }
 }
 
+function loadNotesState() {
+  try {
+    return JSON.parse(localStorage.getItem(notesStorageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function loadRhythmState() {
+  try {
+    return JSON.parse(localStorage.getItem(rhythmStorageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function loadFavoritesState() {
+  try {
+    return JSON.parse(localStorage.getItem(favoritesStorageKey)) || [];
+  } catch {
+    return [];
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -264,6 +298,18 @@ function saveSettingsState() {
 
 function saveCheckinsState() {
   localStorage.setItem(checkinsStorageKey, JSON.stringify(state.checkins));
+}
+
+function saveNotesState() {
+  localStorage.setItem(notesStorageKey, JSON.stringify(state.notes));
+}
+
+function saveRhythmState() {
+  localStorage.setItem(rhythmStorageKey, JSON.stringify(state.rhythm));
+}
+
+function saveFavoritesState() {
+  localStorage.setItem(favoritesStorageKey, JSON.stringify(state.favorites));
 }
 
 function applyTheme() {
@@ -349,6 +395,7 @@ function buttonIcon(kind) {
   const paths = {
     edit: "M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3zM13.8 8.2l3 3",
     delete: "M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3",
+    favorite: "M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.5-5-2.7-5 2.7.9-5.5-4-3.9 5.6-.8z",
   };
 
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[kind]}"></path></svg>`;
@@ -535,6 +582,30 @@ function renderCheckin() {
   });
 }
 
+function renderRhythm() {
+  const done = new Set(state.rhythm[dateKey()] || []);
+  rhythmButtons.forEach((button) => {
+    button.classList.toggle("is-done", done.has(button.dataset.rhythm));
+  });
+}
+
+function renderDailyNote() {
+  dailyNote.value = state.notes[dateKey()] || "";
+}
+
+function isFavoriteMeal(name) {
+  return state.favorites.includes(name);
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => {
+    toast.hidden = true;
+  }, 2200);
+}
+
 function buildDashboardActions(meals, openTasks, openShopping) {
   const actions = [];
 
@@ -683,6 +754,22 @@ function renderHome() {
         `)
         .join("")
     : emptyMiniRow("Nákup je vybavený.");
+
+  homeFavoritesList.innerHTML = state.favorites.length
+    ? state.favorites
+        .slice(0, 4)
+        .map((name) => `
+          <div class="mini-row">
+            <span class="mini-icon" aria-hidden="true">★</span>
+            <span>
+              <strong>${escapeHtml(name)}</strong>
+              <span>Osvedčené u vás doma</span>
+            </span>
+            <span class="mini-tag">Tip</span>
+          </div>
+        `)
+        .join("")
+    : emptyMiniRow("Označ hviezdičkou jedlá, ku ktorým sa chcete vracať.");
 }
 
 function escapeHtml(value) {
@@ -711,6 +798,9 @@ function renderPlan() {
                   <span class="meal-type">${type.label}</span>
                   <span class="plate" aria-hidden="true">🍽️</span>
                   <span class="meal-name">${escapeHtml(meal.name)}</span>
+                  <button class="favorite-meal ${isFavoriteMeal(meal.name) ? "is-active" : ""}" type="button" data-meal-name="${escapeHtml(meal.name)}" aria-label="Obľúbené jedlo ${escapeHtml(meal.name)}">
+                    ${buttonIcon("favorite")}
+                  </button>
                   <button class="edit-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Upraviť ${type.label.toLowerCase()}">
                     ${buttonIcon("edit")}
                   </button>
@@ -742,6 +832,8 @@ function renderCurrentView() {
   renderTasks();
   renderHome();
   renderCheckin();
+  renderRhythm();
+  renderDailyNote();
   applyTheme();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
@@ -851,8 +943,21 @@ mealForm.addEventListener("submit", (event) => {
 });
 
 mealPlan.addEventListener("click", (event) => {
+  const favoriteButton = event.target.closest(".favorite-meal");
   const editButton = event.target.closest(".edit-meal");
   const deleteButton = event.target.closest(".delete-meal");
+
+  if (favoriteButton) {
+    const name = favoriteButton.dataset.mealName;
+    const wasFavorite = isFavoriteMeal(name);
+    state.favorites = wasFavorite
+      ? state.favorites.filter((item) => item !== name)
+      : [name, ...state.favorites].slice(0, 12);
+    saveFavoritesState();
+    renderCurrentView();
+    showToast(wasFavorite ? "Odstránené z obľúbených." : "Pridané medzi obľúbené.");
+    return;
+  }
 
   if (editButton) {
     openMealDialog("edit", Number(editButton.dataset.day), Number(editButton.dataset.meal));
@@ -899,6 +1004,7 @@ shoppingList.addEventListener("change", (event) => {
   setCheckedShoppingIds([...checked]);
   renderShopping();
   renderHome();
+  if (checkbox.checked) showToast("Hotovo. O kúsok ľahší deň.");
 });
 
 shoppingList.addEventListener("click", (event) => {
@@ -945,6 +1051,7 @@ taskList.addEventListener("change", (event) => {
   saveTasksState();
   renderTasks();
   renderHome();
+  if (checkbox.checked) showToast("Zapísané ako hotové. Pekne.");
 });
 
 taskList.addEventListener("click", (event) => {
@@ -966,6 +1073,27 @@ moodButtons.forEach((button) => {
   });
 });
 
+rhythmButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const key = dateKey();
+    const done = new Set(state.rhythm[key] || []);
+    if (done.has(button.dataset.rhythm)) {
+      done.delete(button.dataset.rhythm);
+    } else {
+      done.add(button.dataset.rhythm);
+    }
+    state.rhythm[key] = [...done];
+    saveRhythmState();
+    renderRhythm();
+    if (done.has(button.dataset.rhythm)) showToast("Rytmus dňa sa skladá po malých krokoch.");
+  });
+});
+
+dailyNote.addEventListener("input", () => {
+  state.notes[dateKey()] = dailyNote.value.trim();
+  saveNotesState();
+});
+
 themeToggle.addEventListener("change", () => {
   state.settings.theme = themeToggle.checked ? "light" : "dark";
   saveSettingsState();
@@ -981,6 +1109,9 @@ exportDataButton.addEventListener("click", () => {
     tasks: state.tasks,
     settings: state.settings,
     checkins: state.checkins,
+    notes: state.notes,
+    rhythm: state.rhythm,
+    favorites: state.favorites,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1008,11 +1139,17 @@ importDataInput.addEventListener("change", async () => {
     state.tasks = payload.tasks || state.tasks;
     state.settings = payload.settings || state.settings;
     state.checkins = payload.checkins || state.checkins;
+    state.notes = payload.notes || state.notes;
+    state.rhythm = payload.rhythm || state.rhythm;
+    state.favorites = payload.favorites || state.favorites;
     savePlans();
     saveShoppingState();
     saveTasksState();
     saveSettingsState();
     saveCheckinsState();
+    saveNotesState();
+    saveRhythmState();
+    saveFavoritesState();
     renderCurrentView();
     settingsStatus.textContent = "Import hotový";
   } catch {
@@ -1030,11 +1167,17 @@ resetAllButton.addEventListener("click", () => {
   state.tasks = clone(starterTasks);
   state.settings = { theme: "dark" };
   state.checkins = {};
+  state.notes = {};
+  state.rhythm = {};
+  state.favorites = [];
   savePlans();
   saveShoppingState();
   saveTasksState();
   saveSettingsState();
   saveCheckinsState();
+  saveNotesState();
+  saveRhythmState();
+  saveFavoritesState();
   renderCurrentView();
   settingsStatus.textContent = "Reset hotový";
 });
