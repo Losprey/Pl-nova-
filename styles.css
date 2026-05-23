@@ -565,6 +565,63 @@ svg {
   line-height: 1.05;
 }
 
+.today-focus {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 140, 74, 0.42);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 140, 74, 0.18), rgba(39, 210, 138, 0.1));
+}
+
+.focus-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: rgba(255, 140, 74, 0.22);
+  font-size: 25px;
+}
+
+.today-focus p,
+.today-focus h3 {
+  margin: 0;
+}
+
+.today-focus p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.today-focus h3 {
+  margin-top: 3px;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.today-focus span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.today-focus button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--orange);
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -593,12 +650,20 @@ svg {
   line-height: 1;
 }
 
+.stat-tile em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
 .dashboard-grid {
   display: grid;
   gap: 14px;
 }
 
-.mini-panel {
+.mini-panel,
+.next-actions {
   border: 1px solid var(--line);
   border-radius: 19px;
   background: #182337;
@@ -629,6 +694,57 @@ svg {
 
 .mini-list {
   display: grid;
+}
+
+.action-list {
+  display: grid;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 11px 16px;
+  border: 0;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+  background: transparent;
+  text-align: left;
+}
+
+.action-row:last-child {
+  border-bottom: 0;
+}
+
+.action-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: #103e41;
+}
+
+.action-row.urgent .action-icon {
+  background: rgba(240, 68, 89, 0.2);
+}
+
+.action-row.shopping .action-icon {
+  background: rgba(255, 140, 74, 0.2);
+}
+
+.action-row strong {
+  display: block;
+  font-size: 16px;
+}
+
+.action-row span span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .mini-row {
@@ -1082,6 +1198,14 @@ svg {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .today-focus {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .today-focus button {
+    grid-column: 1 / -1;
   }
 
   .stat-tile {

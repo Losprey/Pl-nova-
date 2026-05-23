@@ -18,6 +18,7 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - úlohy podľa týždňa s prioritou, termínom a odškrtávaním,
 - automatické dátumy pre aktuálny a budúci týždeň,
 - domovský dashboard so súhrnom jedál, úloh a nákupu,
+- ľudskejší dashboard s odporúčaným najbližším krokom,
 - nastavenia s témou, exportom/importom a resetom dát,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.

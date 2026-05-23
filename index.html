@@ -55,20 +55,40 @@
               <span class="count-pill" id="homeAudience">Deti</span>
             </div>
 
+            <section class="today-focus" aria-label="Čo treba spraviť">
+              <div class="focus-icon" id="homeFocusIcon" aria-hidden="true">✓</div>
+              <div>
+                <p id="homeFocusLabel">Najbližší krok</p>
+                <h3 id="homeFocusTitle">Všetko vyzerá pokojne</h3>
+                <span id="homeFocusDetail">Nemáš nič súrne na vybavenie.</span>
+              </div>
+              <button type="button" id="homeFocusButton" data-jump-tab="tasks">Otvoriť</button>
+            </section>
+
             <div class="stats-grid" aria-label="Súhrn">
               <button class="stat-tile" type="button" data-jump-tab="meals">
                 <span>Jedlá</span>
                 <strong id="homeMealsCount">0</strong>
+                <em id="homeMealsHint">naplánované</em>
               </button>
               <button class="stat-tile" type="button" data-jump-tab="tasks">
                 <span>Úlohy</span>
                 <strong id="homeTasksCount">0</strong>
+                <em id="homeTasksHint">otvorené</em>
               </button>
               <button class="stat-tile" type="button" data-jump-tab="shopping">
                 <span>Nákup</span>
                 <strong id="homeShoppingCount">0</strong>
+                <em id="homeShoppingHint">treba kúpiť</em>
               </button>
             </div>
+
+            <section class="next-actions" aria-label="Odporúčané kroky">
+              <div class="mini-header">
+                <h3>Čo vybaviť najbližšie</h3>
+              </div>
+              <div id="homeActionList" class="action-list"></div>
+            </section>
 
             <div class="dashboard-grid">
               <section class="mini-panel">

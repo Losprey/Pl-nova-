@@ -120,9 +120,18 @@ const homeAudience = document.querySelector("#homeAudience");
 const homeMealsCount = document.querySelector("#homeMealsCount");
 const homeTasksCount = document.querySelector("#homeTasksCount");
 const homeShoppingCount = document.querySelector("#homeShoppingCount");
+const homeMealsHint = document.querySelector("#homeMealsHint");
+const homeTasksHint = document.querySelector("#homeTasksHint");
+const homeShoppingHint = document.querySelector("#homeShoppingHint");
 const homeMealsList = document.querySelector("#homeMealsList");
 const homeTasksList = document.querySelector("#homeTasksList");
 const homeShoppingList = document.querySelector("#homeShoppingList");
+const homeFocusIcon = document.querySelector("#homeFocusIcon");
+const homeFocusLabel = document.querySelector("#homeFocusLabel");
+const homeFocusTitle = document.querySelector("#homeFocusTitle");
+const homeFocusDetail = document.querySelector("#homeFocusDetail");
+const homeFocusButton = document.querySelector("#homeFocusButton");
+const homeActionList = document.querySelector("#homeActionList");
 const themeToggle = document.querySelector("#themeToggle");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
@@ -486,6 +495,61 @@ function emptyMiniRow(text) {
   return `<div class="empty-state">${text}</div>`;
 }
 
+function buildDashboardActions(meals, openTasks, openShopping) {
+  const actions = [];
+
+  if (openTasks.length) {
+    const urgent = openTasks.find((task) => task.priority === "high") || openTasks[0];
+    actions.push({
+      icon: "✓",
+      title: urgent.title,
+      detail: `${priorityLabel(urgent.priority)} · ${formatDueDate(urgent.due)}`,
+      tab: "tasks",
+      tone: urgent.priority === "high" ? "urgent" : "normal",
+    });
+  }
+
+  if (openShopping.length) {
+    actions.push({
+      icon: "🛒",
+      title: "Doplniť nákup",
+      detail: `${openShopping.length} položiek ešte čaká`,
+      tab: "shopping",
+      tone: "shopping",
+    });
+  }
+
+  if (!meals.length) {
+    actions.push({
+      icon: "🍽️",
+      title: "Naplánovať jedlá",
+      detail: "Týždeň zatiaľ nemá jedlá",
+      tab: "meals",
+      tone: "normal",
+    });
+  } else if (meals.length < 10) {
+    actions.push({
+      icon: "🍽️",
+      title: "Doplniť jedálniček",
+      detail: `${meals.length} jedál je zatiaľ v pláne`,
+      tab: "meals",
+      tone: "normal",
+    });
+  }
+
+  if (!actions.length) {
+    actions.push({
+      icon: "✓",
+      title: "Dnes je to pod kontrolou",
+      detail: "Jedlá, úlohy aj nákup vyzerajú pripravené",
+      tab: "home",
+      tone: "calm",
+    });
+  }
+
+  return actions.slice(0, 3);
+}
+
 function renderHome() {
   const meals = allMeals();
   const tasks = currentTasks();
@@ -500,6 +564,31 @@ function renderHome() {
   homeMealsCount.textContent = String(meals.length);
   homeTasksCount.textContent = String(openTasks.length);
   homeShoppingCount.textContent = String(openShopping.length);
+  homeMealsHint.textContent = meals.length === 1 ? "jedlo v pláne" : "jedál v pláne";
+  homeTasksHint.textContent = openTasks.length === 1 ? "otvorená úloha" : "otvorených úloh";
+  homeShoppingHint.textContent = openShopping.length === 1 ? "položka chýba" : "položiek chýba";
+
+  const actions = buildDashboardActions(meals, openTasks, openShopping);
+  const focus = actions[0];
+
+  homeFocusIcon.textContent = focus.icon;
+  homeFocusLabel.textContent = focus.tone === "urgent" ? "Najdôležitejšie teraz" : "Najbližší krok";
+  homeFocusTitle.textContent = focus.title;
+  homeFocusDetail.textContent = focus.detail;
+  homeFocusButton.dataset.jumpTab = focus.tab;
+  homeFocusButton.textContent = focus.tab === "home" ? "Hotovo" : "Otvoriť";
+
+  homeActionList.innerHTML = actions
+    .map((action) => `
+      <button class="action-row ${action.tone}" type="button" data-jump-tab="${action.tab}">
+        <span class="action-icon" aria-hidden="true">${action.icon}</span>
+        <span>
+          <strong>${escapeHtml(action.title)}</strong>
+          <span>${escapeHtml(action.detail)}</span>
+        </span>
+      </button>
+    `)
+    .join("");
 
   homeMealsList.innerHTML = meals.length
     ? meals
@@ -889,10 +978,10 @@ resetAllButton.addEventListener("click", () => {
   settingsStatus.textContent = "Reset hotový";
 });
 
-document.querySelectorAll("[data-jump-tab]").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelector(`.bottom-nav button[data-tab="${button.dataset.jumpTab}"]`)?.click();
-  });
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-jump-tab]");
+  if (!button) return;
+  document.querySelector(`.bottom-nav button[data-tab="${button.dataset.jumpTab}"]`)?.click();
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
