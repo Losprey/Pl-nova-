@@ -2503,3 +2503,52 @@ body[data-density="full"] .rhythm-list button {
   border-right: 0;
   border-bottom: 1px solid rgba(53, 66, 89, 0.58);
 }
+
+/* Friendlier calm palette and progressive disclosure. */
+:root {
+  --purple: #4f46d8;
+  --purple-2: #5f5ce6;
+  --orange: #f2995b;
+  --green: #34c28a;
+  --danger: #e15566;
+}
+
+.app-shell {
+  background:
+    radial-gradient(circle at 82% 6%, rgba(52, 194, 138, 0.055), transparent 17rem),
+    linear-gradient(180deg, #12192a 0%, #101524 38%);
+}
+
+.topbar,
+.bottom-nav {
+  background: #1b2638;
+}
+
+.week-switch,
+.audience-toggle,
+.ghost-action,
+.daily-checkin,
+.daily-rhythm,
+.family-note,
+.mini-panel,
+.glance-card,
+.today-card,
+.favorite-library,
+.task-group,
+.stat-tile,
+.next-actions {
+  background-color: rgba(27, 38, 56, 0.82);
+}
+
+body[data-note="hide"] .family-note {
+  display: none;
+}
+
+body[data-note="hide"] .home-dashboard {
+  gap: 7px;
+}
+
+.tasks-panel .panel-header p,
+.tasks-panel .panel-header h2 {
+  letter-spacing: 0;
+}

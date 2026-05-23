@@ -101,7 +101,7 @@
               <div>
                 <p id="homeTodayLabel">Dnes doma</p>
                 <h3 id="homeTodayTitle">Vyberieme najbližší pokojný krok</h3>
-                <span id="homeTodayDetail">Jedlo, úloha alebo nákup, ktorý dáva zmysel riešiť ako prvý.</span>
+              <span id="homeTodayDetail">Jedlo, krok alebo nákup, ktorý dáva zmysel riešiť ako prvý.</span>
               </div>
             </section>
 
@@ -159,7 +159,7 @@
                 <em id="homeMealsHint">naplánované</em>
               </button>
               <button class="stat-tile" type="button" data-jump-tab="tasks">
-                <span>Úlohy</span>
+                <span>Kroky</span>
                 <strong id="homeTasksCount">0</strong>
                 <em id="homeTasksHint">otvorené</em>
               </button>
@@ -188,7 +188,7 @@
 
               <section class="mini-panel">
                 <div class="mini-header">
-                  <h3>Otvorené úlohy</h3>
+                  <h3>Otvorené kroky</h3>
                   <button type="button" data-jump-tab="tasks">Otvoriť</button>
                 </div>
                 <div id="homeTasksList" class="mini-list"></div>
@@ -258,24 +258,24 @@
         </section>
 
         <section class="view" data-view="tasks" hidden>
-          <section class="tasks-panel" aria-label="Zoznam úloh">
+          <section class="tasks-panel" aria-label="Zoznam krokov">
             <div class="panel-header">
               <div>
-                <p>Úlohy</p>
+                <p>Kroky</p>
                 <h2 id="tasksTitle">Domáci plán</h2>
               </div>
               <span class="count-pill" id="tasksCount">0 otvorených</span>
             </div>
 
             <form class="task-form" id="taskForm">
-              <input id="taskName" type="text" autocomplete="off" maxlength="80" placeholder="Nová úloha">
-              <select id="taskPriority" aria-label="Priorita úlohy">
+              <input id="taskName" type="text" autocomplete="off" maxlength="80" placeholder="Nový krok">
+              <select id="taskPriority" aria-label="Dôležitosť kroku">
                 <option value="normal">Bežná</option>
                 <option value="high">Dôležitá</option>
                 <option value="low">Nízka</option>
               </select>
-              <input id="taskDue" type="date" aria-label="Termín úlohy">
-              <button class="primary-action" type="submit" aria-label="Pridať úlohu">
+              <input id="taskDue" type="date" aria-label="Termín kroku">
+              <button class="primary-action" type="submit" aria-label="Pridať krok">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               </button>
             </form>
@@ -319,8 +319,19 @@
 
               <div class="settings-row">
                 <div>
+                  <strong>Poznámka na dashboarde</strong>
+                  <span>Nechaj ju zapnutú len vtedy, keď ju doma používate často.</span>
+                </div>
+                <label class="switch-control">
+                  <input id="noteToggle" type="checkbox" aria-label="Poznámka na dashboarde">
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
                   <strong>Export dát</strong>
-                  <span>Stiahne jedlá, úlohy, nákup a nastavenia ako JSON.</span>
+                  <span>Stiahne jedlá, kroky, nákup a nastavenia ako JSON.</span>
                 </div>
                 <button class="ghost-action" id="exportDataButton" type="button">Export</button>
               </div>
@@ -361,7 +372,7 @@
         <button type="button" data-tab="tasks">
           <span class="badge" id="tasksBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
-          <span>Úlohy</span>
+          <span>Kroky</span>
         </button>
         <button type="button" data-tab="shopping">
           <span class="badge wide" id="shoppingBadge">0</span>

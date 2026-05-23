@@ -158,6 +158,7 @@ const rhythmButtons = document.querySelectorAll("[data-rhythm]");
 const dailyNote = document.querySelector("#dailyNote");
 const themeToggle = document.querySelector("#themeToggle");
 const densityToggle = document.querySelector("#densityToggle");
+const noteToggle = document.querySelector("#noteToggle");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
 const importDataInput = document.querySelector("#importDataInput");
@@ -253,7 +254,7 @@ function loadTasksState() {
 }
 
 function loadSettingsState() {
-  const fallback = { theme: "dark", density: "compact" };
+  const fallback = { theme: "dark", density: "compact", showNote: true };
 
   try {
     return { ...fallback, ...(JSON.parse(localStorage.getItem(settingsStorageKey)) || {}) };
@@ -335,6 +336,12 @@ function applyDensity() {
   state.settings.density ||= "compact";
   document.body.dataset.density = state.settings.density;
   densityToggle.checked = state.settings.density === "compact";
+}
+
+function applyNotePreference() {
+  state.settings.showNote ??= true;
+  document.body.dataset.note = state.settings.showNote ? "show" : "hide";
+  noteToggle.checked = state.settings.showNote;
 }
 
 function addDays(date, count) {
@@ -569,7 +576,7 @@ function taskRow(task) {
         <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
       </span>
       <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
-      <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť úlohu ${escapeHtml(task.title)}">
+      <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť krok ${escapeHtml(task.title)}">
         ${buttonIcon("delete")}
       </button>
     </label>
@@ -606,7 +613,7 @@ function renderTasks() {
           </section>
         `)
         .join("")
-    : `<div class="empty-state">Zatiaľ tu nie sú žiadne úlohy.</div>`;
+    : `<div class="empty-state">Zatiaľ tu nie sú žiadne kroky.</div>`;
 }
 
 function allMeals() {
@@ -779,7 +786,7 @@ function buildDashboardActions(meals, openTasks, openShopping) {
     actions.push({
       icon: "✓",
       title: "Dnes je to pod kontrolou",
-      detail: "Jedlá, úlohy aj nákup vyzerajú pripravené",
+      detail: "Jedlá, kroky aj nákup vyzerajú pripravené",
       tab: "home",
       tone: "calm",
     });
@@ -806,7 +813,7 @@ function renderHome() {
   homeTasksCount.textContent = String(openTasks.length);
   homeShoppingCount.textContent = String(openShopping.length);
   homeMealsHint.textContent = meals.length === 1 ? "jedlo v pláne" : "jedál v pláne";
-  homeTasksHint.textContent = openTasks.length === 1 ? "otvorená úloha" : "otvorených úloh";
+  homeTasksHint.textContent = openTasks.length === 1 ? "otvorený krok" : "otvorených krokov";
   homeShoppingHint.textContent = openShopping.length === 1 ? "položka chýba" : "položiek chýba";
   homeMealVisualValue.textContent = String(meals.length);
   homeTaskVisualValue.textContent = `${doneTasks}/${tasks.length || 0}`;
@@ -877,7 +884,7 @@ function renderHome() {
           </div>
         `)
         .join("")
-    : emptyMiniRow("Všetky úlohy sú hotové.");
+    : emptyMiniRow("Všetky kroky sú hotové.");
 
   homeShoppingList.innerHTML = openShopping.length
     ? openShopping
@@ -977,6 +984,7 @@ function renderCurrentView() {
   renderDailyNote();
   applyTheme();
   applyDensity();
+  applyNotePreference();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
 
@@ -1255,6 +1263,13 @@ densityToggle.addEventListener("change", () => {
   settingsStatus.textContent = densityToggle.checked ? "Kompaktný prehľad" : "Plný prehľad";
 });
 
+noteToggle.addEventListener("change", () => {
+  state.settings.showNote = noteToggle.checked;
+  saveSettingsState();
+  applyNotePreference();
+  settingsStatus.textContent = noteToggle.checked ? "Poznámka zobrazená" : "Poznámka skrytá";
+});
+
 exportDataButton.addEventListener("click", () => {
   const payload = {
     version: 1,
@@ -1320,7 +1335,7 @@ resetAllButton.addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   state.shopping = { checked: {}, manual: {} };
   state.tasks = clone(starterTasks);
-  state.settings = { theme: "dark", density: "compact" };
+  state.settings = { theme: "dark", density: "compact", showNote: true };
   state.checkins = {};
   state.notes = {};
   state.rhythm = {};
