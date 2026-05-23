@@ -52,6 +52,7 @@ body[data-theme="light"] .week-switch,
 body[data-theme="light"] .audience-toggle,
 body[data-theme="light"] .ghost-action,
 body[data-theme="light"] .stat-tile,
+body[data-theme="light"] .daily-checkin,
 body[data-theme="light"] .mini-panel,
 body[data-theme="light"] .quick-add input,
 body[data-theme="light"] .task-form input,
@@ -59,6 +60,10 @@ body[data-theme="light"] .task-form select,
 body[data-theme="light"] .meal-form input,
 body[data-theme="light"] .meal-form select {
   background: #f4f7fc;
+}
+
+body[data-theme="light"] .mood-buttons button {
+  background: #ffffff;
 }
 
 button {
@@ -563,6 +568,54 @@ svg {
   margin: 0;
   font-size: 28px;
   line-height: 1.05;
+}
+
+.daily-checkin {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #182337;
+}
+
+.daily-checkin p,
+.daily-checkin h3 {
+  margin: 0;
+}
+
+.daily-checkin p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.daily-checkin h3 {
+  margin-top: 4px;
+  font-size: 19px;
+  line-height: 1.24;
+}
+
+.mood-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mood-buttons button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #111a2d;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mood-buttons button.is-active {
+  border-color: rgba(255, 140, 74, 0.72);
+  background: rgba(255, 140, 74, 0.16);
+  color: var(--text);
 }
 
 .today-focus {
@@ -1202,6 +1255,10 @@ svg {
 
   .today-focus {
     grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .mood-buttons {
+    grid-template-columns: 1fr;
   }
 
   .today-focus button {

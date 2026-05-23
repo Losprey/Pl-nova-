@@ -19,6 +19,7 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - automatické dátumy pre aktuálny a budúci týždeň,
 - domovský dashboard so súhrnom jedál, úloh a nákupu,
 - ľudskejší dashboard s odporúčaným najbližším krokom,
+- denný check-in nálady domácnosti bez tlaku na výkon,
 - nastavenia s témou, exportom/importom a resetom dát,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.

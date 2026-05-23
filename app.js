@@ -2,6 +2,7 @@ const storageKey = "domaci-rytmus-meal-plans-v2";
 const shoppingStorageKey = "domaci-rytmus-shopping-v1";
 const tasksStorageKey = "domaci-rytmus-tasks-v1";
 const settingsStorageKey = "domaci-rytmus-settings-v1";
+const checkinsStorageKey = "domaci-rytmus-checkins-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -87,6 +88,7 @@ const state = {
   shopping: loadShoppingState(),
   tasks: loadTasksState(),
   settings: loadSettingsState(),
+  checkins: loadCheckinsState(),
   activeTab: "home",
 };
 
@@ -132,6 +134,8 @@ const homeFocusTitle = document.querySelector("#homeFocusTitle");
 const homeFocusDetail = document.querySelector("#homeFocusDetail");
 const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeActionList = document.querySelector("#homeActionList");
+const checkinMessage = document.querySelector("#checkinMessage");
+const moodButtons = document.querySelectorAll("[data-mood]");
 const themeToggle = document.querySelector("#themeToggle");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
@@ -234,6 +238,14 @@ function loadSettingsState() {
   }
 }
 
+function loadCheckinsState() {
+  try {
+    return JSON.parse(localStorage.getItem(checkinsStorageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -248,6 +260,10 @@ function saveTasksState() {
 
 function saveSettingsState() {
   localStorage.setItem(settingsStorageKey, JSON.stringify(state.settings));
+}
+
+function saveCheckinsState() {
+  localStorage.setItem(checkinsStorageKey, JSON.stringify(state.checkins));
 }
 
 function applyTheme() {
@@ -271,6 +287,10 @@ function currentMonday() {
 
 function formatShortDate(date) {
   return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
+}
+
+function dateKey(date = new Date()) {
+  return date.toISOString().slice(0, 10);
 }
 
 function formatDayName(date) {
@@ -495,6 +515,26 @@ function emptyMiniRow(text) {
   return `<div class="empty-state">${text}</div>`;
 }
 
+function currentMood() {
+  return state.checkins[dateKey()] || "";
+}
+
+function moodMessage(mood) {
+  return {
+    calm: "Dnes to môže ísť pokojne. Stačí držať rytmus a nič nepreháňať.",
+    busy: "Dnes je toho viac. Vyber si len najbližší krok a zvyšok počká.",
+    tired: "Dnes šetri energiu. Pomôže rýchly plán a jednoduché jedlá.",
+  }[mood] || "Vyber náladu dňa a appka sa tomu prispôsobí.";
+}
+
+function renderCheckin() {
+  const mood = currentMood();
+  checkinMessage.textContent = moodMessage(mood);
+  moodButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mood === mood);
+  });
+}
+
 function buildDashboardActions(meals, openTasks, openShopping) {
   const actions = [];
 
@@ -557,6 +597,7 @@ function renderHome() {
   const checked = new Set(checkedShoppingIds());
   const openShopping = shoppingItems().filter((item) => !checked.has(item.id));
   const plan = currentPlan();
+  const mood = currentMood();
 
   homeEyebrow.textContent = plan.label;
   homeTitle.textContent = plan.range;
@@ -572,7 +613,11 @@ function renderHome() {
   const focus = actions[0];
 
   homeFocusIcon.textContent = focus.icon;
-  homeFocusLabel.textContent = focus.tone === "urgent" ? "Najdôležitejšie teraz" : "Najbližší krok";
+  homeFocusLabel.textContent = mood === "tired"
+    ? "Stačí jeden malý krok"
+    : focus.tone === "urgent"
+      ? "Najdôležitejšie teraz"
+      : "Najbližší krok";
   homeFocusTitle.textContent = focus.title;
   homeFocusDetail.textContent = focus.detail;
   homeFocusButton.dataset.jumpTab = focus.tab;
@@ -589,6 +634,7 @@ function renderHome() {
       </button>
     `)
     .join("");
+  renderCheckin();
 
   homeMealsList.innerHTML = meals.length
     ? meals
@@ -695,6 +741,7 @@ function renderCurrentView() {
   renderShopping();
   renderTasks();
   renderHome();
+  renderCheckin();
   applyTheme();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
@@ -910,6 +957,15 @@ taskList.addEventListener("click", (event) => {
   renderHome();
 });
 
+moodButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const key = dateKey();
+    state.checkins[key] = state.checkins[key] === button.dataset.mood ? "" : button.dataset.mood;
+    saveCheckinsState();
+    renderHome();
+  });
+});
+
 themeToggle.addEventListener("change", () => {
   state.settings.theme = themeToggle.checked ? "light" : "dark";
   saveSettingsState();
@@ -924,6 +980,7 @@ exportDataButton.addEventListener("click", () => {
     shopping: state.shopping,
     tasks: state.tasks,
     settings: state.settings,
+    checkins: state.checkins,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -950,10 +1007,12 @@ importDataInput.addEventListener("change", async () => {
     state.shopping = payload.shopping || state.shopping;
     state.tasks = payload.tasks || state.tasks;
     state.settings = payload.settings || state.settings;
+    state.checkins = payload.checkins || state.checkins;
     savePlans();
     saveShoppingState();
     saveTasksState();
     saveSettingsState();
+    saveCheckinsState();
     renderCurrentView();
     settingsStatus.textContent = "Import hotový";
   } catch {
@@ -970,10 +1029,12 @@ resetAllButton.addEventListener("click", () => {
   state.shopping = { checked: {}, manual: {} };
   state.tasks = clone(starterTasks);
   state.settings = { theme: "dark" };
+  state.checkins = {};
   savePlans();
   saveShoppingState();
   saveTasksState();
   saveSettingsState();
+  saveCheckinsState();
   renderCurrentView();
   settingsStatus.textContent = "Reset hotový";
 });
