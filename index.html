@@ -21,10 +21,11 @@
             <h1>Jedálniček</h1>
           </div>
         </div>
-        <button class="sync-button" type="button" aria-label="Synchronizácia">
+        <button class="sync-button" type="button" aria-label="Synchronizácia" title="Synchronizácia">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M17.5 18H8a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 20.4 11.2 3.4 3.4 0 0 1 17.5 18z"></path>
           </svg>
+          <span id="syncStatusDot"></span>
         </button>
       </header>
 
@@ -430,6 +431,22 @@
             </div>
 
             <div class="settings-list">
+              <section class="account-card" aria-label="Google účet a synchronizácia">
+                <div class="account-art" aria-hidden="true">
+                  <span></span>
+                  <strong>G</strong>
+                </div>
+                <div>
+                  <p id="accountEyebrow">Účet</p>
+                  <h3 id="accountTitle">Prihlásenie cez Google</h3>
+                  <span id="accountDetail">Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.</span>
+                </div>
+                <div class="account-actions">
+                  <button class="primary-action" id="googleLoginButton" type="button">Prihlásiť Google</button>
+                  <button class="ghost-action" id="googleLogoutButton" type="button" hidden>Odhlásiť</button>
+                </div>
+              </section>
+
               <div class="settings-row">
                 <div>
                   <strong>Svetlá téma</strong>
@@ -562,9 +579,20 @@
                 <div class="settings-row">
                   <div>
                     <strong>Domáci kód</strong>
-                    <span id="familyCodeDetail">Kód bude pripravený pre neskoršie pozvanie rodiny.</span>
+                    <span id="familyCodeDetail">Po prihlásení vytvoríš kód, ktorým sa druhý človek pripojí do rovnakej domácnosti.</span>
                   </div>
                   <button class="ghost-action" id="familyCodeButton" type="button">Vytvoriť</button>
+                </div>
+
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Pripojiť sa ku domácnosti</strong>
+                    <span>Ak ti druhý člen pošle domáci kód, zadaj ho sem a appka prepne zdieľané dáta.</span>
+                  </div>
+                  <form class="join-family-form" id="joinFamilyForm">
+                    <input id="joinFamilyCode" type="text" maxlength="12" autocomplete="off" placeholder="Napr. DOM-ABCD">
+                    <button class="ghost-action" type="submit">Pripojiť</button>
+                  </form>
                 </div>
 
                 <div class="settings-row setting-stack">
@@ -683,6 +711,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+    <script src="firebase-config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

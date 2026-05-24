@@ -56,3 +56,37 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - nastavenia s témou, exportom/importom a resetom dát,
 - obnovenie pôvodného ukážkového plánu,
 - spodná navigácia s aktívnou záložkou.
+- voliteľné Google prihlásenie cez Firebase,
+- realtime prepojenie jednej domácnosti cez Firestore,
+- domáci kód na pripojenie druhého člena domácnosti.
+
+## Google login a realtime domácnosť
+
+Appka funguje aj bez Firebase, vtedy používa iba lokálne dáta v prehliadači. Ak chceš zapnúť Google login a zdieľanie domácnosti:
+
+1. Vytvor Firebase projekt.
+2. Zapni Authentication -> Sign-in method -> Google.
+3. Zapni Firestore Database.
+4. V nastaveniach Firebase web appky skopíruj config do `firebase-config.js`.
+5. V Authentication -> Settings -> Authorized domains pridaj doménu, kde bude appka bežať.
+
+Použitý je Firebase Web SDK: Google login cez `GoogleAuthProvider` a realtime zmeny cez Firestore `onSnapshot`.
+
+Odporúčané Firestore pravidlá pre prvý test:
+
+```txt
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /households/{householdId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /familyCodes/{code} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+Tieto pravidlá sú vhodné iba na vývoj. Produkčne treba doplniť členstvo domácnosti, aby používateľ mohol čítať a zapisovať iba domácnosti, do ktorých patrí.

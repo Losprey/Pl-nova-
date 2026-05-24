@@ -8,6 +8,8 @@ const rhythmStorageKey = "domaci-rytmus-rhythm-v1";
 const favoritesStorageKey = "domaci-rytmus-favorites-v1";
 const weeklyStorageKey = "domaci-rytmus-weekly-v1";
 const pantryStorageKey = "domaci-rytmus-pantry-v1";
+const householdStorageKey = "domaci-rytmus-household-id-v1";
+const firebaseSdkVersion = "10.12.5";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -210,6 +212,8 @@ const memberRole = document.querySelector("#memberRole");
 const memberList = document.querySelector("#memberList");
 const familyCodeDetail = document.querySelector("#familyCodeDetail");
 const familyCodeButton = document.querySelector("#familyCodeButton");
+const joinFamilyForm = document.querySelector("#joinFamilyForm");
+const joinFamilyCode = document.querySelector("#joinFamilyCode");
 const monthlyBudgetInput = document.querySelector("#monthlyBudgetInput");
 const monthlyBudgetStatus = document.querySelector("#monthlyBudgetStatus");
 const exportDataButton = document.querySelector("#exportDataButton");
@@ -218,6 +222,12 @@ const importDataInput = document.querySelector("#importDataInput");
 const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
 const toast = document.querySelector("#toast");
+const syncStatusDot = document.querySelector("#syncStatusDot");
+const googleLoginButton = document.querySelector("#googleLoginButton");
+const googleLogoutButton = document.querySelector("#googleLogoutButton");
+const accountEyebrow = document.querySelector("#accountEyebrow");
+const accountTitle = document.querySelector("#accountTitle");
+const accountDetail = document.querySelector("#accountDetail");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
 
@@ -340,6 +350,19 @@ const roleCopy = {
   helper: "Pomocník",
 };
 
+const cloud = {
+  enabled: false,
+  ready: false,
+  user: null,
+  auth: null,
+  db: null,
+  api: {},
+  unsubscribe: null,
+  saveTimer: null,
+  applyingRemote: false,
+  householdId: "",
+};
+
 const categoryEstimate = {
   "Ovocie a zelenina": 18,
   Pečivo: 8,
@@ -421,6 +444,8 @@ function loadSettingsState() {
     displayDensity: "cozy",
     visualStyle: "home",
     backdrop: "soft",
+    householdId: localStorage.getItem(householdStorageKey) || "",
+    cloudUser: null,
   };
 
   try {
@@ -480,42 +505,55 @@ function loadPantryState() {
 
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
+  scheduleCloudSave();
 }
 
 function saveShoppingState() {
   localStorage.setItem(shoppingStorageKey, JSON.stringify(state.shopping));
+  scheduleCloudSave();
 }
 
 function saveTasksState() {
   localStorage.setItem(tasksStorageKey, JSON.stringify(state.tasks));
+  scheduleCloudSave();
 }
 
 function saveSettingsState() {
   localStorage.setItem(settingsStorageKey, JSON.stringify(state.settings));
+  if (state.settings.householdId) {
+    localStorage.setItem(householdStorageKey, state.settings.householdId);
+  }
+  scheduleCloudSave();
 }
 
 function saveCheckinsState() {
   localStorage.setItem(checkinsStorageKey, JSON.stringify(state.checkins));
+  scheduleCloudSave();
 }
 
 function saveNotesState() {
   localStorage.setItem(notesStorageKey, JSON.stringify(state.notes));
+  scheduleCloudSave();
 }
 
 function saveRhythmState() {
   localStorage.setItem(rhythmStorageKey, JSON.stringify(state.rhythm));
+  scheduleCloudSave();
 }
 
 function saveFavoritesState() {
   localStorage.setItem(favoritesStorageKey, JSON.stringify(state.favorites));
+  scheduleCloudSave();
 }
 
 function saveWeeklyState() {
   localStorage.setItem(weeklyStorageKey, JSON.stringify(state.weekly));
+  scheduleCloudSave();
 }
 
 function savePantryState() {
   localStorage.setItem(pantryStorageKey, JSON.stringify(state.pantry));
+  scheduleCloudSave();
 }
 
 function applyTheme() {
@@ -572,7 +610,296 @@ function ensureFamilySettings() {
     { id: "member:2", name: "Deti", role: "kid" },
   ];
   state.settings.familyCode ||= "";
+  state.settings.householdId ||= localStorage.getItem(householdStorageKey) || "";
+  state.settings.cloudUser ||= null;
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
+}
+
+function isFirebaseConfigured() {
+  const config = window.DOMACI_RYTMUS_FIREBASE;
+  return Boolean(
+    config?.apiKey
+      && config?.projectId
+      && !String(config.apiKey).includes("YOUR_")
+      && !String(config.projectId).includes("YOUR_")
+  );
+}
+
+function householdDocIdFor(user) {
+  return `home_${user.uid}`;
+}
+
+function currentHouseholdId() {
+  ensureFamilySettings();
+  return state.settings.householdId || cloud.householdId || "";
+}
+
+function cloudStatusText() {
+  if (!cloud.enabled) return "Lokálny režim";
+  if (!cloud.ready) return "Pripájam";
+  if (!cloud.user) return "Neprihlásené";
+  return cloud.householdId ? "Realtime zapnutý" : "Vyber domácnosť";
+}
+
+function bundleState() {
+  return {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    updatedBy: cloud.user ? {
+      uid: cloud.user.uid,
+      name: cloud.user.displayName || cloud.user.email || "Člen domácnosti",
+      email: cloud.user.email || "",
+    } : null,
+    plans: state.plans,
+    shopping: state.shopping,
+    tasks: state.tasks,
+    settings: state.settings,
+    checkins: state.checkins,
+    notes: state.notes,
+    rhythm: state.rhythm,
+    favorites: state.favorites,
+    weekly: state.weekly,
+    pantry: state.pantry,
+  };
+}
+
+function saveAllLocalOnly() {
+  localStorage.setItem(storageKey, JSON.stringify(state.plans));
+  localStorage.setItem(shoppingStorageKey, JSON.stringify(state.shopping));
+  localStorage.setItem(tasksStorageKey, JSON.stringify(state.tasks));
+  localStorage.setItem(settingsStorageKey, JSON.stringify(state.settings));
+  localStorage.setItem(checkinsStorageKey, JSON.stringify(state.checkins));
+  localStorage.setItem(notesStorageKey, JSON.stringify(state.notes));
+  localStorage.setItem(rhythmStorageKey, JSON.stringify(state.rhythm));
+  localStorage.setItem(favoritesStorageKey, JSON.stringify(state.favorites));
+  localStorage.setItem(weeklyStorageKey, JSON.stringify(state.weekly));
+  localStorage.setItem(pantryStorageKey, JSON.stringify(state.pantry));
+  if (state.settings.householdId) {
+    localStorage.setItem(householdStorageKey, state.settings.householdId);
+  }
+}
+
+function applyRemoteBundle(payload) {
+  if (!payload) return;
+  cloud.applyingRemote = true;
+  state.plans = payload.plans || state.plans;
+  state.shopping = payload.shopping || state.shopping;
+  state.tasks = payload.tasks || state.tasks;
+  state.settings = { ...state.settings, ...(payload.settings || {}) };
+  state.checkins = payload.checkins || state.checkins;
+  state.notes = payload.notes || state.notes;
+  state.rhythm = payload.rhythm || state.rhythm;
+  state.favorites = payload.favorites || state.favorites;
+  state.weekly = payload.weekly || state.weekly;
+  state.pantry = payload.pantry || state.pantry;
+  ensureSignedInMember();
+  saveAllLocalOnly();
+  renderCurrentView();
+  cloud.applyingRemote = false;
+}
+
+function ensureSignedInMember() {
+  if (!cloud.user) return;
+  ensureFamilySettings();
+  const memberName = cloud.user.displayName || cloud.user.email?.split("@")[0] || "Člen domácnosti";
+  const exists = state.settings.familyMembers.some((member) => member.uid === cloud.user.uid);
+  if (!exists) {
+    state.settings.familyMembers = [
+      { id: `member:${cloud.user.uid}`, uid: cloud.user.uid, name: memberName, role: "parent" },
+      ...state.settings.familyMembers,
+    ].slice(0, 8);
+  }
+  state.settings.cloudUser = {
+    uid: cloud.user.uid,
+    name: memberName,
+    email: cloud.user.email || "",
+    photoURL: cloud.user.photoURL || "",
+  };
+}
+
+function renderCloudStatus() {
+  const signedInName = cloud.user?.displayName || cloud.user?.email || "";
+  document.body.dataset.cloud = cloud.user ? "signed-in" : cloud.enabled ? "ready" : "off";
+  syncStatusDot.title = cloudStatusText();
+  googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
+  googleLoginButton.hidden = Boolean(cloud.user);
+  googleLogoutButton.hidden = !cloud.user;
+  accountEyebrow.textContent = cloudStatusText();
+  accountTitle.textContent = cloud.user ? signedInName : "Prihlásenie cez Google";
+  accountDetail.textContent = !cloud.enabled
+    ? "Doplň Firebase konfiguráciu a appka zapne Google login aj realtime domácnosť."
+    : cloud.user
+      ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.`
+      : "Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.";
+  settingsStatus.textContent = cloudStatusText();
+}
+
+function scheduleCloudSave() {
+  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return;
+  clearTimeout(cloud.saveTimer);
+  cloud.saveTimer = setTimeout(saveCloudNow, 650);
+}
+
+async function saveCloudNow() {
+  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return;
+  try {
+    const { doc, setDoc } = cloud.api;
+    await setDoc(doc(cloud.db, "households", cloud.householdId), bundleState(), { merge: true });
+    renderCloudStatus();
+  } catch (error) {
+    console.error(error);
+    showToast("Cloud uloženie zlyhalo. Lokálne dáta ostali v appke.");
+  }
+}
+
+async function listenToHousehold(householdId) {
+  if (!householdId || !cloud.ready) return;
+  cloud.unsubscribe?.();
+  cloud.householdId = householdId;
+  state.settings.householdId = householdId;
+  saveAllLocalOnly();
+
+  const { doc, getDoc, setDoc, onSnapshot } = cloud.api;
+  const ref = doc(cloud.db, "households", householdId);
+  const snapshot = await getDoc(ref);
+  if (!snapshot.exists()) {
+    await setDoc(ref, bundleState(), { merge: true });
+  }
+
+  cloud.unsubscribe = onSnapshot(ref, (nextSnapshot) => {
+    if (!nextSnapshot.exists()) return;
+    applyRemoteBundle(nextSnapshot.data());
+    renderCloudStatus();
+  }, (error) => {
+    console.error(error);
+    showToast("Realtime spojenie sa nepodarilo načítať.");
+  });
+}
+
+async function handleAuthUser(user) {
+  cloud.user = user;
+  if (!user) {
+    cloud.unsubscribe?.();
+    cloud.unsubscribe = null;
+    cloud.householdId = "";
+    renderCloudStatus();
+    return;
+  }
+
+  ensureFamilySettings();
+  const householdId = currentHouseholdId() || householdDocIdFor(user);
+  state.settings.householdId = householdId;
+  cloud.householdId = householdId;
+  ensureSignedInMember();
+  saveSettingsState();
+  renderCloudStatus();
+  await listenToHousehold(householdId);
+  showToast("Google účet je pripojený.");
+}
+
+async function initCloud() {
+  cloud.enabled = isFirebaseConfigured();
+  renderCloudStatus();
+  if (!cloud.enabled) return;
+
+  try {
+    const [appModule, authModule, firestoreModule] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${firebaseSdkVersion}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${firebaseSdkVersion}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${firebaseSdkVersion}/firebase-firestore.js`),
+    ]);
+
+    const app = appModule.initializeApp(window.DOMACI_RYTMUS_FIREBASE);
+    cloud.auth = authModule.getAuth(app);
+    cloud.db = firestoreModule.getFirestore(app);
+    cloud.api = {
+      GoogleAuthProvider: authModule.GoogleAuthProvider,
+      signInWithPopup: authModule.signInWithPopup,
+      signOut: authModule.signOut,
+      onAuthStateChanged: authModule.onAuthStateChanged,
+      doc: firestoreModule.doc,
+      getDoc: firestoreModule.getDoc,
+      setDoc: firestoreModule.setDoc,
+      onSnapshot: firestoreModule.onSnapshot,
+    };
+    cloud.ready = true;
+    cloud.api.onAuthStateChanged(cloud.auth, handleAuthUser);
+    renderCloudStatus();
+  } catch (error) {
+    console.error(error);
+    cloud.enabled = false;
+    cloud.ready = false;
+    renderCloudStatus();
+    showToast("Firebase sa nepodarilo spustiť. Skontroluj konfiguráciu.");
+  }
+}
+
+async function signInWithGoogle() {
+  if (!cloud.ready) {
+    showToast("Najprv doplň Firebase konfiguráciu.");
+    return;
+  }
+  try {
+    await cloud.api.signInWithPopup(cloud.auth, new cloud.api.GoogleAuthProvider());
+  } catch (error) {
+    console.error(error);
+    showToast("Google prihlásenie sa nepodarilo.");
+  }
+}
+
+async function signOutGoogle() {
+  if (!cloud.ready) return;
+  await cloud.api.signOut(cloud.auth);
+  showToast("Odhlásené. Appka ostáva dostupná lokálne.");
+}
+
+async function createFamilyInviteCode() {
+  if (!cloud.ready || !cloud.user) {
+    showToast("Najprv sa prihlás cez Google.");
+    return;
+  }
+  ensureFamilySettings();
+  const code = `DOM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const householdId = currentHouseholdId() || householdDocIdFor(cloud.user);
+  const { doc, setDoc } = cloud.api;
+  state.settings.householdId = householdId;
+  state.settings.familyCode = code;
+  cloud.householdId = householdId;
+  saveSettingsState();
+  await setDoc(doc(cloud.db, "familyCodes", code), {
+    householdId,
+    createdBy: cloud.user.uid,
+    createdAt: new Date().toISOString(),
+  });
+  await listenToHousehold(householdId);
+  renderFamilySettings();
+  renderCloudStatus();
+  showToast(`Kód ${code} je pripravený.`);
+}
+
+async function joinFamilyByCode(code) {
+  if (!cloud.ready || !cloud.user) {
+    showToast("Najprv sa prihlás cez Google.");
+    return;
+  }
+  const normalized = code.trim().toUpperCase();
+  if (!normalized) return;
+
+  const { doc, getDoc } = cloud.api;
+  const snapshot = await getDoc(doc(cloud.db, "familyCodes", normalized));
+  if (!snapshot.exists()) {
+    showToast("Taký domáci kód som nenašiel.");
+    return;
+  }
+
+  state.settings.householdId = snapshot.data().householdId;
+  state.settings.familyCode = normalized;
+  cloud.householdId = snapshot.data().householdId;
+  ensureSignedInMember();
+  saveSettingsState();
+  await listenToHousehold(cloud.householdId);
+  renderCurrentView();
+  showToast("Pripojené ku domácnosti.");
 }
 
 function familyMembers() {
@@ -1304,10 +1631,13 @@ function renderFamilySettings() {
 
   setActiveSetting(familyProfileButtons, "profileValue", state.settings.familyProfile);
   familyCodeDetail.textContent = state.settings.familyCode
-    ? `Kód ${state.settings.familyCode} je pripravený na pozvanie rodiny.`
-    : "Kód bude pripravený pre neskoršie pozvanie rodiny.";
-  familyCodeButton.textContent = state.settings.familyCode ? "Obnoviť" : "Vytvoriť";
-  settingsStatus.textContent = profile.label;
+    ? `Kód ${state.settings.familyCode} pripojí druhého človeka do tej istej domácnosti.`
+    : cloud.user
+      ? "Vytvor kód a pošli ho druhému členovi domácnosti."
+      : "Najprv sa prihlás cez Google, potom vytvoríš domáci kód.";
+  familyCodeButton.textContent = state.settings.familyCode ? "Nový kód" : "Vytvoriť";
+  familyCodeButton.disabled = !cloud.user;
+  if (!cloud.user) settingsStatus.textContent = profile.label;
   memberList.innerHTML = state.settings.familyMembers.length
     ? state.settings.familyMembers.map((member) => `
         <div class="member-chip">
@@ -1702,7 +2032,8 @@ function renderCurrentView() {
   applyNotePreference();
   applyMealMode();
   applyPersonalization();
-  settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
+  settingsStatus.textContent = cloud.enabled ? cloudStatusText() : state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
+  renderCloudStatus();
 }
 
 function setActiveTab(tab) {
@@ -1855,9 +2186,13 @@ simpleMealsButton.addEventListener("click", () => {
 });
 
 document.querySelector(".sync-button").addEventListener("click", () => {
-  state.plans = normalizePlans(starterPlans);
-  savePlans();
-  renderCurrentView();
+  if (cloud.user) {
+    saveCloudNow();
+    showToast("Synchronizujem domácnosť.");
+    return;
+  }
+  setActiveTab("more");
+  showToast(cloud.enabled ? "Prihlás sa cez Google." : "Doplň Firebase konfiguráciu.");
 });
 
 document.querySelector("#closeDialogButton").addEventListener("click", closeMealDialog);
@@ -2237,11 +2572,18 @@ memberList.addEventListener("click", (event) => {
 });
 
 familyCodeButton.addEventListener("click", () => {
-  state.settings.familyCode = `DOM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-  saveSettingsState();
-  renderFamilySettings();
-  settingsStatus.textContent = "Domáci kód pripravený";
+  createFamilyInviteCode();
 });
+
+joinFamilyForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  joinFamilyByCode(joinFamilyCode.value);
+  joinFamilyCode.value = "";
+});
+
+googleLoginButton.addEventListener("click", signInWithGoogle);
+
+googleLogoutButton.addEventListener("click", signOutGoogle);
 
 monthlyBudgetInput.addEventListener("input", () => {
   state.settings.monthlyBudget = Math.max(0, Number(monthlyBudgetInput.value || 0));
@@ -2338,6 +2680,8 @@ resetAllButton.addEventListener("click", () => {
     displayDensity: "cozy",
     visualStyle: "home",
     backdrop: "soft",
+    householdId: currentHouseholdId(),
+    cloudUser: state.settings.cloudUser || null,
   };
   state.checkins = {};
   state.notes = {};
@@ -2386,3 +2730,4 @@ document.addEventListener("touchend", handleTabActivation, true);
 
 renderCurrentView();
 setActiveTab(state.activeTab);
+initCloud();
