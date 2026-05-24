@@ -3807,6 +3807,21 @@ body[data-display-density="tight"] .pantry-cook {
   font-weight: 800;
 }
 
+.presence-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: #7f8aa5;
+}
+
+.presence-dot.online {
+  background: #28d58f;
+  box-shadow: 0 0 0 3px rgba(40, 213, 143, 0.2);
+}
+
 .member-chip button {
   display: grid;
   place-items: center;

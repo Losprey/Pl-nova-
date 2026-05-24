@@ -734,6 +734,11 @@ function memberPresenceText(uid) {
   return `Naposledy ${formatLastSeen(presence.lastSeenAt || presence.updatedAt)}`;
 }
 
+function memberPresenceClass(uid) {
+  if (!uid) return "offline";
+  return cloud.presence[uid]?.online ? "online" : "offline";
+}
+
 function formatCloudMeta() {
   if (!cloud.remoteMeta.updatedAt) return "";
   const date = new Date(cloud.remoteMeta.updatedAt);
@@ -1953,10 +1958,10 @@ function renderFamilySettings() {
   }
   if (!cloud.user && settingsStatus) settingsStatus.textContent = profile.label;
   memberList.innerHTML = state.settings.familyMembers.length
-    ? state.settings.familyMembers.map((member) => `
+      ? state.settings.familyMembers.map((member) => `
         <div class="member-chip ${member.uid ? "is-linked" : ""}">
           <span>${escapeHtml(member.name)}${me && member.uid === me ? " (Ja)" : ""}</span>
-          <em>${roleCopy[member.role] || "Člen"}${member.uid ? ` · ${memberPresenceText(member.uid)}` : ""}</em>
+          <em>${roleCopy[member.role] || "Člen"}${member.uid ? ` · <i class="presence-dot ${memberPresenceClass(member.uid)}" aria-hidden="true"></i>${memberPresenceText(member.uid)}` : ""}</em>
           <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}" ${member.uid ? "disabled" : ""}>×</button>
         </div>
       `).join("")
