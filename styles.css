@@ -282,6 +282,14 @@ body[data-cloud="signed-in"] #syncStatusDot {
   display: none;
 }
 
+.content:has(.view:target) .view {
+  display: none;
+}
+
+.content:has(.view:target) .view:target {
+  display: block;
+}
+
 .planner-actions {
   display: flex;
   gap: 12px;
@@ -666,7 +674,8 @@ body[data-cloud="signed-in"] #syncStatusDot {
   box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.24);
 }
 
-.bottom-nav button {
+.bottom-nav button,
+.bottom-nav a {
   position: relative;
   z-index: 1;
   display: grid;
@@ -678,6 +687,7 @@ body[data-cloud="signed-in"] #syncStatusDot {
   background: transparent;
   color: #758199;
   font-size: 16px;
+  text-decoration: none;
   pointer-events: auto;
   touch-action: manipulation;
 }
@@ -687,7 +697,8 @@ body[data-cloud="signed-in"] #syncStatusDot {
   height: 27px;
 }
 
-.bottom-nav button.is-active {
+.bottom-nav button.is-active,
+.bottom-nav a.is-active {
   color: var(--orange);
   font-weight: 700;
 }
@@ -2626,7 +2637,8 @@ body[data-cloud="signed-in"] #syncStatusDot {
     padding-inline: 12px;
   }
 
-  .bottom-nav button {
+  .bottom-nav button,
+  .bottom-nav a {
     font-size: 14px;
   }
 
@@ -3255,7 +3267,8 @@ body[data-cloud="signed-in"] #syncStatusDot {
   padding: 6px 12px 8px;
 }
 
-.bottom-nav button {
+.bottom-nav button,
+.bottom-nav a {
   gap: 3px;
   font-size: 12px;
 }

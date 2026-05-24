@@ -46,7 +46,7 @@
           </div>
         </section>
 
-        <section class="view is-active" data-view="home">
+        <section class="view is-active" id="home" data-view="home">
           <section class="home-dashboard" aria-label="Domáci prehľad">
             <div class="dashboard-hero">
               <div>
@@ -295,7 +295,7 @@
           </section>
         </section>
 
-        <section class="view" data-view="meals" hidden>
+        <section class="view" id="meals" data-view="meals" hidden>
           <section class="planner-actions" aria-label="Akcie jedálnička">
             <button class="primary-action" id="addMealButton" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
@@ -338,7 +338,7 @@
           <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
         </section>
 
-        <section class="view" data-view="shopping" hidden>
+        <section class="view" id="shopping" data-view="shopping" hidden>
           <section class="shopping-panel" aria-label="Nákupný zoznam">
             <div class="panel-header">
               <div>
@@ -385,7 +385,7 @@
           </section>
         </section>
 
-        <section class="view" data-view="tasks" hidden>
+        <section class="view" id="tasks" data-view="tasks" hidden>
           <section class="tasks-panel" aria-label="Zoznam krokov">
             <div class="panel-header">
               <div>
@@ -420,7 +420,7 @@
           </section>
         </section>
 
-        <section class="view" data-view="more" hidden>
+        <section class="view" id="more" data-view="more" hidden>
           <section class="settings-panel" aria-label="Nastavenia">
             <div class="panel-header">
               <div>
@@ -647,28 +647,28 @@
       </main>
 
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
-        <button class="is-active" type="button" data-tab="home" onclick="window.setActiveTab?.('home')">
+        <a class="is-active" href="#home" data-tab="home" onclick="window.setActiveTab?.('home')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
           <span>Prehľad</span>
-        </button>
-        <button type="button" data-tab="tasks" onclick="window.setActiveTab?.('tasks')">
+        </a>
+        <a href="#tasks" data-tab="tasks" onclick="window.setActiveTab?.('tasks')">
           <span class="badge" id="tasksBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
           <span>Kroky</span>
-        </button>
-        <button type="button" data-tab="shopping" onclick="window.setActiveTab?.('shopping')">
+        </a>
+        <a href="#shopping" data-tab="shopping" onclick="window.setActiveTab?.('shopping')">
           <span class="badge wide" id="shoppingBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
           <span>Nákup</span>
-        </button>
-        <button type="button" data-tab="meals" onclick="window.setActiveTab?.('meals')">
+        </a>
+        <a href="#meals" data-tab="meals" onclick="window.setActiveTab?.('meals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
           <span>Jedlá</span>
-        </button>
-        <button type="button" data-tab="more" onclick="window.setActiveTab?.('more')">
+        </a>
+        <a href="#more" data-tab="more" onclick="window.setActiveTab?.('more')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg>
           <span>Viac</span>
-        </button>
+        </a>
       </nav>
     </div>
 
@@ -718,7 +718,7 @@
         function activateTab(tab) {
           if (knownTabs.indexOf(tab) === -1) return;
 
-          document.querySelectorAll(".bottom-nav button[data-tab]").forEach(function (button) {
+          document.querySelectorAll(".bottom-nav [data-tab]").forEach(function (button) {
             button.classList.toggle("is-active", button.dataset.tab === tab);
           });
 
@@ -732,19 +732,19 @@
         window.setActiveTab = window.setActiveTab || activateTab;
 
         document.addEventListener("click", function (event) {
-          var button = event.target.closest && event.target.closest(".bottom-nav button[data-tab], [data-jump-tab]");
+          var button = event.target.closest && event.target.closest(".bottom-nav [data-tab], [data-jump-tab]");
           if (!button) return;
           activateTab(button.dataset.tab || button.dataset.jumpTab);
         }, true);
 
         document.addEventListener("touchstart", function (event) {
-          var button = event.target.closest && event.target.closest(".bottom-nav button[data-tab]");
+          var button = event.target.closest && event.target.closest(".bottom-nav [data-tab]");
           if (!button) return;
           activateTab(button.dataset.tab);
         }, true);
       }());
     </script>
-    <script src="firebase-config.js?v=20260524-1220"></script>
-    <script src="app.js?v=20260524-1220"></script>
+    <script src="firebase-config.js?v=20260524-1230"></script>
+    <script src="app.js?v=20260524-1230"></script>
   </body>
 </html>

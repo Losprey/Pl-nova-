@@ -2051,7 +2051,7 @@ function renderCurrentView() {
 function setActiveTab(tab) {
   state.activeTab = tab;
 
-  document.querySelectorAll(".bottom-nav button").forEach((item) => {
+  document.querySelectorAll(".bottom-nav [data-tab]").forEach((item) => {
     item.classList.toggle("is-active", item.dataset.tab === state.activeTab);
   });
 
@@ -2722,17 +2722,17 @@ document.addEventListener("click", (event) => {
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-tab]");
+  const button = event.target.closest("[data-tab]");
   if (!button) return;
   setActiveTab(button.dataset.tab);
 });
 
-document.querySelectorAll(".bottom-nav button[data-tab]").forEach((button) => {
+document.querySelectorAll(".bottom-nav [data-tab]").forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
 });
 
 function handleTabActivation(event) {
-  const button = event.target.closest?.(".bottom-nav button[data-tab]");
+  const button = event.target.closest?.(".bottom-nav [data-tab]");
   if (!button) return;
   setActiveTab(button.dataset.tab);
 }
