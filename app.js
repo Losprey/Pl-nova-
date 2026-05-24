@@ -89,6 +89,8 @@ const starterTasks = {
   },
 };
 
+const pantryStarter = ["Ryža", "Cestoviny", "Vajcia", "Mlieko"];
+
 const state = {
   audience: "kids",
   week: "next",
@@ -215,6 +217,7 @@ const memberRole = document.querySelector("#memberRole");
 const memberList = document.querySelector("#memberList");
 const familyCodeDetail = document.querySelector("#familyCodeDetail");
 const familyCodeButton = document.querySelector("#familyCodeButton");
+const inviteRole = document.querySelector("#inviteRole");
 const joinFamilyForm = document.querySelector("#joinFamilyForm");
 const joinFamilyCode = document.querySelector("#joinFamilyCode");
 const monthlyBudgetInput = document.querySelector("#monthlyBudgetInput");
@@ -291,8 +294,6 @@ const prepSteps = [
 ];
 
 const stockBasics = ["Mlieko", "Vajcia", "Jogurty", "Ovocie", "Pečivo", "Ryža", "Cestoviny", "Zelenina"];
-
-const pantryStarter = ["Ryža", "Cestoviny", "Vajcia", "Mlieko"];
 
 const pantryRecipeIdeas = [
   { name: "Vaječná omeleta so zeleninou", typeKey: "dinner", needs: ["Vajcia", "Zelenina"] },
@@ -595,25 +596,26 @@ function saveExtrasState() {
 
 function applyTheme() {
   document.body.dataset.theme = state.settings.theme;
-  themeToggle.checked = state.settings.theme === "light";
+  if (themeToggle) themeToggle.checked = state.settings.theme === "light";
 }
 
 function applyDensity() {
   state.settings.density ||= "compact";
   document.body.dataset.density = state.settings.density;
-  densityToggle.checked = state.settings.density === "compact";
+  if (densityToggle) densityToggle.checked = state.settings.density === "compact";
 }
 
 function applyNotePreference() {
   state.settings.showNote ??= true;
   document.body.dataset.note = state.settings.showNote ? "show" : "hide";
-  noteToggle.checked = state.settings.showNote;
+  if (noteToggle) noteToggle.checked = state.settings.showNote;
 }
 
 function applyMealMode() {
   document.body.dataset.mealMode = state.settings.simpleMeals ? "simple" : "full";
-  simpleMealsButton.classList.toggle("is-active", state.settings.simpleMeals);
-  simpleMealsButton.querySelector("span").textContent = state.settings.simpleMeals ? "Plný režim" : "Jednoducho";
+  simpleMealsButton?.classList.toggle("is-active", state.settings.simpleMeals);
+  const label = simpleMealsButton?.querySelector("span");
+  if (label) label.textContent = state.settings.simpleMeals ? "Plný režim" : "Jednoducho";
 }
 
 function setActiveSetting(buttons, dataName, value) {
@@ -633,8 +635,8 @@ function applyPersonalization() {
   document.body.dataset.visual = state.settings.visualStyle;
   document.body.dataset.backdrop = state.settings.backdrop;
 
-  scaleRange.value = String(state.settings.scale);
-  scaleValue.textContent = `${state.settings.scale}%`;
+  if (scaleRange) scaleRange.value = String(state.settings.scale);
+  if (scaleValue) scaleValue.textContent = `${state.settings.scale}%`;
   setActiveSetting(displayDensityButtons, "densityValue", state.settings.displayDensity);
   setActiveSetting(visualStyleButtons, "visualValue", state.settings.visualStyle);
   setActiveSetting(backdropButtons, "backdropValue", state.settings.backdrop);
@@ -745,10 +747,11 @@ function ensureSignedInMember() {
   const exists = state.settings.familyMembers.some((member) => member.uid === cloud.user.uid);
   if (!exists) {
     state.settings.familyMembers = [
-      { id: `member:${cloud.user.uid}`, uid: cloud.user.uid, name: memberName, role: "parent" },
+      { id: `member:${cloud.user.uid}`, uid: cloud.user.uid, name: memberName, role: state.settings.pendingRole || "parent" },
       ...state.settings.familyMembers,
     ].slice(0, 8);
   }
+  state.settings.pendingRole = "";
   state.settings.cloudUser = {
     uid: cloud.user.uid,
     name: memberName,
@@ -905,15 +908,20 @@ async function createFamilyInviteCode() {
   ensureFamilySettings();
   const code = `DOM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   const householdId = currentHouseholdId() || householdDocIdFor(cloud.user);
+  const invitedRole = inviteRole?.value || "parent";
   const { doc, setDoc } = cloud.api;
   state.settings.householdId = householdId;
   state.settings.familyCode = code;
+  state.settings.lastInviteRole = invitedRole;
   cloud.householdId = householdId;
   saveSettingsState();
   await setDoc(doc(cloud.db, "familyCodes", code), {
     householdId,
+    invitedRole,
     createdBy: cloud.user.uid,
+    createdByName: cloud.user.displayName || cloud.user.email || "Člen domácnosti",
     createdAt: new Date().toISOString(),
+    active: true,
   });
   await listenToHousehold(householdId);
   renderFamilySettings();
@@ -936,9 +944,16 @@ async function joinFamilyByCode(code) {
     return;
   }
 
-  state.settings.householdId = snapshot.data().householdId;
+  const invite = snapshot.data();
+  if (invite.active === false) {
+    showToast("Tento domáci kód už nie je aktívny.");
+    return;
+  }
+
+  state.settings.householdId = invite.householdId;
   state.settings.familyCode = normalized;
-  cloud.householdId = snapshot.data().householdId;
+  state.settings.pendingRole = invite.invitedRole || "parent";
+  cloud.householdId = invite.householdId;
   ensureSignedInMember();
   saveSettingsState();
   await listenToHousehold(cloud.householdId);
@@ -1755,18 +1770,19 @@ function renderFamilySettings() {
 
   setActiveSetting(familyProfileButtons, "profileValue", state.settings.familyProfile);
   familyCodeDetail.textContent = state.settings.familyCode
-    ? `Kód ${state.settings.familyCode} pripojí druhého človeka do tej istej domácnosti.`
+    ? `Kód ${state.settings.familyCode} pripojí druhého človeka do tej istej domácnosti ako ${roleCopy[state.settings.lastInviteRole] || "člena"}.`
     : cloud.user
       ? "Vytvor kód a pošli ho druhému členovi domácnosti."
       : "Najprv sa prihlás cez Google, potom vytvoríš domáci kód.";
   familyCodeButton.textContent = state.settings.familyCode ? "Nový kód" : "Vytvoriť";
   familyCodeButton.disabled = !cloud.user;
+  if (inviteRole) inviteRole.disabled = !cloud.user;
   if (!cloud.user && settingsStatus) settingsStatus.textContent = profile.label;
   memberList.innerHTML = state.settings.familyMembers.length
     ? state.settings.familyMembers.map((member) => `
-        <div class="member-chip">
+        <div class="member-chip ${member.uid ? "is-linked" : ""}">
           <span>${escapeHtml(member.name)}</span>
-          <em>${roleCopy[member.role] || "Člen"}</em>
+          <em>${roleCopy[member.role] || "Člen"}${member.uid ? " · Google" : ""}</em>
           <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}">×</button>
         </div>
       `).join("")
@@ -2642,27 +2658,27 @@ dailyNote.addEventListener("input", () => {
   saveNotesState();
 });
 
-themeToggle.addEventListener("change", () => {
+themeToggle?.addEventListener("change", () => {
   state.settings.theme = themeToggle.checked ? "light" : "dark";
   saveSettingsState();
   renderCurrentView();
 });
 
-densityToggle.addEventListener("change", () => {
+densityToggle?.addEventListener("change", () => {
   state.settings.density = densityToggle.checked ? "compact" : "full";
   saveSettingsState();
   applyDensity();
   settingsStatus.textContent = densityToggle.checked ? "Kompaktný prehľad" : "Plný prehľad";
 });
 
-noteToggle.addEventListener("change", () => {
+noteToggle?.addEventListener("change", () => {
   state.settings.showNote = noteToggle.checked;
   saveSettingsState();
   applyNotePreference();
   settingsStatus.textContent = noteToggle.checked ? "Poznámka zobrazená" : "Poznámka skrytá";
 });
 
-scaleRange.addEventListener("input", () => {
+scaleRange?.addEventListener("input", () => {
   state.settings.scale = Number(scaleRange.value);
   saveSettingsState();
   applyPersonalization();
@@ -2705,7 +2721,7 @@ familyProfileButtons.forEach((button) => {
   });
 });
 
-memberForm.addEventListener("submit", (event) => {
+memberForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const name = memberName.value.trim();
   if (!name) return;
@@ -2722,7 +2738,7 @@ memberForm.addEventListener("submit", (event) => {
   settingsStatus.textContent = "Člen pridaný";
 });
 
-memberList.addEventListener("click", (event) => {
+memberList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-remove-member]");
   if (!button) return;
   state.settings.familyMembers = state.settings.familyMembers.filter((member) => member.id !== button.dataset.removeMember);
@@ -2750,7 +2766,7 @@ document.addEventListener("click", (event) => {
   if (!trigger) return;
   const target = document.getElementById(trigger.dataset.openSection);
   if (!target) return;
-  target.open = true;
+  if ("open" in target) target.open = true;
   setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
 });
 

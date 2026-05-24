@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1745">
+    <link rel="stylesheet" href="styles.css?v=20260524-1815">
   </head>
   <body>
     <div class="app-shell">
@@ -492,12 +492,12 @@
                     <strong>História</strong>
                     <em>Aktivity domácnosti</em>
                   </a>
-                  <a class="more-tile family" href="#more">
+                  <a class="more-tile family" href="#householdSettings" data-open-section="householdSettings">
                     <span>👨‍👩‍👧‍👦</span>
                     <strong>Rodina</strong>
                     <em>Členovia a pozvánky</em>
                   </a>
-                  <a class="more-tile settings" href="#more">
+                  <a class="more-tile settings" href="#appearanceSettings" data-open-section="appearanceSettings">
                     <span>⚙️</span>
                     <strong>Nastavenia</strong>
                     <em>Profil, téma, dáta</em>
@@ -556,7 +556,7 @@
                 </div>
               </section>
 
-              <section class="settings-group" aria-label="Vzhľad aplikácie">
+              <section class="settings-group" id="appearanceSettings" aria-label="Vzhľad aplikácie">
                 <p class="settings-group-title">Vzhľad</p>
                 <div class="settings-row">
                   <div>
@@ -613,9 +613,42 @@
                     <button type="button" data-density-value="tight">Husto</button>
                   </div>
                 </div>
+
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Vizuálny štýl</strong>
+                    <span>Zmení akcenty, aby appka nepôsobila stále rovnako.</span>
+                  </div>
+                  <div class="theme-cards" data-visual-style>
+                    <button type="button" data-visual-value="home">
+                      <i class="theme-swatch home"></i>
+                      <strong>Domov</strong>
+                    </button>
+                    <button type="button" data-visual-value="fresh">
+                      <i class="theme-swatch fresh"></i>
+                      <strong>Sviežo</strong>
+                    </button>
+                    <button type="button" data-visual-value="playful">
+                      <i class="theme-swatch playful"></i>
+                      <strong>Hravé</strong>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Pozadie</strong>
+                    <span>Vyber, či má byť appka pokojná alebo viac grafická.</span>
+                  </div>
+                  <div class="segmented-control" data-backdrop-style>
+                    <button type="button" data-backdrop-value="plain">Čisté</button>
+                    <button type="button" data-backdrop-value="soft">Mäkké</button>
+                    <button type="button" data-backdrop-value="graphic">Grafické</button>
+                  </div>
+                </div>
               </section>
 
-              <details class="settings-details">
+              <details class="settings-details" id="householdSettings">
                 <summary>Domácnosť</summary>
                 <div class="settings-row setting-stack">
                   <div>
@@ -660,7 +693,14 @@
                     <strong>Domáci kód</strong>
                     <span id="familyCodeDetail">Po prihlásení vytvoríš kód, ktorým sa druhý človek pripojí do rovnakej domácnosti.</span>
                   </div>
-                  <button class="ghost-action" id="familyCodeButton" type="button">Vytvoriť</button>
+                  <div class="invite-actions">
+                    <select id="inviteRole" aria-label="Rola pozvaného člena">
+                      <option value="parent">Rodič</option>
+                      <option value="helper">Pomocník</option>
+                      <option value="kid">Dieťa</option>
+                    </select>
+                    <button class="ghost-action" id="familyCodeButton" type="button">Vytvoriť</button>
+                  </div>
                 </div>
 
                 <div class="settings-row setting-stack">
@@ -872,7 +912,28 @@
         }, true);
       }());
     </script>
-    <script src="firebase-config.js?v=20260524-1745"></script>
-    <script src="app.js?v=20260524-1745"></script>
+    <script>
+      window.__DR_BOOT_ERRORS = [];
+      function rememberBootError(payload) {
+        window.__DR_BOOT_ERRORS.push(payload);
+        document.documentElement.dataset.bootError = payload.message || "error";
+      }
+      window.addEventListener("error", function (event) {
+        rememberBootError({
+          message: event.message,
+          source: event.filename,
+          line: event.lineno,
+          column: event.colno
+        });
+      });
+      window.addEventListener("unhandledrejection", function (event) {
+        rememberBootError({
+          message: String(event.reason && event.reason.message ? event.reason.message : event.reason),
+          promise: true
+        });
+      });
+    </script>
+    <script src="firebase-config.js?v=20260524-1815"></script>
+    <script src="app.js?v=20260524-1815"></script>
   </body>
 </html>

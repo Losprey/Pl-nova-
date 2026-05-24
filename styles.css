@@ -3707,6 +3707,7 @@ body[data-display-density="tight"] .pantry-cook {
 
 .member-form,
 .join-family-form,
+.invite-actions,
 .budget-setting {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 112px auto;
@@ -3722,8 +3723,14 @@ body[data-display-density="tight"] .pantry-cook {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.invite-actions {
+  min-width: 220px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .member-form input,
 .member-form select,
+.invite-actions select,
 .join-family-form input,
 .budget-setting input {
   min-width: 0;
@@ -3761,6 +3768,11 @@ body[data-display-density="tight"] .pantry-cook {
   border: 1px solid rgba(53, 66, 89, 0.78);
   border-radius: 999px;
   background: rgba(17, 26, 45, 0.58);
+}
+
+.member-chip.is-linked {
+  border-color: rgba(40, 213, 143, 0.52);
+  background: rgba(40, 213, 143, 0.08);
 }
 
 .member-chip span,
@@ -4753,6 +4765,117 @@ body[data-theme="light"] {
   color: var(--text);
 }
 
+body[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef3f7;
+  --surface: #ffffff;
+  --surface-2: #f5f8fb;
+  --line: #d9e2ec;
+  --text: #162033;
+  --muted: #617089;
+  --muted-2: #7b8aa1;
+}
+
+body[data-theme="light"],
+body[data-theme="light"] .app-shell {
+  background: #eef3f7;
+  color: var(--text);
+}
+
+body[data-theme="light"] .app-shell {
+  background:
+    radial-gradient(circle at 85% 5%, rgba(40, 160, 110, 0.12), transparent 15rem),
+    linear-gradient(180deg, #ffffff 0%, #eef3f7 44%);
+}
+
+body[data-theme="light"] .topbar,
+body[data-theme="light"] .bottom-nav,
+body[data-theme="light"] .shopping-panel,
+body[data-theme="light"] .tasks-panel,
+body[data-theme="light"] .home-dashboard,
+body[data-theme="light"] .favorite-library,
+body[data-theme="light"] .settings-panel,
+body[data-theme="light"] .placeholder-panel,
+body[data-theme="light"] .quick-meals,
+body[data-theme="light"] .quick-tasks,
+body[data-theme="light"] .pantry-cook,
+body[data-theme="light"] .pantry-panel,
+body[data-theme="light"] .stock-panel,
+body[data-theme="light"] .meal-audience-panel,
+body[data-theme="light"] .account-card,
+body[data-theme="light"] .settings-group,
+body[data-theme="light"] .settings-details,
+body[data-theme="light"] .more-section-card {
+  background: #ffffff;
+  color: var(--text);
+}
+
+body[data-theme="light"] .today-card,
+body[data-theme="light"] .family-handoff,
+body[data-theme="light"] .weekly-compass,
+body[data-theme="light"] .budget-card,
+body[data-theme="light"] .daily-checkin,
+body[data-theme="light"] .daily-rhythm,
+body[data-theme="light"] .mini-panel,
+body[data-theme="light"] .settings-row,
+body[data-theme="light"] .glance-card,
+body[data-theme="light"] .shortcut-tile,
+body[data-theme="light"] .more-tile {
+  background: #f7fafc;
+  color: var(--text);
+}
+
+body[data-theme="light"] .brand-lockup h1,
+body[data-theme="light"] .panel-header h2,
+body[data-theme="light"] .settings-row strong,
+body[data-theme="light"] .account-card h3,
+body[data-theme="light"] .more-tile strong,
+body[data-theme="light"] .shortcut-tile strong {
+  color: var(--text);
+}
+
+body[data-theme="light"] .quick-add input,
+body[data-theme="light"] .task-form input,
+body[data-theme="light"] .task-form select,
+body[data-theme="light"] .pantry-form input,
+body[data-theme="light"] .meal-form input,
+body[data-theme="light"] .meal-form select,
+body[data-theme="light"] .member-form input,
+body[data-theme="light"] .member-form select,
+body[data-theme="light"] .invite-actions select,
+body[data-theme="light"] .join-family-form input,
+body[data-theme="light"] .budget-setting input,
+body[data-theme="light"] .mini-add-form input {
+  background: #ffffff;
+  color: var(--text);
+}
+
+body[data-visual="fresh"] {
+  --purple: #207fda;
+  --purple-2: #31a1e8;
+  --orange: #22aa7a;
+  --green: #1fbf85;
+}
+
+body[data-visual="playful"] {
+  --purple: #7c4de6;
+  --purple-2: #ef6aa5;
+  --orange: #ff9c52;
+  --green: #42d99d;
+}
+
+body[data-backdrop="plain"] .app-shell {
+  background: #0f1628;
+}
+
+body[data-backdrop="graphic"] .app-shell {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 153, 97, 0.13), transparent 10rem),
+    radial-gradient(circle at 88% 8%, rgba(40, 213, 143, 0.15), transparent 14rem),
+    radial-gradient(circle at 75% 58%, rgba(85, 71, 244, 0.14), transparent 16rem),
+    linear-gradient(180deg, #121b2d 0%, #0f1628 44%);
+}
+
 .app-shell,
 body[data-theme="dark"] .app-shell,
 body[data-theme="light"] .app-shell {
@@ -5508,6 +5631,11 @@ body[data-theme="light"] .bottom-nav {
   .mini-add-form .ghost-action {
     width: 100%;
   }
+
+  .invite-actions {
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
 }
 
 .task-form {
@@ -5529,4 +5657,118 @@ body[data-theme="light"] .bottom-nav {
 
 .task-form .primary-action {
   grid-column: 3;
+}
+
+/* Settings must override the classic skin, otherwise toggles look broken. */
+body[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef3f7;
+  --surface: #ffffff;
+  --surface-2: #f5f8fb;
+  --line: #d9e2ec;
+  --text: #162033;
+  --muted: #617089;
+  --muted-2: #7b8aa1;
+  background: #eef3f7;
+  color: var(--text);
+}
+
+body[data-theme="light"] .app-shell {
+  background:
+    radial-gradient(circle at 85% 5%, rgba(40, 160, 110, 0.12), transparent 15rem),
+    linear-gradient(180deg, #ffffff 0%, #eef3f7 44%);
+}
+
+body[data-theme="light"] .topbar,
+body[data-theme="light"] .bottom-nav,
+body[data-theme="light"] .shopping-panel,
+body[data-theme="light"] .tasks-panel,
+body[data-theme="light"] .home-dashboard,
+body[data-theme="light"] .favorite-library,
+body[data-theme="light"] .settings-panel,
+body[data-theme="light"] .placeholder-panel,
+body[data-theme="light"] .quick-meals,
+body[data-theme="light"] .quick-tasks,
+body[data-theme="light"] .pantry-cook,
+body[data-theme="light"] .pantry-panel,
+body[data-theme="light"] .stock-panel,
+body[data-theme="light"] .meal-audience-panel,
+body[data-theme="light"] .account-card,
+body[data-theme="light"] .settings-group,
+body[data-theme="light"] .settings-details,
+body[data-theme="light"] .more-section-card {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--text);
+}
+
+body[data-theme="light"] .today-card,
+body[data-theme="light"] .family-handoff,
+body[data-theme="light"] .weekly-compass,
+body[data-theme="light"] .budget-card,
+body[data-theme="light"] .daily-checkin,
+body[data-theme="light"] .daily-rhythm,
+body[data-theme="light"] .mini-panel,
+body[data-theme="light"] .settings-row,
+body[data-theme="light"] .glance-card,
+body[data-theme="light"] .shortcut-tile,
+body[data-theme="light"] .more-tile,
+body[data-theme="light"] .more-section-card summary span {
+  border-color: var(--line);
+  background: #f7fafc;
+  color: var(--text);
+}
+
+body[data-theme="light"] .brand-lockup h1,
+body[data-theme="light"] .panel-header h2,
+body[data-theme="light"] .settings-row strong,
+body[data-theme="light"] .account-card h3,
+body[data-theme="light"] .more-tile strong,
+body[data-theme="light"] .shortcut-tile strong,
+body[data-theme="light"] .more-section-card summary,
+body[data-theme="light"] .glance-card strong {
+  color: var(--text);
+}
+
+body[data-theme="light"] .quick-add input,
+body[data-theme="light"] .task-form input,
+body[data-theme="light"] .task-form select,
+body[data-theme="light"] .pantry-form input,
+body[data-theme="light"] .meal-form input,
+body[data-theme="light"] .meal-form select,
+body[data-theme="light"] .member-form input,
+body[data-theme="light"] .member-form select,
+body[data-theme="light"] .invite-actions select,
+body[data-theme="light"] .join-family-form input,
+body[data-theme="light"] .budget-setting input,
+body[data-theme="light"] .mini-add-form input {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--text);
+}
+
+body[data-theme="light"][data-backdrop="plain"] .app-shell {
+  background: #eef3f7;
+}
+
+body[data-theme="light"][data-backdrop="graphic"] .app-shell {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 153, 97, 0.16), transparent 10rem),
+    radial-gradient(circle at 88% 8%, rgba(40, 160, 110, 0.16), transparent 14rem),
+    radial-gradient(circle at 75% 58%, rgba(85, 71, 244, 0.12), transparent 16rem),
+    linear-gradient(180deg, #ffffff 0%, #eef3f7 44%);
+}
+
+body[data-visual="fresh"] {
+  --purple: #207fda;
+  --purple-2: #31a1e8;
+  --orange: #22aa7a;
+  --green: #1fbf85;
+}
+
+body[data-visual="playful"] {
+  --purple: #7c4de6;
+  --purple-2: #ef6aa5;
+  --orange: #ff9c52;
+  --green: #42d99d;
 }
