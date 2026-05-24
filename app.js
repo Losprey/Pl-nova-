@@ -2224,6 +2224,10 @@ function setActiveTab(tab) {
 
     view.hidden = !isActive;
     view.classList.toggle("is-active", isActive);
+    view.classList.remove("tab-enter");
+    if (isActive) {
+      requestAnimationFrame(() => view.classList.add("tab-enter"));
+    }
   });
 
   if (!["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {

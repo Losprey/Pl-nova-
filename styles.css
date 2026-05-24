@@ -4883,6 +4883,104 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+/* Unified icon style and section visuals */
+.tile-icon,
+.glance-main {
+  display: grid;
+  place-items: center;
+}
+
+.tile-icon svg,
+.glance-main svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shortcut-tile .tile-icon,
+.more-tile .tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--purple) 16%, var(--surface-2));
+  color: #f4f7ff;
+}
+
+.glance-main {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--green) 18%, var(--surface-2));
+  color: #f4f7ff;
+}
+
+.view.is-active.tab-enter .today-card,
+.view.is-active.tab-enter .family-handoff,
+.view.is-active.tab-enter .weekly-compass,
+.view.is-active.tab-enter .budget-card,
+.view.is-active.tab-enter .daily-checkin,
+.view.is-active.tab-enter .daily-rhythm,
+.view.is-active.tab-enter .today-focus,
+.view.is-active.tab-enter .home-shortcuts .shortcut-tile,
+.view.is-active.tab-enter .settings-row,
+.view.is-active.tab-enter .more-tile,
+.view.is-active.tab-enter .day-card,
+.view.is-active.tab-enter .classic-task-card,
+.view.is-active.tab-enter .shopping-item {
+  animation: sectionEnter 180ms ease both;
+}
+
+.view.is-active.tab-enter .home-shortcuts .shortcut-tile:nth-child(2),
+.view.is-active.tab-enter .more-grid .more-tile:nth-child(2),
+.view.is-active.tab-enter .day-card:nth-child(2),
+.view.is-active.tab-enter .classic-task-card:nth-child(2),
+.view.is-active.tab-enter .shopping-item:nth-child(2) {
+  animation-delay: 35ms;
+}
+
+.view.is-active.tab-enter .home-shortcuts .shortcut-tile:nth-child(3),
+.view.is-active.tab-enter .more-grid .more-tile:nth-child(3),
+.view.is-active.tab-enter .day-card:nth-child(3),
+.view.is-active.tab-enter .classic-task-card:nth-child(3),
+.view.is-active.tab-enter .shopping-item:nth-child(3) {
+  animation-delay: 70ms;
+}
+
+.view.is-active.tab-enter .home-shortcuts .shortcut-tile:nth-child(4),
+.view.is-active.tab-enter .more-grid .more-tile:nth-child(4) {
+  animation-delay: 105ms;
+}
+
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 540px) {
+  .shortcut-tile .tile-icon,
+  .more-tile .tile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+  }
+
+  .tile-icon svg,
+  .glance-main svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /* Clean UI refresh: calmer spacing, readable text, and lightweight graphics across the app. */
 .content {
   padding: 18px 16px 0;
