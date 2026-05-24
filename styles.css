@@ -1,5 +1,7 @@
 :root {
   color-scheme: dark;
+  --ui-scale: 1;
+  --density-gap: 1;
   --bg: #0f1426;
   --surface: #1d293d;
   --surface-2: #202d42;
@@ -2714,6 +2716,189 @@ body[data-meal-mode="simple"] .delete-meal {
   padding: 13px 16px;
   color: var(--muted);
   font-weight: 900;
+}
+
+/* Personalization controls and global customization. */
+body {
+  font-size: calc(16px * var(--ui-scale, 1));
+}
+
+body[data-display-density="air"] {
+  --density-gap: 1.16;
+}
+
+body[data-display-density="cozy"] {
+  --density-gap: 1;
+}
+
+body[data-display-density="tight"] {
+  --density-gap: 0.82;
+}
+
+body[data-visual="fresh"] {
+  --purple: #2f7dd7;
+  --purple-2: #45a4e8;
+  --orange: #f0a34c;
+  --green: #18b98a;
+  --surface: #1b2d3a;
+  --surface-2: #203746;
+  --line: #385467;
+}
+
+body[data-visual="playful"] {
+  --purple: #7c4de6;
+  --purple-2: #ef6aa5;
+  --orange: #ff9c52;
+  --green: #4fcf83;
+  --surface: #231f3b;
+  --surface-2: #2b2850;
+  --line: #4a416f;
+}
+
+body[data-backdrop="plain"] .app-shell {
+  background: var(--bg);
+}
+
+body[data-backdrop="soft"] .app-shell {
+  background:
+    radial-gradient(circle at 82% 6%, color-mix(in srgb, var(--green) 10%, transparent), transparent 18rem),
+    linear-gradient(180deg, #12182b 0%, var(--bg) 38%);
+}
+
+body[data-backdrop="illustrated"] .app-shell {
+  background:
+    radial-gradient(circle at 16% 10%, color-mix(in srgb, var(--purple-2) 18%, transparent), transparent 13rem),
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--green) 16%, transparent), transparent 12rem),
+    linear-gradient(180deg, #12182b 0%, var(--bg) 40%);
+}
+
+body[data-backdrop="illustrated"] .app-shell::before {
+  content: "";
+  position: fixed;
+  inset: auto calc(50% - 355px) 80px auto;
+  width: 136px;
+  height: 88px;
+  pointer-events: none;
+  opacity: 0.18;
+  background:
+    radial-gradient(circle at 22px 26px, var(--orange) 0 13px, transparent 14px),
+    linear-gradient(135deg, transparent 20px, var(--purple-2) 21px 48px, transparent 49px),
+    linear-gradient(var(--green), var(--green));
+  background-size: 56px 56px, 72px 72px, 92px 16px;
+  background-position: 0 0, 28px 8px, 32px 62px;
+  background-repeat: no-repeat;
+}
+
+body[data-display-density="air"] .home-dashboard,
+body[data-display-density="air"] .meal-plan,
+body[data-display-density="air"] .dashboard-grid,
+body[data-display-density="air"] .task-list {
+  gap: calc(14px * var(--density-gap));
+}
+
+body[data-display-density="tight"] .content {
+  padding-top: 12px;
+}
+
+body[data-display-density="tight"] .week-summary {
+  margin-block: 14px;
+}
+
+body[data-display-density="tight"] .home-dashboard,
+body[data-display-density="tight"] .shopping-panel,
+body[data-display-density="tight"] .tasks-panel,
+body[data-display-density="tight"] .settings-panel,
+body[data-display-density="tight"] .day-card {
+  border-radius: 14px;
+}
+
+body[data-display-density="tight"] .meal-row,
+body[data-display-density="tight"] .shopping-item,
+body[data-display-density="tight"] .task-item,
+body[data-display-density="tight"] .settings-row {
+  min-height: 48px;
+  padding-block: 6px;
+}
+
+.setting-stack {
+  align-items: stretch;
+}
+
+.range-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-control input {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.range-control output {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.segmented-control,
+.theme-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.segmented-control button,
+.theme-cards button {
+  min-height: 38px;
+  border: 1px solid rgba(53, 66, 89, 0.9);
+  border-radius: 12px;
+  background: rgba(17, 26, 45, 0.54);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.segmented-control button.is-active,
+.theme-cards button.is-active {
+  border-color: color-mix(in srgb, var(--green) 62%, transparent);
+  background: color-mix(in srgb, var(--green) 16%, transparent);
+  color: #dff7eb;
+}
+
+.theme-cards button {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 9px 6px;
+}
+
+.theme-swatch {
+  display: block;
+  width: 44px;
+  height: 16px;
+  border-radius: 999px;
+}
+
+.theme-swatch.home {
+  background: linear-gradient(90deg, #4f46d8, #34c28a, #f2995b);
+}
+
+.theme-swatch.fresh {
+  background: linear-gradient(90deg, #2f7dd7, #18b98a, #f0a34c);
+}
+
+.theme-swatch.playful {
+  background: linear-gradient(90deg, #7c4de6, #ef6aa5, #ff9c52);
+}
+
+@media (max-width: 430px) {
+  .segmented-control,
+  .theme-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 .tasks-panel .panel-header p,

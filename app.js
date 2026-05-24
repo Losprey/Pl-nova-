@@ -170,6 +170,11 @@ const dailyNote = document.querySelector("#dailyNote");
 const themeToggle = document.querySelector("#themeToggle");
 const densityToggle = document.querySelector("#densityToggle");
 const noteToggle = document.querySelector("#noteToggle");
+const scaleRange = document.querySelector("#scaleRange");
+const scaleValue = document.querySelector("#scaleValue");
+const displayDensityButtons = document.querySelectorAll("[data-density-value]");
+const visualStyleButtons = document.querySelectorAll("[data-visual-value]");
+const backdropButtons = document.querySelectorAll("[data-backdrop-value]");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
 const importDataInput = document.querySelector("#importDataInput");
@@ -288,7 +293,16 @@ function loadTasksState() {
 }
 
 function loadSettingsState() {
-  const fallback = { theme: "dark", density: "compact", showNote: true, simpleMeals: false };
+  const fallback = {
+    theme: "dark",
+    density: "compact",
+    showNote: true,
+    simpleMeals: false,
+    scale: 100,
+    displayDensity: "cozy",
+    visualStyle: "home",
+    backdrop: "soft",
+  };
 
   try {
     return { ...fallback, ...(JSON.parse(localStorage.getItem(settingsStorageKey)) || {}) };
@@ -394,6 +408,30 @@ function applyMealMode() {
   document.body.dataset.mealMode = state.settings.simpleMeals ? "simple" : "full";
   simpleMealsButton.classList.toggle("is-active", state.settings.simpleMeals);
   simpleMealsButton.querySelector("span").textContent = state.settings.simpleMeals ? "Plný režim" : "Jednoducho";
+}
+
+function setActiveSetting(buttons, dataName, value) {
+  buttons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset[dataName] === value);
+  });
+}
+
+function applyPersonalization() {
+  state.settings.scale ||= 100;
+  state.settings.displayDensity ||= "cozy";
+  state.settings.visualStyle ||= "home";
+  state.settings.backdrop ||= "soft";
+
+  document.body.style.setProperty("--ui-scale", String(state.settings.scale / 100));
+  document.body.dataset.displayDensity = state.settings.displayDensity;
+  document.body.dataset.visual = state.settings.visualStyle;
+  document.body.dataset.backdrop = state.settings.backdrop;
+
+  scaleRange.value = String(state.settings.scale);
+  scaleValue.textContent = `${state.settings.scale}%`;
+  setActiveSetting(displayDensityButtons, "densityValue", state.settings.displayDensity);
+  setActiveSetting(visualStyleButtons, "visualValue", state.settings.visualStyle);
+  setActiveSetting(backdropButtons, "backdropValue", state.settings.backdrop);
 }
 
 function addDays(date, count) {
@@ -1182,6 +1220,7 @@ function renderCurrentView() {
   applyDensity();
   applyNotePreference();
   applyMealMode();
+  applyPersonalization();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
 
@@ -1560,6 +1599,40 @@ noteToggle.addEventListener("change", () => {
   settingsStatus.textContent = noteToggle.checked ? "Poznámka zobrazená" : "Poznámka skrytá";
 });
 
+scaleRange.addEventListener("input", () => {
+  state.settings.scale = Number(scaleRange.value);
+  saveSettingsState();
+  applyPersonalization();
+  settingsStatus.textContent = `Veľkosť ${state.settings.scale}%`;
+});
+
+displayDensityButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.settings.displayDensity = button.dataset.densityValue;
+    saveSettingsState();
+    applyPersonalization();
+    settingsStatus.textContent = "Hustota upravená";
+  });
+});
+
+visualStyleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.settings.visualStyle = button.dataset.visualValue;
+    saveSettingsState();
+    applyPersonalization();
+    settingsStatus.textContent = "Štýl upravený";
+  });
+});
+
+backdropButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.settings.backdrop = button.dataset.backdropValue;
+    saveSettingsState();
+    applyPersonalization();
+    settingsStatus.textContent = "Pozadie upravené";
+  });
+});
+
 exportDataButton.addEventListener("click", () => {
   const payload = {
     version: 1,
@@ -1628,7 +1701,16 @@ resetAllButton.addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   state.shopping = { checked: {}, manual: {} };
   state.tasks = clone(starterTasks);
-  state.settings = { theme: "dark", density: "compact", showNote: true, simpleMeals: false };
+  state.settings = {
+    theme: "dark",
+    density: "compact",
+    showNote: true,
+    simpleMeals: false,
+    scale: 100,
+    displayDensity: "cozy",
+    visualStyle: "home",
+    backdrop: "soft",
+  };
   state.checkins = {};
   state.notes = {};
   state.rhythm = {};

@@ -375,32 +375,88 @@
                 </label>
               </div>
 
+              <div class="settings-row setting-stack">
+                <div>
+                  <strong>Veľkosť rozhrania</strong>
+                  <span>Upraví veľkosť textov, kariet a ovládacích prvkov v celej appke.</span>
+                </div>
+                <div class="range-control">
+                  <input id="scaleRange" type="range" min="88" max="112" step="4" value="100" aria-label="Veľkosť rozhrania">
+                  <output id="scaleValue">100%</output>
+                </div>
+              </div>
+
+              <div class="settings-row setting-stack">
+                <div>
+                  <strong>Hustota zobrazenia</strong>
+                  <span>Vyber, koľko informácií má byť vidieť naraz.</span>
+                </div>
+                <div class="segmented-control" data-setting-density>
+                  <button type="button" data-density-value="air">Vzdušne</button>
+                  <button type="button" data-density-value="cozy">Bežne</button>
+                  <button type="button" data-density-value="tight">Husto</button>
+                </div>
+              </div>
+
+              <div class="settings-row setting-stack">
+                <div>
+                  <strong>Grafický štýl</strong>
+                  <span>Zmení atmosféru celej appky bez zmeny funkcií.</span>
+                </div>
+                <div class="theme-cards" data-setting-visual>
+                  <button type="button" data-visual-value="home">
+                    <span class="theme-swatch home"></span>
+                    Domov
+                  </button>
+                  <button type="button" data-visual-value="fresh">
+                    <span class="theme-swatch fresh"></span>
+                    Sviežo
+                  </button>
+                  <button type="button" data-visual-value="playful">
+                    <span class="theme-swatch playful"></span>
+                    Hravé
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-row setting-stack">
+                <div>
+                  <strong>Pozadie</strong>
+                  <span>Vyber, či má byť appka úplne čistá alebo trochu grafickejšia.</span>
+                </div>
+                <div class="segmented-control" data-setting-backdrop>
+                  <button type="button" data-backdrop-value="plain">Čisté</button>
+                  <button type="button" data-backdrop-value="soft">Jemné</button>
+                  <button type="button" data-backdrop-value="illustrated">Grafické</button>
+                </div>
+              </div>
+
               <details class="settings-details" open>
                 <summary>Dáta</summary>
-              <div class="settings-row">
-                <div>
-                  <strong>Export dát</strong>
-                  <span>Stiahne jedlá, kroky, nákup a nastavenia ako JSON.</span>
+                <div class="settings-row">
+                  <div>
+                    <strong>Export dát</strong>
+                    <span>Stiahne jedlá, kroky, nákup a nastavenia ako JSON.</span>
+                  </div>
+                  <button class="ghost-action" id="exportDataButton" type="button">Export</button>
                 </div>
-                <button class="ghost-action" id="exportDataButton" type="button">Export</button>
-              </div>
 
-              <div class="settings-row">
-                <div>
-                  <strong>Import dát</strong>
-                  <span>Obnoví dáta z predtým exportovaného súboru.</span>
+                <div class="settings-row">
+                  <div>
+                    <strong>Import dát</strong>
+                    <span>Obnoví dáta z predtým exportovaného súboru.</span>
+                  </div>
+                  <button class="ghost-action" id="importDataButton" type="button">Import</button>
+                  <input id="importDataInput" type="file" accept="application/json,.json" hidden>
                 </div>
-                <button class="ghost-action" id="importDataButton" type="button">Import</button>
-                <input id="importDataInput" type="file" accept="application/json,.json" hidden>
-              </div>
 
-              <div class="settings-row danger-row">
-                <div>
-                  <strong>Reset appky</strong>
-                  <span>Vymaže lokálne zmeny a vráti ukážkové dáta.</span>
+                <div class="settings-row danger-row">
+                  <div>
+                    <strong>Reset appky</strong>
+                    <span>Vymaže lokálne zmeny a vráti ukážkové dáta.</span>
+                  </div>
+                  <button class="ghost-action danger-action" id="resetAllButton" type="button">Reset</button>
                 </div>
-                <button class="ghost-action danger-action" id="resetAllButton" type="button">Reset</button>
-              </div>
               </details>
             </div>
           </section>
