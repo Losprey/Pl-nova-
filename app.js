@@ -126,6 +126,8 @@ const quickEntryType = document.querySelector("#quickEntryType");
 const quickEntryName = document.querySelector("#quickEntryName");
 const quickEntryCategoryWrap = document.querySelector("#quickEntryCategoryWrap");
 const quickEntryCategory = document.querySelector("#quickEntryCategory");
+const quickEntryMealWeekWrap = document.querySelector("#quickEntryMealWeekWrap");
+const quickEntryMealWeek = document.querySelector("#quickEntryMealWeek");
 const quickEntryMealDayWrap = document.querySelector("#quickEntryMealDayWrap");
 const quickEntryMealTypeWrap = document.querySelector("#quickEntryMealTypeWrap");
 const quickEntryMealDay = document.querySelector("#quickEntryMealDay");
@@ -1051,6 +1053,22 @@ function ensureSevenDays(plan) {
 function currentPlan() {
   const basePlan = state.plans[state.audience][state.week];
   const meta = weekMeta(state.week);
+  ensureSevenDays(basePlan);
+
+  return {
+    ...basePlan,
+    label: meta.label,
+    range: meta.range,
+    days: basePlan.days.map((day, index) => ({
+      ...day,
+      name: formatDayName(addDays(meta.start, index)),
+    })),
+  };
+}
+
+function planForWeek(week) {
+  const basePlan = state.plans[state.audience][week];
+  const meta = weekMeta(week);
   ensureSevenDays(basePlan);
 
   return {
@@ -2308,17 +2326,19 @@ function closeMealDialog() {
 }
 
 function syncQuickEntryFields() {
-  if (!quickEntryType || !quickEntryCategoryWrap || !quickEntryMealDayWrap || !quickEntryMealTypeWrap) return;
+  if (!quickEntryType || !quickEntryCategoryWrap || !quickEntryMealWeekWrap || !quickEntryMealDayWrap || !quickEntryMealTypeWrap) return;
   const isShopping = quickEntryType.value === "shopping";
   const isMeal = quickEntryType.value === "meal";
   quickEntryCategoryWrap.hidden = !isShopping;
+  quickEntryMealWeekWrap.hidden = !isMeal;
   quickEntryMealDayWrap.hidden = !isMeal;
   quickEntryMealTypeWrap.hidden = !isMeal;
 }
 
 function fillQuickEntryMealOptions() {
   if (!quickEntryMealDay || !quickEntryMealType) return;
-  const plan = currentPlan();
+  const selectedWeek = quickEntryMealWeek?.value || state.week;
+  const plan = planForWeek(selectedWeek);
   quickEntryMealDay.innerHTML = plan.days
     .map((day, index) => `<option value="${index}">${escapeHtml(day.name)}</option>`)
     .join("");
@@ -2332,6 +2352,7 @@ function openQuickEntry(type = "task") {
   quickEntryForm.reset();
   quickEntryType.value = type;
   quickEntryCategory.value = state.settings.defaultShoppingCategory || "Ostatné";
+  if (quickEntryMealWeek) quickEntryMealWeek.value = state.week;
   fillQuickEntryMealOptions();
   if (quickEntryMealDay) quickEntryMealDay.value = "0";
   if (quickEntryMealType) quickEntryMealType.value = "dinner";
@@ -2458,6 +2479,10 @@ document.querySelector("#closeDialogButton").addEventListener("click", closeMeal
 document.querySelector("#cancelDialogButton").addEventListener("click", closeMealDialog);
 
 quickEntryType?.addEventListener("change", syncQuickEntryFields);
+quickEntryMealWeek?.addEventListener("change", () => {
+  fillQuickEntryMealOptions();
+  if (quickEntryMealDay) quickEntryMealDay.value = "0";
+});
 closeQuickEntryButton?.addEventListener("click", () => quickEntryDialog.close());
 cancelQuickEntryButton?.addEventListener("click", () => quickEntryDialog.close());
 
@@ -2598,14 +2623,17 @@ quickEntryForm?.addEventListener("submit", (event) => {
     setActiveTab("shopping");
     showToast("Položka je pridaná do nákupu.");
   } else {
-    const plan = currentPlan();
+    const selectedWeek = quickEntryMealWeek?.value || state.week;
+    const plan = planForWeek(selectedWeek);
     const dayIndex = Number(quickEntryMealDay?.value || 0);
     const typeKey = quickEntryMealType?.value || "dinner";
     plan.days[Math.max(0, Math.min(dayIndex, plan.days.length - 1))].meals.push({
       typeKey,
       name,
     });
+    state.week = selectedWeek;
     savePlans();
+    setActiveButton(".switch-option", "week", state.week);
     setActiveTab("meals");
     showToast("Jedlo je pridané do jedálnička.");
   }

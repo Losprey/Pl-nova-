@@ -4911,6 +4911,7 @@ body[data-visual="playful"] {
 }
 
 .quick-entry-dialog #quickEntryCategoryWrap[hidden],
+.quick-entry-dialog #quickEntryMealWeekWrap[hidden],
 .quick-entry-dialog #quickEntryMealDayWrap[hidden],
 .quick-entry-dialog #quickEntryMealTypeWrap[hidden] {
   display: none;
