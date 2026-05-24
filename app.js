@@ -160,6 +160,9 @@ const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue
 const homeMealMeter = document.querySelector("#homeMealMeter");
 const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
+const familyHandoffTitle = document.querySelector("#familyHandoffTitle");
+const familyHandoffDetail = document.querySelector("#familyHandoffDetail");
+const familyHandoffList = document.querySelector("#familyHandoffList");
 const weeklyCompassScore = document.querySelector("#weeklyCompassScore");
 const weeklyCompassTitle = document.querySelector("#weeklyCompassTitle");
 const weeklyCompassDetail = document.querySelector("#weeklyCompassDetail");
@@ -568,6 +571,24 @@ function ensureFamilySettings() {
   ];
   state.settings.familyCode ||= "";
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
+}
+
+function familyMembers() {
+  ensureFamilySettings();
+  return state.settings.familyMembers.length
+    ? state.settings.familyMembers
+    : [{ id: "shared", name: "Spoločné", role: "helper" }];
+}
+
+function assigneeLabel(id) {
+  if (!id || id === "shared") return "Spoločné";
+  return familyMembers().find((member) => member.id === id)?.name || "Spoločné";
+}
+
+function nextAssignee(currentId) {
+  const ids = ["shared", ...familyMembers().map((member) => member.id)];
+  const index = ids.indexOf(currentId || "shared");
+  return ids[(index + 1) % ids.length];
 }
 
 function addDays(date, count) {
@@ -990,6 +1011,9 @@ function taskRow(task) {
         <span>${formatDueDate(task.due)}</span>
         <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
       </span>
+      <button class="assignee-pill" type="button" data-assign-task="${task.id}" aria-label="Priradiť krok ${escapeHtml(task.title)}">
+        ${escapeHtml(assigneeLabel(task.assignee))}
+      </button>
       <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
       <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť krok ${escapeHtml(task.title)}">
         ${buttonIcon("delete")}
@@ -1426,6 +1450,35 @@ function buildDashboardActions(meals, openTasks, openShopping) {
   return actions.slice(0, 3);
 }
 
+function renderFamilyHandoff(openTasks, openShopping) {
+  const members = familyMembers();
+  const buckets = [
+    { id: "shared", name: "Spoločné", icon: "∞" },
+    ...members.slice(0, 3).map((member) => ({ id: member.id, name: member.name, icon: member.name.slice(0, 1).toUpperCase() })),
+  ];
+  const waitingForSomeone = openTasks.filter((task) => task.assignee && task.assignee !== "shared").length;
+
+  familyHandoffTitle.textContent = waitingForSomeone
+    ? "Veci sú rozdelené"
+    : "Zatiaľ je všetko spoločné";
+  familyHandoffDetail.textContent = openShopping.length
+    ? `${openShopping.length} položiek v nákupe. Pri krokoch klikni na meno a rozdeľte si ich.`
+    : "Nákup je pokojný. Stačí si rozdeliť najbližšie domáce kroky.";
+
+  familyHandoffList.innerHTML = buckets
+    .map((bucket) => {
+      const assigned = openTasks.filter((task) => (task.assignee || "shared") === bucket.id);
+      return `
+        <button class="handoff-card" type="button" data-jump-tab="tasks">
+          <span aria-hidden="true">${escapeHtml(bucket.icon)}</span>
+          <strong>${escapeHtml(bucket.name)}</strong>
+          <em>${assigned.length} ${assigned.length === 1 ? "krok" : "kroky"}</em>
+        </button>
+      `;
+    })
+    .join("");
+}
+
 function renderHome() {
   const meals = allMeals();
   const tasks = currentTasks();
@@ -1452,6 +1505,7 @@ function renderHome() {
   homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
+  renderFamilyHandoff(openTasks, openShopping);
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderBudget();
   renderSmartTips(meals, tasks, shopping, openShopping);
@@ -1631,6 +1685,34 @@ function renderCurrentView() {
   applyPersonalization();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
+
+function setActiveTab(tab) {
+  state.activeTab = tab;
+
+  document.querySelectorAll(".bottom-nav button").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.tab === state.activeTab);
+  });
+
+  document.querySelectorAll(".view").forEach((view) => {
+    const isKnown = ["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab);
+    const isActive = view.dataset.view === state.activeTab || (view.dataset.view === "placeholder" && !isKnown);
+
+    view.hidden = !isActive;
+    view.classList.toggle("is-active", isActive);
+  });
+
+  if (!["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {
+    const labels = {
+      home: "Domov",
+      more: "Viac",
+    };
+
+    placeholderEyebrow.textContent = "Domáci Rytmus";
+    placeholderTitle.textContent = `${labels[state.activeTab] || state.activeTab} sa pripravuje`;
+  }
+}
+
+window.setActiveTab = setActiveTab;
 
 function fillFormOptions() {
   const plan = currentPlan();
@@ -1993,6 +2075,18 @@ taskList.addEventListener("change", (event) => {
 });
 
 taskList.addEventListener("click", (event) => {
+  const assignButton = event.target.closest("[data-assign-task]");
+  if (assignButton) {
+    const task = currentTasks().find((item) => item.id === assignButton.dataset.assignTask);
+    if (!task) return;
+    task.assignee = nextAssignee(task.assignee);
+    saveTasksState();
+    renderTasks();
+    renderHome();
+    showToast(`Priradené: ${assigneeLabel(task.assignee)}.`);
+    return;
+  }
+
   const button = event.target.closest(".delete-task");
   if (!button) return;
 
@@ -2247,35 +2341,27 @@ resetAllButton.addEventListener("click", () => {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-jump-tab]");
   if (!button) return;
-  document.querySelector(`.bottom-nav button[data-tab="${button.dataset.jumpTab}"]`)?.click();
+  setActiveTab(button.dataset.jumpTab);
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-tab]");
   if (!button) return;
-  state.activeTab = button.dataset.tab;
-
-  document.querySelectorAll(".bottom-nav button").forEach((item) => item.classList.remove("is-active"));
-  button.classList.add("is-active");
-
-  document.querySelectorAll(".view").forEach((view) => {
-    const isActive =
-      view.dataset.view === state.activeTab ||
-      (view.dataset.view === "placeholder" && !["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab));
-
-    view.hidden = !isActive;
-    view.classList.toggle("is-active", isActive);
-  });
-
-  if (!["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {
-    const labels = {
-      home: "Domov",
-      more: "Viac",
-    };
-
-    placeholderEyebrow.textContent = "Domáci Rytmus";
-    placeholderTitle.textContent = `${labels[state.activeTab]} sa pripravuje`;
-  }
+  setActiveTab(button.dataset.tab);
 });
 
+document.querySelectorAll(".bottom-nav button[data-tab]").forEach((button) => {
+  button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+});
+
+function handleTabActivation(event) {
+  const button = event.target.closest?.(".bottom-nav button[data-tab]");
+  if (!button) return;
+  setActiveTab(button.dataset.tab);
+}
+
+document.addEventListener("pointerup", handleTabActivation, true);
+document.addEventListener("touchend", handleTabActivation, true);
+
 renderCurrentView();
+setActiveTab(state.activeTab);

@@ -92,6 +92,15 @@
               </button>
             </section>
 
+            <section class="family-handoff" aria-label="Rodinné odovzdanie">
+              <div class="handoff-copy">
+                <p>Rodinné odovzdanie</p>
+                <h3 id="familyHandoffTitle">Kto čo drží?</h3>
+                <span id="familyHandoffDetail">Rozdeľte kroky tak, aby ich nemuseli nosiť v hlave obaja.</span>
+              </div>
+              <div id="familyHandoffList" class="handoff-list"></div>
+            </section>
+
             <section class="weekly-compass" aria-label="Týždenný kompas">
               <div class="compass-ring" aria-hidden="true">
                 <span id="weeklyCompassScore">0%</span>
@@ -598,25 +607,25 @@
       </main>
 
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
-        <button class="is-active" type="button" data-tab="home">
+        <button class="is-active" type="button" data-tab="home" onclick="window.setActiveTab?.('home')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
           <span>Domov</span>
         </button>
-        <button type="button" data-tab="tasks">
+        <button type="button" data-tab="tasks" onclick="window.setActiveTab?.('tasks')">
           <span class="badge" id="tasksBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
           <span>Kroky</span>
         </button>
-        <button type="button" data-tab="shopping">
+        <button type="button" data-tab="shopping" onclick="window.setActiveTab?.('shopping')">
           <span class="badge wide" id="shoppingBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
           <span>Nákup</span>
         </button>
-        <button type="button" data-tab="meals">
+        <button type="button" data-tab="meals" onclick="window.setActiveTab?.('meals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
           <span>Jedálniček</span>
         </button>
-        <button type="button" data-tab="more">
+        <button type="button" data-tab="more" onclick="window.setActiveTab?.('more')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg>
           <span>Viac</span>
         </button>

@@ -27,6 +27,8 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - voliteľná poznámka dňa pre rodinný kontext,
 - profily domácnosti pre pokojný, rušný alebo úsporný režim,
 - členovia domácnosti a domáci kód pripravený na budúce rodinné prepojenie,
+- rodinné odovzdanie na dashboarde s rozdelením krokov medzi členov,
+- priradenie domácich krokov konkrétnemu členovi alebo spoločnej zodpovednosti,
 - mesačný rozpočet nákupu s odhadom podľa týždenného zoznamu,
 - obľúbené jedlá označené hviezdičkou,
 - knižnica obľúbených jedál s rýchlym vložením do plánu,
