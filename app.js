@@ -402,8 +402,11 @@ const cloud = {
   api: {},
   unsubscribe: null,
   saveTimer: null,
+  heartbeatTimer: null,
   applyingRemote: false,
   householdId: "",
+  presenceUnsubscribe: null,
+  presence: {},
   remoteMeta: {
     updatedAt: "",
     updatedByName: "",
@@ -711,6 +714,26 @@ function cloudStatusText() {
   return cloud.householdId ? "Realtime zapnutý" : "Vyber domácnosť";
 }
 
+function formatLastSeen(value) {
+  if (!value) return "neznámy čas";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "neznámy čas";
+  const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (minutes <= 1) return "práve teraz";
+  if (minutes < 60) return `pred ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `pred ${hours} h`;
+  return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function memberPresenceText(uid) {
+  if (!uid) return "Lokálny člen";
+  const presence = cloud.presence[uid];
+  if (!presence) return "Offline";
+  if (presence.online) return "Online";
+  return `Naposledy ${formatLastSeen(presence.lastSeenAt || presence.updatedAt)}`;
+}
+
 function formatCloudMeta() {
   if (!cloud.remoteMeta.updatedAt) return "";
   const date = new Date(cloud.remoteMeta.updatedAt);
@@ -854,9 +877,63 @@ async function saveCloudNow() {
   }
 }
 
+async function updatePresence(online) {
+  if (!cloud.ready || !cloud.user || !cloud.householdId) return;
+  try {
+    const { doc, setDoc } = cloud.api;
+    const now = new Date().toISOString();
+    await setDoc(
+      doc(cloud.db, "households", cloud.householdId, "presence", cloud.user.uid),
+      {
+        uid: cloud.user.uid,
+        name: cloud.user.displayName || cloud.user.email || "Člen domácnosti",
+        online,
+        updatedAt: now,
+        lastSeenAt: now,
+      },
+      { merge: true },
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function stopPresenceHeartbeat() {
+  clearInterval(cloud.heartbeatTimer);
+  cloud.heartbeatTimer = null;
+}
+
+function startPresenceHeartbeat() {
+  stopPresenceHeartbeat();
+  updatePresence(true);
+  cloud.heartbeatTimer = setInterval(() => {
+    updatePresence(true);
+  }, 45000);
+}
+
+function listenToPresence(householdId) {
+  if (!cloud.ready || !householdId) return;
+  cloud.presenceUnsubscribe?.();
+  const { collection, onSnapshot } = cloud.api;
+  const ref = collection(cloud.db, "households", householdId, "presence");
+  cloud.presenceUnsubscribe = onSnapshot(ref, (snapshot) => {
+    const next = {};
+    snapshot.forEach((docItem) => {
+      next[docItem.id] = docItem.data();
+    });
+    cloud.presence = next;
+    renderFamilySettings();
+  }, (error) => {
+    console.error(error);
+  });
+}
+
 async function listenToHousehold(householdId) {
   if (!householdId || !cloud.ready) return;
   cloud.unsubscribe?.();
+  cloud.presenceUnsubscribe?.();
+  cloud.presenceUnsubscribe = null;
+  cloud.presence = {};
   cloud.householdId = householdId;
   state.settings.householdId = householdId;
   saveAllLocalOnly();
@@ -876,11 +953,17 @@ async function listenToHousehold(householdId) {
     console.error(error);
     showToast("Realtime spojenie sa nepodarilo načítať.");
   });
+  listenToPresence(householdId);
+  startPresenceHeartbeat();
 }
 
 async function handleAuthUser(user) {
   cloud.user = user;
   if (!user) {
+    stopPresenceHeartbeat();
+    cloud.presenceUnsubscribe?.();
+    cloud.presenceUnsubscribe = null;
+    cloud.presence = {};
     cloud.unsubscribe?.();
     cloud.unsubscribe = null;
     cloud.householdId = "";
@@ -920,6 +1003,7 @@ async function initCloud() {
       signOut: authModule.signOut,
       onAuthStateChanged: authModule.onAuthStateChanged,
       doc: firestoreModule.doc,
+      collection: firestoreModule.collection,
       getDoc: firestoreModule.getDoc,
       setDoc: firestoreModule.setDoc,
       onSnapshot: firestoreModule.onSnapshot,
@@ -951,6 +1035,7 @@ async function signInWithGoogle() {
 
 async function signOutGoogle() {
   if (!cloud.ready) return;
+  await updatePresence(false);
   await cloud.api.signOut(cloud.auth);
   showToast("Odhlásené. Appka ostáva dostupná lokálne.");
 }
@@ -1871,7 +1956,7 @@ function renderFamilySettings() {
     ? state.settings.familyMembers.map((member) => `
         <div class="member-chip ${member.uid ? "is-linked" : ""}">
           <span>${escapeHtml(member.name)}${me && member.uid === me ? " (Ja)" : ""}</span>
-          <em>${roleCopy[member.role] || "Člen"}${member.uid ? " · Google" : ""}</em>
+          <em>${roleCopy[member.role] || "Člen"}${member.uid ? ` · ${memberPresenceText(member.uid)}` : ""}</em>
           <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}" ${member.uid ? "disabled" : ""}>×</button>
         </div>
       `).join("")
@@ -3212,6 +3297,19 @@ function handleTabActivation(event) {
 
 document.addEventListener("pointerup", handleTabActivation, true);
 document.addEventListener("touchend", handleTabActivation, true);
+document.addEventListener("visibilitychange", () => {
+  if (!cloud.user || !cloud.householdId) return;
+  if (document.visibilityState === "hidden") {
+    updatePresence(false);
+    stopPresenceHeartbeat();
+  } else {
+    startPresenceHeartbeat();
+  }
+});
+window.addEventListener("beforeunload", () => {
+  if (!cloud.user || !cloud.householdId) return;
+  updatePresence(false);
+});
 
 renderCurrentView();
 setActiveTab(state.activeTab);
