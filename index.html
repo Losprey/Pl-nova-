@@ -104,6 +104,18 @@
               </div>
             </section>
 
+            <section class="budget-card" aria-label="Mesačný rozpočet">
+              <div>
+                <p>Rozpočet mesiaca</p>
+                <h3 id="budgetTitle">Nastav mesačný limit</h3>
+                <span id="budgetDetail">Odhad nákupu sa bude porovnávať s rozpočtom domácnosti.</span>
+              </div>
+              <div class="budget-meter" aria-hidden="true">
+                <strong id="budgetValue">0 €</strong>
+                <i><b id="budgetBar"></b></i>
+              </div>
+            </section>
+
             <section class="weekend-planner" aria-label="Víkendová príprava budúceho týždňa">
               <div class="mini-header">
                 <h3>Pripraviť budúci týždeň</h3>
@@ -466,6 +478,66 @@
                   <button type="button" data-backdrop-value="illustrated">Grafické</button>
                 </div>
               </div>
+
+              <details class="settings-details" open>
+                <summary>Domácnosť</summary>
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Profil domácnosti</strong>
+                    <span>Upraví odporúčania tak, aby sedeli na váš rytmus.</span>
+                  </div>
+                  <div class="profile-cards" data-family-profile>
+                    <button type="button" data-profile-value="calm">
+                      <strong>Pokojná</strong>
+                      <span>Menej tlaku</span>
+                    </button>
+                    <button type="button" data-profile-value="busy">
+                      <strong>Rušná</strong>
+                      <span>Rýchle kroky</span>
+                    </button>
+                    <button type="button" data-profile-value="budget">
+                      <strong>Úsporná</strong>
+                      <span>Strážiť nákup</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Členovia domácnosti</strong>
+                    <span>Pripraví aplikáciu na budúce rodinné prepojenie.</span>
+                  </div>
+                  <form class="member-form" id="memberForm">
+                    <input id="memberName" type="text" maxlength="28" autocomplete="off" placeholder="Meno">
+                    <select id="memberRole" aria-label="Rola člena">
+                      <option value="parent">Rodič</option>
+                      <option value="kid">Dieťa</option>
+                      <option value="helper">Pomocník</option>
+                    </select>
+                    <button class="ghost-action" type="submit">Pridať</button>
+                  </form>
+                  <div id="memberList" class="member-list"></div>
+                </div>
+
+                <div class="settings-row">
+                  <div>
+                    <strong>Domáci kód</strong>
+                    <span id="familyCodeDetail">Kód bude pripravený pre neskoršie pozvanie rodiny.</span>
+                  </div>
+                  <button class="ghost-action" id="familyCodeButton" type="button">Vytvoriť</button>
+                </div>
+
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Mesačný rozpočet</strong>
+                    <span>Limit na potraviny a domáci nákup v tomto mesiaci.</span>
+                  </div>
+                  <div class="budget-setting">
+                    <input id="monthlyBudgetInput" type="number" min="0" step="10" inputmode="decimal" placeholder="Napr. 450">
+                    <output id="monthlyBudgetStatus">Bez limitu</output>
+                  </div>
+                </div>
+              </details>
 
               <details class="settings-details" open>
                 <summary>Dáta</summary>

@@ -162,6 +162,10 @@ const weeklyCompassScore = document.querySelector("#weeklyCompassScore");
 const weeklyCompassTitle = document.querySelector("#weeklyCompassTitle");
 const weeklyCompassDetail = document.querySelector("#weeklyCompassDetail");
 const weeklyCompassSignals = document.querySelector("#weeklyCompassSignals");
+const budgetTitle = document.querySelector("#budgetTitle");
+const budgetDetail = document.querySelector("#budgetDetail");
+const budgetValue = document.querySelector("#budgetValue");
+const budgetBar = document.querySelector("#budgetBar");
 const favoriteQuickList = document.querySelector("#favoriteQuickList");
 const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
 const quickMealHint = document.querySelector("#quickMealHint");
@@ -186,6 +190,15 @@ const scaleValue = document.querySelector("#scaleValue");
 const displayDensityButtons = document.querySelectorAll("[data-density-value]");
 const visualStyleButtons = document.querySelectorAll("[data-visual-value]");
 const backdropButtons = document.querySelectorAll("[data-backdrop-value]");
+const familyProfileButtons = document.querySelectorAll("[data-profile-value]");
+const memberForm = document.querySelector("#memberForm");
+const memberName = document.querySelector("#memberName");
+const memberRole = document.querySelector("#memberRole");
+const memberList = document.querySelector("#memberList");
+const familyCodeDetail = document.querySelector("#familyCodeDetail");
+const familyCodeButton = document.querySelector("#familyCodeButton");
+const monthlyBudgetInput = document.querySelector("#monthlyBudgetInput");
+const monthlyBudgetStatus = document.querySelector("#monthlyBudgetStatus");
 const exportDataButton = document.querySelector("#exportDataButton");
 const importDataButton = document.querySelector("#importDataButton");
 const importDataInput = document.querySelector("#importDataInput");
@@ -279,6 +292,41 @@ const taskIdeaBank = [
   { title: "Nechať jeden večer úplne jednoduchý", priority: "low", mode: "light" },
 ];
 
+const familyProfileCopy = {
+  calm: {
+    label: "Pokojná domácnosť",
+    dashboard: "Držíme rytmus bez zbytočného tlaku.",
+    taskHint: "Malé kroky",
+  },
+  busy: {
+    label: "Rušná domácnosť",
+    dashboard: "Najviac pomôžu rýchle jedlá a krátke kroky.",
+    taskHint: "Rýchle kroky",
+  },
+  budget: {
+    label: "Úsporná domácnosť",
+    dashboard: "Rozpočet a zásoby majú teraz prednosť.",
+    taskHint: "Úsporné kroky",
+  },
+};
+
+const roleCopy = {
+  parent: "Rodič",
+  kid: "Dieťa",
+  helper: "Pomocník",
+};
+
+const categoryEstimate = {
+  "Ovocie a zelenina": 18,
+  Pečivo: 8,
+  Mliečne: 16,
+  "Mäso a ryby": 28,
+  "Suché potraviny": 14,
+  "Konzervy a omáčky": 10,
+  Detské: 12,
+  Ostatné: 10,
+};
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -338,6 +386,13 @@ function loadSettingsState() {
     showNote: true,
     simpleMeals: false,
     hideDoneShopping: false,
+    familyProfile: "calm",
+    familyMembers: [
+      { id: "member:1", name: "Mama", role: "parent" },
+      { id: "member:2", name: "Deti", role: "kid" },
+    ],
+    familyCode: "",
+    monthlyBudget: 0,
     scale: 100,
     displayDensity: "cozy",
     visualStyle: "home",
@@ -472,6 +527,16 @@ function applyPersonalization() {
   setActiveSetting(displayDensityButtons, "densityValue", state.settings.displayDensity);
   setActiveSetting(visualStyleButtons, "visualValue", state.settings.visualStyle);
   setActiveSetting(backdropButtons, "backdropValue", state.settings.backdrop);
+}
+
+function ensureFamilySettings() {
+  state.settings.familyProfile ||= "calm";
+  state.settings.familyMembers ||= [
+    { id: "member:1", name: "Mama", role: "parent" },
+    { id: "member:2", name: "Deti", role: "kid" },
+  ];
+  state.settings.familyCode ||= "";
+  state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
 }
 
 function addDays(date, count) {
@@ -714,6 +779,24 @@ function buildSmartTips(meals, tasks, shopping, openShopping) {
   const dinners = meals.filter((meal) => meal.typeKey === "dinner").length;
   const favoriteToUse = state.favorites.find((name) => !meals.some((meal) => meal.name === name));
   const weekly = weeklyContext();
+  const monthly = monthlySpendEstimate();
+  const budget = state.settings.monthlyBudget || 0;
+
+  if (budget && monthly > budget) {
+    tips.push({
+      icon: "€",
+      title: "Rozpočet je nad limitom",
+      detail: "Skús pozrieť lacnejšie jedlá alebo zásoby doma.",
+      action: "more",
+    });
+  } else if (state.settings.familyProfile === "budget" && budget) {
+    tips.push({
+      icon: "€",
+      title: "Držať nákup v rozpočte",
+      detail: `${monthly} € z ${budget} € mesačne podľa aktuálneho zoznamu.`,
+      action: "shopping",
+    });
+  }
 
   if (weekly.cooking === "two-days") {
     tips.push({
@@ -1066,7 +1149,7 @@ function taskIdeas() {
 
 function renderQuickTaskIdeas() {
   const ideas = taskIdeas();
-  quickTaskHint.textContent = ideas.length === 1 ? "1 návrh" : `${ideas.length} návrhy`;
+  quickTaskHint.textContent = familyProfileCopy[state.settings.familyProfile]?.taskHint || (ideas.length === 1 ? "1 návrh" : `${ideas.length} návrhy`);
   quickTaskList.innerHTML = ideas.length
     ? ideas.map((idea) => `
         <button type="button" data-quick-task="${escapeHtml(idea.title)}" data-quick-task-priority="${idea.priority}">
@@ -1075,6 +1158,57 @@ function renderQuickTaskIdeas() {
         </button>
       `).join("")
     : `<div class="empty-state">Najčastejšie kroky už máš pridané.</div>`;
+}
+
+function estimatedWeeklySpend() {
+  return shoppingItems().reduce((sum, item) => sum + (categoryEstimate[item.category || "Ostatné"] || 10), 0);
+}
+
+function monthlySpendEstimate() {
+  return estimatedWeeklySpend() * 4;
+}
+
+function renderBudget() {
+  ensureFamilySettings();
+  const budget = state.settings.monthlyBudget;
+  const monthly = monthlySpendEstimate();
+  const percent = budget ? progressPercent(monthly, budget) : 0;
+  const profile = familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm;
+
+  budgetValue.textContent = budget ? `${monthly} € / ${budget} €` : `${monthly} €`;
+  budgetBar.style.width = `${Math.min(percent, 100)}%`;
+  budgetBar.classList.toggle("is-over", Boolean(budget && monthly > budget));
+  budgetTitle.textContent = budget
+    ? monthly > budget
+      ? "Rozpočet je napnutý"
+      : "Rozpočet vyzerá dobre"
+    : "Nastav mesačný limit";
+  budgetDetail.textContent = budget
+    ? `${profile.label}: odhad mesiaca je ${percent} % z limitu.`
+    : "Odhad vychádza z aktuálneho nákupného zoznamu krát 4 týždne.";
+  monthlyBudgetInput.value = budget ? String(budget) : "";
+  monthlyBudgetStatus.textContent = budget ? `Limit ${budget} €` : "Bez limitu";
+}
+
+function renderFamilySettings() {
+  ensureFamilySettings();
+  const profile = familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm;
+
+  setActiveSetting(familyProfileButtons, "profileValue", state.settings.familyProfile);
+  familyCodeDetail.textContent = state.settings.familyCode
+    ? `Kód ${state.settings.familyCode} je pripravený na pozvanie rodiny.`
+    : "Kód bude pripravený pre neskoršie pozvanie rodiny.";
+  familyCodeButton.textContent = state.settings.familyCode ? "Obnoviť" : "Vytvoriť";
+  settingsStatus.textContent = profile.label;
+  memberList.innerHTML = state.settings.familyMembers.length
+    ? state.settings.familyMembers.map((member) => `
+        <div class="member-chip">
+          <span>${escapeHtml(member.name)}</span>
+          <em>${roleCopy[member.role] || "Člen"}</em>
+          <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}">×</button>
+        </div>
+      `).join("")
+    : `<div class="empty-state">Pridaj prvého člena domácnosti.</div>`;
 }
 
 function addQuickTask(title, priority) {
@@ -1223,7 +1357,7 @@ function renderHome() {
 
   homeEyebrow.textContent = plan.label;
   homeTitle.textContent = plan.range;
-  homeAudience.textContent = state.audience === "kids" ? "Deti" : "Dospelí";
+  homeAudience.textContent = `${state.audience === "kids" ? "Deti" : "Dospelí"} · ${(familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm).label.replace(" domácnosť", "")}`;
   homeMealsCount.textContent = String(meals.length);
   homeTasksCount.textContent = String(openTasks.length);
   homeShoppingCount.textContent = String(openShopping.length);
@@ -1237,6 +1371,7 @@ function renderHome() {
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
+  renderBudget();
   renderSmartTips(meals, tasks, shopping, openShopping);
 
   const today = todaySummary(meals, openTasks, openShopping);
@@ -1399,6 +1534,8 @@ function renderCurrentView() {
   renderFavoriteLibrary();
   renderQuickMealIdeas();
   renderQuickTaskIdeas();
+  renderFamilySettings();
+  renderBudget();
   renderWeeklyPlanner();
   renderCheckin();
   renderRhythm();
@@ -1838,6 +1975,55 @@ backdropButtons.forEach((button) => {
   });
 });
 
+familyProfileButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.settings.familyProfile = button.dataset.profileValue;
+    saveSettingsState();
+    renderCurrentView();
+    settingsStatus.textContent = familyProfileCopy[state.settings.familyProfile].label;
+  });
+});
+
+memberForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = memberName.value.trim();
+  if (!name) return;
+  ensureFamilySettings();
+  state.settings.familyMembers = [
+    ...state.settings.familyMembers,
+    { id: `member:${Date.now()}:${slug(name)}`, name, role: memberRole.value },
+  ].slice(0, 8);
+  memberName.value = "";
+  memberRole.value = "parent";
+  saveSettingsState();
+  renderFamilySettings();
+  renderHome();
+  settingsStatus.textContent = "Člen pridaný";
+});
+
+memberList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-member]");
+  if (!button) return;
+  state.settings.familyMembers = state.settings.familyMembers.filter((member) => member.id !== button.dataset.removeMember);
+  saveSettingsState();
+  renderFamilySettings();
+  settingsStatus.textContent = "Člen odstránený";
+});
+
+familyCodeButton.addEventListener("click", () => {
+  state.settings.familyCode = `DOM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  saveSettingsState();
+  renderFamilySettings();
+  settingsStatus.textContent = "Domáci kód pripravený";
+});
+
+monthlyBudgetInput.addEventListener("input", () => {
+  state.settings.monthlyBudget = Math.max(0, Number(monthlyBudgetInput.value || 0));
+  saveSettingsState();
+  renderBudget();
+  settingsStatus.textContent = state.settings.monthlyBudget ? "Rozpočet uložený" : "Rozpočet vypnutý";
+});
+
 exportDataButton.addEventListener("click", () => {
   const payload = {
     version: 1,
@@ -1912,6 +2098,13 @@ resetAllButton.addEventListener("click", () => {
     showNote: true,
     simpleMeals: false,
     hideDoneShopping: false,
+    familyProfile: "calm",
+    familyMembers: [
+      { id: "member:1", name: "Mama", role: "parent" },
+      { id: "member:2", name: "Deti", role: "kid" },
+    ],
+    familyCode: "",
+    monthlyBudget: 0,
     scale: 100,
     displayDensity: "cozy",
     visualStyle: "home",
