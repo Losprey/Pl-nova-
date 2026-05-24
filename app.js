@@ -123,6 +123,7 @@ const formTitle = document.querySelector("#formTitle");
 const shoppingList = document.querySelector("#shoppingList");
 const shoppingForm = document.querySelector("#shoppingForm");
 const shoppingName = document.querySelector("#shoppingName");
+const shoppingCategory = document.querySelector("#shoppingCategory");
 const shoppingCount = document.querySelector("#shoppingCount");
 const shoppingBadge = document.querySelector("#shoppingBadge");
 const taskForm = document.querySelector("#taskForm");
@@ -1123,7 +1124,7 @@ function generatedShoppingItems() {
 
 function manualShoppingItems() {
   return (state.shopping.manual[contextKey()] || []).map((item) => ({
-    category: "Ostatné",
+    category: item.category || "Ostatné",
     ...item,
   }));
 }
@@ -1654,6 +1655,7 @@ function mealIdeas() {
 }
 
 function renderQuickMealIdeas() {
+  if (!quickMealHint || !quickMealList) return;
   const weekly = weeklyContext();
   const ideas = mealIdeas();
   quickMealHint.textContent = weekly.mode === "busy" || weekly.cooking === "minimal"
@@ -2440,7 +2442,7 @@ favoriteQuickList.addEventListener("click", (event) => {
   addFavoriteToPlan(button.dataset.favoriteAdd);
 });
 
-quickMealList.addEventListener("click", (event) => {
+quickMealList?.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-quick-meal]");
   if (!button) return;
   addQuickMeal(button.dataset.quickMeal, button.dataset.quickMealType);
@@ -2461,12 +2463,13 @@ shoppingForm.addEventListener("submit", (event) => {
   const item = {
     id: `manual:${Date.now()}:${slug(name)}`,
     name,
-    category: "Ostatné",
+    category: shoppingCategory?.value || "Ostatné",
     automatic: false,
   };
 
   state.shopping.manual[key] = [...manualShoppingItems(), item];
   shoppingName.value = "";
+  if (shoppingCategory) shoppingCategory.value = "Ostatné";
   saveShoppingState();
   renderShopping();
 });

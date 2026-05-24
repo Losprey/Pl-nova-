@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1945">
+    <link rel="stylesheet" href="styles.css?v=20260524-2010">
   </head>
   <body>
     <div class="app-shell">
@@ -80,29 +80,6 @@
                 <strong id="homeShoppingVisualValue">0</strong>
                 <span>vybavené</span>
                 <i><b id="homeShoppingMeter"></b></i>
-              </button>
-            </section>
-
-            <section class="home-shortcuts" aria-label="Rýchle sekcie">
-              <button class="shortcut-tile tasks" type="button" data-jump-tab="tasks">
-                <span class="tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg></span>
-                <strong>Úlohy</strong>
-                <em>Čo treba spraviť</em>
-              </button>
-              <button class="shortcut-tile shopping" type="button" data-jump-tab="shopping">
-                <span class="tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg></span>
-                <strong>Nákup</strong>
-                <em>Zoznam na týždeň</em>
-              </button>
-              <button class="shortcut-tile meals" type="button" data-jump-tab="meals">
-                <span class="tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg></span>
-                <strong>Jedálniček</strong>
-                <em>Plán jedál</em>
-              </button>
-              <button class="shortcut-tile family" type="button" data-jump-tab="more">
-                <span class="tile-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a2 2 0 1 0 0-.01M8 8a2 2 0 1 0 0-.01M12 6a2.2 2.2 0 1 0 0-.01M4.5 19.5V18a2.5 2.5 0 0 1 2.5-2.5h2M19.5 19.5V18a2.5 2.5 0 0 0-2.5-2.5h-2M8.5 19.5V18a3.5 3.5 0 0 1 7 0v1.5"></path></svg></span>
-                <strong>Rodina</strong>
-                <em>Členovia a účet</em>
               </button>
             </section>
 
@@ -258,21 +235,21 @@
               </button>
             </div>
 
-            <section class="next-actions" aria-label="Odporúčané kroky">
+            <section class="next-actions" aria-label="Odporúčané kroky" hidden>
               <div class="mini-header">
                 <h3>Čo vybaviť najbližšie</h3>
               </div>
               <div id="homeActionList" class="action-list"></div>
             </section>
 
-            <section class="smart-tips" aria-label="Smart tipy">
+            <section class="smart-tips" aria-label="Smart tipy" hidden>
               <div class="mini-header">
                 <h3>Smart tipy</h3>
               </div>
               <div id="smartTipList" class="smart-tip-list"></div>
             </section>
 
-            <div class="dashboard-grid">
+            <div class="dashboard-grid" hidden>
               <section class="mini-panel">
                 <div class="mini-header">
                   <h3>Najbližšie jedlá</h3>
@@ -357,18 +334,10 @@
             <div id="favoriteQuickList" class="favorite-quick-list"></div>
           </section>
 
-          <section class="quick-meals" aria-label="Rýchle návrhy jedál">
+          <section class="pantry-cook" aria-label="Tipy zo špajze">
             <div class="mini-header">
-              <h3>Rýchlo doplniť</h3>
-              <span id="quickMealHint">Podľa týždňa</span>
-            </div>
-            <div id="quickMealList" class="quick-meal-list"></div>
-          </section>
-
-          <section class="pantry-cook" aria-label="Varíme z toho, čo máme">
-            <div class="mini-header">
-              <h3>Varíme z domu</h3>
-              <span id="pantryCookHint">Podľa špajze</span>
+              <h3>Tipy zo špajze</h3>
+              <span id="pantryCookHint">Podľa zásob</span>
             </div>
             <div id="pantryCookList" class="pantry-cook-list"></div>
           </section>
@@ -388,6 +357,16 @@
 
             <form class="quick-add" id="shoppingForm">
               <input id="shoppingName" type="text" autocomplete="off" maxlength="70" placeholder="Pridať položku">
+              <select id="shoppingCategory" aria-label="Kategória položky">
+                <option value="Ovocie a zelenina">Ovocie a zelenina</option>
+                <option value="Pečivo">Pečivo</option>
+                <option value="Mliečne">Mliečne</option>
+                <option value="Mäso a ryby">Mäso a ryby</option>
+                <option value="Suché potraviny">Suché potraviny</option>
+                <option value="Konzervy a omáčky">Konzervy a omáčky</option>
+                <option value="Detské">Detské</option>
+                <option value="Ostatné" selected>Ostatné</option>
+              </select>
               <button class="primary-action" type="submit" aria-label="Pridať položku">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               </button>
@@ -950,7 +929,7 @@
         });
       });
     </script>
-    <script src="firebase-config.js?v=20260524-1945"></script>
-    <script src="app.js?v=20260524-1945"></script>
+    <script src="firebase-config.js?v=20260524-2010"></script>
+    <script src="app.js?v=20260524-2010"></script>
   </body>
 </html>

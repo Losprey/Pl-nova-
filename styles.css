@@ -4883,6 +4883,39 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+/* Shopping form: manual category picker */
+.quick-add {
+  grid-template-columns: minmax(0, 1fr) 170px 52px;
+}
+
+.quick-add select {
+  min-width: 0;
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #111a2d;
+  color: var(--text);
+  padding: 0 12px;
+  outline: 0;
+}
+
+.quick-add select:focus {
+  border-color: var(--purple-2);
+  box-shadow: 0 0 0 3px rgba(103, 87, 255, 0.18);
+}
+
+body[data-theme="light"] .quick-add select {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--text);
+}
+
+@media (max-width: 540px) {
+  .quick-add {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Unified icon style and section visuals */
 .tile-icon,
 .glance-main {
