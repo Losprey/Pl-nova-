@@ -158,11 +158,22 @@ const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue
 const homeMealMeter = document.querySelector("#homeMealMeter");
 const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
+const weeklyCompassScore = document.querySelector("#weeklyCompassScore");
+const weeklyCompassTitle = document.querySelector("#weeklyCompassTitle");
+const weeklyCompassDetail = document.querySelector("#weeklyCompassDetail");
+const weeklyCompassSignals = document.querySelector("#weeklyCompassSignals");
 const favoriteQuickList = document.querySelector("#favoriteQuickList");
 const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
+const quickMealHint = document.querySelector("#quickMealHint");
+const quickMealList = document.querySelector("#quickMealList");
 const simpleMealsButton = document.querySelector("#simpleMealsButton");
+const shoppingProgressText = document.querySelector("#shoppingProgressText");
+const shoppingProgressBar = document.querySelector("#shoppingProgressBar");
+const hideDoneShoppingButton = document.querySelector("#hideDoneShoppingButton");
 const stockCount = document.querySelector("#stockCount");
 const stockList = document.querySelector("#stockList");
+const quickTaskHint = document.querySelector("#quickTaskHint");
+const quickTaskList = document.querySelector("#quickTaskList");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
@@ -240,6 +251,34 @@ const cookingModeCopy = {
   minimal: "Minimum varenia",
 };
 
+const mealIdeaBank = {
+  kids: [
+    { typeKey: "breakfast", name: "Jogurt s granolou a ovocím", mode: "normal" },
+    { typeKey: "snack", name: "Ovocná kapsička a piškóty", mode: "busy" },
+    { typeKey: "lunch", name: "Kuracie rizoto na dva dni", mode: "two-days" },
+    { typeKey: "afternoon", name: "Tvaroh s banánom", mode: "light" },
+    { typeKey: "dinner", name: "Cestoviny s paradajkovou omáčkou", mode: "minimal" },
+    { typeKey: "dinner", name: "Zeleninová polievka s pečivom", mode: "budget" },
+  ],
+  adults: [
+    { typeKey: "breakfast", name: "Overnight oats s malinami", mode: "normal" },
+    { typeKey: "snack", name: "Skyr a orechy", mode: "busy" },
+    { typeKey: "lunch", name: "Kuracie kari s ryžou na dva dni", mode: "two-days" },
+    { typeKey: "afternoon", name: "Hummus so zeleninou", mode: "light" },
+    { typeKey: "dinner", name: "Vaječná omeleta so šalátom", mode: "minimal" },
+    { typeKey: "dinner", name: "Cícerové kari s ryžou", mode: "budget" },
+  ],
+};
+
+const taskIdeaBank = [
+  { title: "Vybrať 3 hlavné jedlá na týždeň", priority: "high", mode: "normal" },
+  { title: "Pripraviť dve večere bez varenia", priority: "high", mode: "busy" },
+  { title: "Skontrolovať zásoby pred veľkým nákupom", priority: "normal", mode: "normal" },
+  { title: "Naplánovať jedno jedlo na dva dni", priority: "normal", mode: "two-days" },
+  { title: "Vybrať lacnejšie jedlá zo zásob", priority: "normal", mode: "budget" },
+  { title: "Nechať jeden večer úplne jednoduchý", priority: "low", mode: "light" },
+];
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -298,6 +337,7 @@ function loadSettingsState() {
     density: "compact",
     showNote: true,
     simpleMeals: false,
+    hideDoneShopping: false,
     scale: 100,
     displayDensity: "cozy",
     visualStyle: "home",
@@ -595,17 +635,26 @@ function setCheckedShoppingIds(ids) {
 function renderShopping() {
   const checked = new Set(checkedShoppingIds());
   const items = shoppingItems();
+  const visibleItems = state.settings.hideDoneShopping
+    ? items.filter((item) => !checked.has(item.id))
+    : items;
   const openCount = items.filter((item) => !checked.has(item.id)).length;
+  const doneCount = items.length - openCount;
+  const progress = progressPercent(doneCount, items.length);
   const groups = shoppingCategoryOrder
     .map((category) => ({
       category,
-      items: items.filter((item) => (item.category || "Ostatné") === category),
+      items: visibleItems.filter((item) => (item.category || "Ostatné") === category),
     }))
     .filter((group) => group.items.length);
 
   shoppingCount.textContent = `${openCount} z ${items.length}`;
   shoppingBadge.textContent = openCount > 9 ? "9+" : String(openCount);
   shoppingBadge.hidden = openCount === 0;
+  shoppingProgressText.textContent = `${progress} % vybavené`;
+  shoppingProgressBar.style.width = `${progress}%`;
+  hideDoneShoppingButton.textContent = state.settings.hideDoneShopping ? "Ukázať hotové" : "Skryť hotové";
+  hideDoneShoppingButton.classList.toggle("is-active", state.settings.hideDoneShopping);
 
   shoppingList.innerHTML = groups.length
     ? groups
@@ -643,7 +692,7 @@ function renderShopping() {
           </section>
         `)
         .join("")
-    : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
+    : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne."}</div>`;
 }
 
 function renderStockCheck() {
@@ -906,6 +955,141 @@ function progressPercent(done, total) {
   return Math.max(0, Math.min(100, Math.round((done / total) * 100)));
 }
 
+function weeklyReadiness(meals, tasks, shopping, openShopping) {
+  const weekly = weeklyContext();
+  const prepDone = weekly.prep?.length || 0;
+  const stockDone = weekly.stock?.length || 0;
+  const openTasks = tasks.filter((task) => !task.done).length;
+  const signals = [
+    { label: "Jedlá", value: progressPercent(meals.length, 21) },
+    { label: "Príprava", value: progressPercent(prepDone, prepSteps.length) },
+    { label: "Zásoby", value: progressPercent(stockDone, stockBasics.length) },
+    { label: "Nákup", value: progressPercent(shopping.length - openShopping.length, shopping.length) },
+  ];
+  const score = Math.round(signals.reduce((sum, signal) => sum + signal.value, 0) / signals.length);
+
+  let title = "Týždeň sa skladá";
+  let detail = "Stačí doplniť pár miest a nákup bude prehľadnejší.";
+
+  if (score >= 85 && openTasks <= 2) {
+    title = "Týždeň je pripravený";
+    detail = "Jedlá, nákup aj príprava vyzerajú pokojne. Teraz stačí držať rytmus.";
+  } else if (meals.length < 10) {
+    title = "Chýba pár jedál";
+    detail = "Najväčší efekt bude mať rýchle doplnenie obedov a večerí.";
+  } else if (openShopping.length > 8) {
+    title = "Nákup je hlavný krok";
+    detail = "Zoznam už existuje. Pomôže vybaviť ho po kategóriách.";
+  } else if (prepDone < 3) {
+    title = "Víkendová príprava pomôže";
+    detail = "Stačí zaškrtnúť pár prípravných vecí a týždeň bude ľahší.";
+  }
+
+  return { score, title, detail, signals };
+}
+
+function renderWeeklyCompass(meals, tasks, shopping, openShopping) {
+  const compass = weeklyReadiness(meals, tasks, shopping, openShopping);
+  weeklyCompassScore.textContent = `${compass.score}%`;
+  weeklyCompassTitle.textContent = compass.title;
+  weeklyCompassDetail.textContent = compass.detail;
+  weeklyCompassScore.parentElement.style.setProperty("--score", `${compass.score}%`);
+  weeklyCompassSignals.innerHTML = compass.signals
+    .map((signal) => `
+      <span>
+        <strong>${escapeHtml(signal.label)}</strong>
+        <em>${signal.value}%</em>
+      </span>
+    `)
+    .join("");
+}
+
+function nextOpenMealSlot(typeKey) {
+  const plan = currentPlan();
+  const dayIndex = plan.days.findIndex((day) => !day.meals.some((meal) => meal.typeKey === typeKey));
+  return dayIndex === -1 ? nextMealSlot().dayIndex : dayIndex;
+}
+
+function mealIdeas() {
+  const weekly = weeklyContext();
+  const existing = new Set(allMeals().map((meal) => meal.name));
+  const preferredModes = [weekly.cooking, weekly.mode, "normal"];
+  const ideas = mealIdeaBank[state.audience]
+    .filter((idea) => preferredModes.includes(idea.mode))
+    .filter((idea) => !existing.has(idea.name));
+
+  return [...ideas, ...mealIdeaBank[state.audience].filter((idea) => !existing.has(idea.name))]
+    .filter((idea, index, list) => list.findIndex((item) => item.name === idea.name) === index)
+    .slice(0, 5);
+}
+
+function renderQuickMealIdeas() {
+  const weekly = weeklyContext();
+  const ideas = mealIdeas();
+  quickMealHint.textContent = weekly.mode === "busy" || weekly.cooking === "minimal"
+    ? "Rýchle jedlá"
+    : weekly.cooking === "two-days"
+      ? "Na dva dni"
+      : "Podľa týždňa";
+  quickMealList.innerHTML = ideas.length
+    ? ideas.map((idea) => {
+        const type = mealTypeFor(idea.typeKey);
+        return `
+          <button type="button" data-quick-meal="${escapeHtml(idea.name)}" data-quick-meal-type="${idea.typeKey}">
+            <span aria-hidden="true">${type.icon}</span>
+            <strong>${escapeHtml(idea.name)}</strong>
+            <em>${type.label}</em>
+          </button>
+        `;
+      }).join("")
+    : `<div class="empty-state">Návrhy sú už v pláne. Pridaj vlastné jedlo alebo použi obľúbené.</div>`;
+}
+
+function addQuickMeal(name, typeKey) {
+  const dayIndex = nextOpenMealSlot(typeKey);
+  currentPlan().days[dayIndex].meals.push({ typeKey, name });
+  savePlans();
+  renderCurrentView();
+  showToast("Jedlo doplnené do najbližšieho voľného dňa.");
+}
+
+function taskIdeas() {
+  const weekly = weeklyContext();
+  const existing = new Set(currentTasks().map((task) => task.title));
+  const preferredModes = [weekly.cooking, weekly.mode, "normal"];
+
+  return taskIdeaBank
+    .filter((idea) => preferredModes.includes(idea.mode))
+    .filter((idea) => !existing.has(idea.title))
+    .slice(0, 4);
+}
+
+function renderQuickTaskIdeas() {
+  const ideas = taskIdeas();
+  quickTaskHint.textContent = ideas.length === 1 ? "1 návrh" : `${ideas.length} návrhy`;
+  quickTaskList.innerHTML = ideas.length
+    ? ideas.map((idea) => `
+        <button type="button" data-quick-task="${escapeHtml(idea.title)}" data-quick-task-priority="${idea.priority}">
+          <strong>${escapeHtml(idea.title)}</strong>
+          <span>${priorityLabel(idea.priority)}</span>
+        </button>
+      `).join("")
+    : `<div class="empty-state">Najčastejšie kroky už máš pridané.</div>`;
+}
+
+function addQuickTask(title, priority) {
+  currentTasks().push({
+    id: `task:${Date.now()}:${slug(title)}`,
+    title,
+    priority,
+    due: "",
+    done: false,
+  });
+  saveTasksState();
+  renderCurrentView();
+  showToast("Krok pridaný.");
+}
+
 function todaySummary(meals, openTasks, openShopping) {
   const firstMeal = meals[0];
   if (firstMeal) {
@@ -1052,6 +1236,7 @@ function renderHome() {
   homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
+  renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderSmartTips(meals, tasks, shopping, openShopping);
 
   const today = todaySummary(meals, openTasks, openShopping);
@@ -1212,6 +1397,8 @@ function renderCurrentView() {
   renderTasks();
   renderHome();
   renderFavoriteLibrary();
+  renderQuickMealIdeas();
+  renderQuickTaskIdeas();
   renderWeeklyPlanner();
   renderCheckin();
   renderRhythm();
@@ -1417,6 +1604,12 @@ favoriteQuickList.addEventListener("click", (event) => {
   addFavoriteToPlan(button.dataset.favoriteAdd);
 });
 
+quickMealList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-quick-meal]");
+  if (!button) return;
+  addQuickMeal(button.dataset.quickMeal, button.dataset.quickMealType);
+});
+
 shoppingForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const name = shoppingName.value.trim();
@@ -1433,6 +1626,12 @@ shoppingForm.addEventListener("submit", (event) => {
   state.shopping.manual[key] = [...manualShoppingItems(), item];
   shoppingName.value = "";
   saveShoppingState();
+  renderShopping();
+});
+
+hideDoneShoppingButton.addEventListener("click", () => {
+  state.settings.hideDoneShopping = !state.settings.hideDoneShopping;
+  saveSettingsState();
   renderShopping();
 });
 
@@ -1523,6 +1722,12 @@ taskForm.addEventListener("submit", (event) => {
   saveTasksState();
   renderTasks();
   renderHome();
+});
+
+quickTaskList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-quick-task]");
+  if (!button) return;
+  addQuickTask(button.dataset.quickTask, button.dataset.quickTaskPriority);
 });
 
 taskList.addEventListener("change", (event) => {
@@ -1706,6 +1911,7 @@ resetAllButton.addEventListener("click", () => {
     density: "compact",
     showNote: true,
     simpleMeals: false,
+    hideDoneShopping: false,
     scale: 100,
     displayDensity: "cozy",
     visualStyle: "home",

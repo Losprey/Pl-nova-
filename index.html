@@ -92,6 +92,18 @@
               </button>
             </section>
 
+            <section class="weekly-compass" aria-label="Týždenný kompas">
+              <div class="compass-ring" aria-hidden="true">
+                <span id="weeklyCompassScore">0%</span>
+              </div>
+              <div>
+                <p>Týždenný kompas</p>
+                <h3 id="weeklyCompassTitle">Pozrieme, čo ešte chýba</h3>
+                <span id="weeklyCompassDetail">Appka spojí jedlá, nákup, kroky a víkendovú prípravu.</span>
+                <div id="weeklyCompassSignals" class="compass-signals"></div>
+              </div>
+            </section>
+
             <section class="weekend-planner" aria-label="Víkendová príprava budúceho týždňa">
               <div class="mini-header">
                 <h3>Pripraviť budúci týždeň</h3>
@@ -273,6 +285,14 @@
             <div id="favoriteQuickList" class="favorite-quick-list"></div>
           </section>
 
+          <section class="quick-meals" aria-label="Rýchle návrhy jedál">
+            <div class="mini-header">
+              <h3>Rýchlo doplniť</h3>
+              <span id="quickMealHint">Podľa týždňa</span>
+            </div>
+            <div id="quickMealList" class="quick-meal-list"></div>
+          </section>
+
           <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
         </section>
 
@@ -292,6 +312,14 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               </button>
             </form>
+
+            <section class="shopping-mode" aria-label="Nákupný režim">
+              <div>
+                <p id="shoppingProgressText">0 % vybavené</p>
+                <i><b id="shoppingProgressBar"></b></i>
+              </div>
+              <button class="ghost-action" id="hideDoneShoppingButton" type="button">Skryť hotové</button>
+            </section>
 
             <div id="shoppingList" class="shopping-list"></div>
             <section class="stock-panel" aria-label="Kontrola zásob pred nákupom">
@@ -326,6 +354,14 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               </button>
             </form>
+
+            <section class="quick-tasks" aria-label="Rýchle návrhy krokov">
+              <div class="mini-header">
+                <h3>Pridať bez premýšľania</h3>
+                <span id="quickTaskHint">Malé kroky</span>
+              </div>
+              <div id="quickTaskList" class="quick-task-list"></div>
+            </section>
 
             <div id="taskList" class="task-list"></div>
           </section>
