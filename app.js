@@ -1344,21 +1344,31 @@ function taskBucket(task) {
 
 function taskRow(task) {
   return `
-    <label class="task-item ${task.done ? "is-done" : ""}">
-      <input type="checkbox" data-id="${task.id}" ${task.done ? "checked" : ""}>
-      <span>
-        <strong>${escapeHtml(task.title)}</strong>
-        <span>${formatDueDate(task.due)}</span>
-        <em class="task-suggestion">${escapeHtml(taskSuggestion(task))}</em>
-      </span>
-      <button class="assignee-pill" type="button" data-assign-task="${task.id}" aria-label="Priradiť krok ${escapeHtml(task.title)}">
-        ${escapeHtml(assigneeLabel(task.assignee))}
-      </button>
-      <span class="priority-pill ${task.priority}">${priorityLabel(task.priority)}</span>
-      <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť krok ${escapeHtml(task.title)}">
-        ${buttonIcon("delete")}
-      </button>
-    </label>
+    <article class="classic-task-card ${task.done ? "is-done" : ""}">
+      <input class="task-check" type="checkbox" data-id="${task.id}" ${task.done ? "checked" : ""} aria-label="Hotovo ${escapeHtml(task.title)}">
+      <span class="task-dot" aria-hidden="true"></span>
+      <div class="classic-task-body">
+        <div class="classic-task-head">
+          <h3>${escapeHtml(task.title)}</h3>
+          <button class="delete-task" type="button" data-id="${task.id}" aria-label="Odstrániť krok ${escapeHtml(task.title)}">
+            ${buttonIcon("delete")}
+          </button>
+        </div>
+        <div class="classic-task-meta">
+          <span>Čaká</span>
+          <span class="due">${task.due ? formatDueDate(task.due) : "Zajtra"}</span>
+          <span>${task.done ? "Splnená" : "Ešte nesplnená"}</span>
+        </div>
+        <button class="assignee-pill" type="button" data-assign-task="${task.id}" aria-label="Priradiť krok ${escapeHtml(task.title)}">
+          ${escapeHtml(assigneeLabel(task.assignee))}
+        </button>
+        <p>${escapeHtml(taskSuggestion(task))}</p>
+        <button class="task-done-button" type="button" data-complete-task="${task.id}">
+          <span aria-hidden="true">✓</span>
+          ${task.done ? "Hotové" : "Hotovo"}
+        </button>
+      </div>
+    </article>
   `;
 }
 
@@ -2464,6 +2474,18 @@ taskList.addEventListener("change", (event) => {
 });
 
 taskList.addEventListener("click", (event) => {
+  const completeButton = event.target.closest("[data-complete-task]");
+  if (completeButton) {
+    const task = currentTasks().find((item) => item.id === completeButton.dataset.completeTask);
+    if (!task) return;
+    task.done = !task.done;
+    saveTasksState();
+    renderTasks();
+    renderHome();
+    showToast(task.done ? "Hotovo. O kúsok ľahší deň." : "Vrátené medzi otvorené úlohy.");
+    return;
+  }
+
   const assignButton = event.target.closest("[data-assign-task]");
   if (assignButton) {
     const task = currentTasks().find((item) => item.id === assignButton.dataset.assignTask);
