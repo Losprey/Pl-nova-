@@ -4910,7 +4910,9 @@ body[data-visual="playful"] {
   min-height: 44px;
 }
 
-.quick-entry-dialog #quickEntryCategoryWrap[hidden] {
+.quick-entry-dialog #quickEntryCategoryWrap[hidden],
+.quick-entry-dialog #quickEntryMealDayWrap[hidden],
+.quick-entry-dialog #quickEntryMealTypeWrap[hidden] {
   display: none;
 }
 

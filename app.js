@@ -126,6 +126,10 @@ const quickEntryType = document.querySelector("#quickEntryType");
 const quickEntryName = document.querySelector("#quickEntryName");
 const quickEntryCategoryWrap = document.querySelector("#quickEntryCategoryWrap");
 const quickEntryCategory = document.querySelector("#quickEntryCategory");
+const quickEntryMealDayWrap = document.querySelector("#quickEntryMealDayWrap");
+const quickEntryMealTypeWrap = document.querySelector("#quickEntryMealTypeWrap");
+const quickEntryMealDay = document.querySelector("#quickEntryMealDay");
+const quickEntryMealType = document.querySelector("#quickEntryMealType");
 const closeQuickEntryButton = document.querySelector("#closeQuickEntryButton");
 const cancelQuickEntryButton = document.querySelector("#cancelQuickEntryButton");
 const shoppingList = document.querySelector("#shoppingList");
@@ -2304,8 +2308,23 @@ function closeMealDialog() {
 }
 
 function syncQuickEntryFields() {
-  if (!quickEntryType || !quickEntryCategoryWrap) return;
-  quickEntryCategoryWrap.hidden = quickEntryType.value !== "shopping";
+  if (!quickEntryType || !quickEntryCategoryWrap || !quickEntryMealDayWrap || !quickEntryMealTypeWrap) return;
+  const isShopping = quickEntryType.value === "shopping";
+  const isMeal = quickEntryType.value === "meal";
+  quickEntryCategoryWrap.hidden = !isShopping;
+  quickEntryMealDayWrap.hidden = !isMeal;
+  quickEntryMealTypeWrap.hidden = !isMeal;
+}
+
+function fillQuickEntryMealOptions() {
+  if (!quickEntryMealDay || !quickEntryMealType) return;
+  const plan = currentPlan();
+  quickEntryMealDay.innerHTML = plan.days
+    .map((day, index) => `<option value="${index}">${escapeHtml(day.name)}</option>`)
+    .join("");
+  quickEntryMealType.innerHTML = mealTypes
+    .map((type) => `<option value="${type.key}">${escapeHtml(type.icon)} ${escapeHtml(type.label)}</option>`)
+    .join("");
 }
 
 function openQuickEntry(type = "task") {
@@ -2313,6 +2332,9 @@ function openQuickEntry(type = "task") {
   quickEntryForm.reset();
   quickEntryType.value = type;
   quickEntryCategory.value = state.settings.defaultShoppingCategory || "Ostatné";
+  fillQuickEntryMealOptions();
+  if (quickEntryMealDay) quickEntryMealDay.value = "0";
+  if (quickEntryMealType) quickEntryMealType.value = "dinner";
   syncQuickEntryFields();
   quickEntryDialog.showModal();
   quickEntryName.focus();
@@ -2577,8 +2599,10 @@ quickEntryForm?.addEventListener("submit", (event) => {
     showToast("Položka je pridaná do nákupu.");
   } else {
     const plan = currentPlan();
-    plan.days[0].meals.push({
-      typeKey: "dinner",
+    const dayIndex = Number(quickEntryMealDay?.value || 0);
+    const typeKey = quickEntryMealType?.value || "dinner";
+    plan.days[Math.max(0, Math.min(dayIndex, plan.days.length - 1))].meals.push({
+      typeKey,
       name,
     });
     savePlans();
