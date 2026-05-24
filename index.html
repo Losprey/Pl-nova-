@@ -742,9 +742,50 @@
           if (!button) return;
           activateTab(button.dataset.tab);
         }, true);
+
+        function formatDate(date) {
+          return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
+        }
+
+        function mondayFor(offsetWeeks) {
+          var today = new Date();
+          var day = today.getDay() || 7;
+          var monday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          monday.setDate(monday.getDate() - day + 1 + (offsetWeeks * 7));
+          return monday;
+        }
+
+        function updateWeekShell(week) {
+          var start = mondayFor(week === "next" ? 1 : 0);
+          var end = new Date(start);
+          end.setDate(start.getDate() + 6);
+          document.querySelectorAll(".switch-option").forEach(function (button) {
+            button.classList.toggle("is-active", button.dataset.week === week);
+          });
+          var label = document.querySelector("#weekLabel");
+          var range = document.querySelector("#weekRange");
+          if (label) label.textContent = week === "next" ? "Budúci týždeň" : "Tento týždeň";
+          if (range) range.textContent = formatDate(start) + " - " + formatDate(end);
+        }
+
+        function updateAudienceShell(audience) {
+          document.querySelectorAll(".audience-toggle button").forEach(function (button) {
+            button.classList.toggle("is-active", button.dataset.audience === audience);
+          });
+          var homeAudience = document.querySelector("#homeAudience");
+          if (homeAudience) homeAudience.textContent = audience === "kids" ? "Deti" : "Dospelí";
+        }
+
+        document.addEventListener("click", function (event) {
+          var weekButton = event.target.closest && event.target.closest(".switch-option[data-week]");
+          if (weekButton) updateWeekShell(weekButton.dataset.week);
+
+          var audienceButton = event.target.closest && event.target.closest(".audience-toggle button[data-audience]");
+          if (audienceButton) updateAudienceShell(audienceButton.dataset.audience);
+        }, true);
       }());
     </script>
-    <script src="firebase-config.js?v=20260524-1230"></script>
-    <script src="app.js?v=20260524-1230"></script>
+    <script src="firebase-config.js?v=20260524-1305"></script>
+    <script src="app.js?v=20260524-1305"></script>
   </body>
 </html>

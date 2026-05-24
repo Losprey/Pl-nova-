@@ -32,6 +32,10 @@ body[data-theme="light"] {
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -3818,4 +3822,303 @@ body[data-display-density="tight"] .pantry-cook {
 .tasks-panel .panel-header p,
 .tasks-panel .panel-header h2 {
   letter-spacing: 0;
+}
+
+/* Mobile cleanup pass: calmer, denser, and less dashboard-heavy. */
+:root {
+  --bg: #111827;
+  --surface: #172033;
+  --surface-2: #1d273a;
+  --line: rgba(148, 163, 184, 0.28);
+  --text: #f8fafc;
+  --muted: #a8b3c7;
+  --muted-2: #7d8799;
+  --purple: #4438ca;
+  --purple-2: #4f46e5;
+  --orange: #f2995b;
+  --green: #22c58b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.app-shell {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+}
+
+.topbar {
+  height: 82px;
+  padding: 16px 23px;
+  background: rgba(17, 24, 39, 0.96);
+}
+
+.content {
+  padding: 18px 22px 0;
+}
+
+.week-switch {
+  min-height: 58px;
+  border-radius: 18px;
+  padding: 5px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.switch-option {
+  border-radius: 14px;
+  font-size: 16px;
+}
+
+.switch-option.is-active {
+  background: #4338ca;
+  box-shadow: none;
+}
+
+.week-summary {
+  align-items: start;
+  margin: 18px 0;
+}
+
+.week-summary p,
+.day-card p {
+  font-size: 15px;
+}
+
+.week-summary h2 {
+  font-size: 21px;
+}
+
+.audience-toggle {
+  border-radius: 15px;
+  padding: 4px;
+}
+
+.audience-toggle button {
+  min-width: 82px;
+  height: 38px;
+  border-radius: 11px;
+  font-size: 15px;
+}
+
+.shopping-panel,
+.tasks-panel,
+.home-dashboard,
+.favorite-library,
+.settings-panel,
+.placeholder-panel {
+  border-radius: 18px;
+  background: rgba(23, 32, 51, 0.88);
+}
+
+.home-dashboard {
+  gap: 12px;
+  padding: 14px;
+}
+
+.dashboard-hero,
+.today-card-art,
+.dashboard-art,
+.home-start-empty,
+.next-actions,
+.smart-tips,
+.family-note {
+  display: none;
+}
+
+.home-glance {
+  gap: 8px;
+}
+
+.glance-card {
+  min-height: 74px;
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.glance-illustration {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  font-size: 18px;
+}
+
+.glance-card strong {
+  font-size: 22px;
+}
+
+.today-card,
+.family-handoff,
+.weekly-compass,
+.budget-card,
+.daily-checkin,
+.daily-rhythm,
+.mini-panel,
+.quick-meals,
+.quick-tasks,
+.pantry-cook,
+.favorite-library,
+.account-card,
+.settings-row {
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.54);
+}
+
+.today-card {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 13px 14px;
+}
+
+.today-card h3,
+.family-handoff h3,
+.weekly-compass h3,
+.budget-card h3,
+.daily-checkin h3 {
+  font-size: 18px;
+}
+
+.today-card span,
+.family-handoff span,
+.weekly-compass > div > span,
+.budget-card span {
+  font-size: 13px;
+}
+
+.family-handoff,
+.weekly-compass,
+.budget-card {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 14px;
+}
+
+.handoff-list,
+.compass-signals {
+  display: none;
+}
+
+.compass-ring {
+  display: none;
+}
+
+.budget-meter {
+  margin-top: 8px;
+}
+
+.daily-checkin {
+  padding: 14px;
+}
+
+.mood-buttons {
+  grid-template-columns: 1fr;
+}
+
+.mood-buttons button {
+  min-height: 38px;
+}
+
+.panel-header {
+  padding: 18px 20px;
+}
+
+.panel-header h2 {
+  font-size: 22px;
+}
+
+.planner-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.primary-action,
+.ghost-action {
+  min-height: 42px;
+  border-radius: 13px;
+}
+
+.account-card {
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.account-art {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+}
+
+.account-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.account-actions .primary-action,
+.account-actions .ghost-action {
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+}
+
+.settings-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: auto;
+  padding: 15px 18px;
+}
+
+.settings-row strong {
+  font-size: 17px;
+}
+
+.settings-row span {
+  font-size: 13px;
+}
+
+.task-form {
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 8px;
+}
+
+.task-form select,
+.task-form input[type="date"] {
+  grid-column: 1 / -1;
+}
+
+.bottom-nav {
+  height: 72px;
+  padding: 6px 12px 8px;
+}
+
+.bottom-nav button,
+.bottom-nav a {
+  gap: 3px;
+  font-size: 12px;
+}
+
+.bottom-nav svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 430px) {
+  .content {
+    padding-inline: 16px;
+  }
+
+  .week-summary {
+    display: grid;
+    gap: 12px;
+  }
+
+  .audience-toggle {
+    justify-self: end;
+  }
+
+  .planner-actions span {
+    display: none;
+  }
+
+  .planner-actions button {
+    min-width: 0;
+  }
 }
