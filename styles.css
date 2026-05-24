@@ -4883,6 +4883,242 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+/* Clean UI refresh: calmer spacing, readable text, and lightweight graphics across the app. */
+.content {
+  padding: 18px 16px 0;
+}
+
+.home-dashboard,
+.shopping-panel,
+.tasks-panel,
+.settings-panel,
+.quick-meals,
+.quick-tasks,
+.pantry-cook,
+.favorite-library,
+.account-card,
+.settings-group,
+.settings-details,
+.more-section-card {
+  border-radius: 16px;
+}
+
+.panel-header,
+.mini-header {
+  min-height: 56px;
+  padding: 12px 14px;
+}
+
+.mini-header h3,
+.panel-header h2 {
+  font-size: 1.1rem;
+}
+
+.panel-header p,
+.mini-header span,
+.settings-row span,
+.account-card span {
+  color: var(--muted-2);
+}
+
+.today-card,
+.family-handoff,
+.weekly-compass,
+.budget-card,
+.daily-checkin,
+.daily-rhythm,
+.today-focus,
+.settings-row {
+  border-radius: 14px;
+}
+
+.today-card,
+.family-handoff,
+.weekly-compass,
+.budget-card,
+.daily-checkin,
+.daily-rhythm,
+.today-focus,
+.settings-row,
+.more-tile,
+.shortcut-tile,
+.glance-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.today-card::after,
+.family-handoff::after,
+.weekly-compass::after,
+.budget-card::after,
+.today-focus::after {
+  content: "";
+  position: absolute;
+  right: -36px;
+  top: -34px;
+  width: 126px;
+  height: 126px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--green) 20%, transparent), transparent 72%);
+  pointer-events: none;
+}
+
+.dashboard-hero {
+  border-radius: 14px;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--purple) 10%, transparent), color-mix(in srgb, var(--green) 8%, transparent)),
+    var(--surface);
+}
+
+.more-grid > div {
+  gap: 10px;
+}
+
+.more-tile {
+  min-height: 114px;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.more-tile strong {
+  font-size: 1rem;
+}
+
+.more-tile em {
+  font-size: 0.82rem;
+}
+
+.settings-group-title {
+  padding: 11px 14px 0;
+  font-size: 0.74rem;
+}
+
+.settings-row {
+  padding: 12px 14px;
+  min-height: 0;
+  align-items: start;
+  gap: 10px;
+}
+
+.settings-row strong {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.settings-row span {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.profile-cards button,
+.theme-cards button,
+.segmented-control button {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.member-form,
+.join-family-form,
+.budget-setting,
+.invite-actions {
+  grid-template-columns: minmax(0, 1fr) 110px auto;
+}
+
+.member-form input,
+.member-form select,
+.join-family-form input,
+.budget-setting input,
+.invite-actions select {
+  min-height: 44px;
+}
+
+.member-chip {
+  min-height: 34px;
+}
+
+.member-chip span {
+  font-size: 0.9rem;
+}
+
+.member-chip em {
+  font-size: 0.76rem;
+}
+
+@media (max-width: 760px) {
+  .home-shortcuts,
+  .more-grid > div {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .content {
+    padding: 14px 12px 0;
+  }
+
+  .panel-header,
+  .mini-header {
+    padding: 10px 12px;
+  }
+
+  .home-shortcuts,
+  .dashboard-grid,
+  .quick-meal-list,
+  .quick-task-list,
+  .pantry-cook-list {
+    grid-template-columns: 1fr;
+  }
+
+  .week-switch {
+    min-height: 62px;
+    padding: 5px;
+    border-radius: 16px;
+  }
+
+  .switch-option {
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  #householdSettings .settings-row,
+  .settings-group .settings-row {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .member-form,
+  .join-family-form,
+  .budget-setting,
+  .invite-actions,
+  .range-control {
+    grid-template-columns: 1fr;
+  }
+
+  .member-form .ghost-action,
+  .join-family-form .ghost-action,
+  .invite-actions .ghost-action,
+  .account-actions .primary-action,
+  .account-actions .ghost-action {
+    width: 100%;
+  }
+
+  .more-tile {
+    min-height: 96px;
+    padding: 12px;
+  }
+
+  .more-tile span {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+  }
+}
+
 body[data-backdrop="plain"] .app-shell {
   background: #0f1628;
 }
