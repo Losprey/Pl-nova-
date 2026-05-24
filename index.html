@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1415">
+    <link rel="stylesheet" href="styles.css?v=20260524-1515">
   </head>
   <body>
     <div class="app-shell">
@@ -18,7 +18,7 @@
           </button>
           <div>
             <p>Domáci Rytmus</p>
-            <h1>Prehľad domácnosti</h1>
+            <h1 id="brandTitle">Domov</h1>
           </div>
         </div>
         <button class="sync-button" type="button" aria-label="Synchronizácia" title="Synchronizácia">
@@ -438,6 +438,42 @@
             </div>
 
             <div class="settings-list">
+              <section class="more-grid" aria-label="Ďalšie sekcie">
+                <p>Ďalšie sekcie</p>
+                <div>
+                  <a class="more-tile pets" href="#more">
+                    <span>🐾</span>
+                    <strong>Zvieratá</strong>
+                    <em>Pridaj miláčika</em>
+                  </a>
+                  <a class="more-tile energy" href="#more">
+                    <span>⚡</span>
+                    <strong>Energie</strong>
+                    <em>Žiadne záznamy</em>
+                  </a>
+                  <a class="more-tile contacts" href="#more">
+                    <span>📞</span>
+                    <strong>Kontakty</strong>
+                    <em>Záchranné čísla</em>
+                  </a>
+                  <a class="more-tile history" href="#more">
+                    <span>📋</span>
+                    <strong>História</strong>
+                    <em>Aktivity domácnosti</em>
+                  </a>
+                  <a class="more-tile family" href="#more">
+                    <span>👨‍👩‍👧‍👦</span>
+                    <strong>Rodina</strong>
+                    <em>Členovia a pozvánky</em>
+                  </a>
+                  <a class="more-tile settings" href="#more">
+                    <span>⚙️</span>
+                    <strong>Nastavenia</strong>
+                    <em>Profil, téma, dáta</em>
+                  </a>
+                </div>
+              </section>
+
               <section class="account-card" aria-label="Google účet a synchronizácia">
                 <div class="account-art" aria-hidden="true">
                   <span></span>
@@ -626,12 +662,12 @@
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
         <a class="is-active" href="#home" data-tab="home" onclick="window.setActiveTab?.('home')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
-          <span>Prehľad</span>
+          <span>Domov</span>
         </a>
         <a href="#tasks" data-tab="tasks" onclick="window.setActiveTab?.('tasks')">
           <span class="badge" id="tasksBadge">0</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
-          <span>Kroky</span>
+          <span>Úlohy</span>
         </a>
         <a href="#shopping" data-tab="shopping" onclick="window.setActiveTab?.('shopping')">
           <span class="badge wide" id="shoppingBadge">0</span>
@@ -640,7 +676,7 @@
         </a>
         <a href="#meals" data-tab="meals" onclick="window.setActiveTab?.('meals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
-          <span>Jedlá</span>
+          <span>Jedálniček</span>
         </a>
         <a href="#more" data-tab="more" onclick="window.setActiveTab?.('more')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg>

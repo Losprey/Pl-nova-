@@ -222,6 +222,7 @@ const importDataInput = document.querySelector("#importDataInput");
 const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
 const toast = document.querySelector("#toast");
+const brandTitle = document.querySelector("#brandTitle");
 const syncStatusDot = document.querySelector("#syncStatusDot");
 const googleLoginButton = document.querySelector("#googleLoginButton");
 const googleLogoutButton = document.querySelector("#googleLogoutButton");
@@ -2062,6 +2063,14 @@ function renderCurrentView() {
 
 function setActiveTab(tab) {
   state.activeTab = tab;
+  const tabTitles = {
+    home: "Domov",
+    tasks: "Úlohy",
+    shopping: "Nákup",
+    meals: "Jedálniček",
+    more: "Viac",
+  };
+  if (brandTitle) brandTitle.textContent = tabTitles[state.activeTab] || "Domáci Rytmus";
 
   document.querySelectorAll(".bottom-nav [data-tab]").forEach((item) => {
     item.classList.toggle("is-active", item.dataset.tab === state.activeTab);
