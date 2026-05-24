@@ -4883,6 +4883,37 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+.home-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.home-quick-actions button:last-child {
+  grid-column: 1 / -1;
+}
+
+.home-quick-actions .primary-action,
+.home-quick-actions .ghost-action {
+  min-height: 46px;
+  padding: 10px 12px;
+}
+
+.home-quick-entry {
+  margin-top: 10px;
+}
+
+.home-quick-entry .ghost-action {
+  width: 100%;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.quick-entry-dialog #quickEntryCategoryWrap[hidden] {
+  display: none;
+}
+
 /* Shopping form: manual category picker */
 .quick-add {
   grid-template-columns: minmax(0, 1fr) 170px 52px;

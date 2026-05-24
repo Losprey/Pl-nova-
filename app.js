@@ -120,6 +120,14 @@ const editDayIndex = document.querySelector("#editDayIndex");
 const editMealIndex = document.querySelector("#editMealIndex");
 const formMode = document.querySelector("#formMode");
 const formTitle = document.querySelector("#formTitle");
+const quickEntryDialog = document.querySelector("#quickEntryDialog");
+const quickEntryForm = document.querySelector("#quickEntryForm");
+const quickEntryType = document.querySelector("#quickEntryType");
+const quickEntryName = document.querySelector("#quickEntryName");
+const quickEntryCategoryWrap = document.querySelector("#quickEntryCategoryWrap");
+const quickEntryCategory = document.querySelector("#quickEntryCategory");
+const closeQuickEntryButton = document.querySelector("#closeQuickEntryButton");
+const cancelQuickEntryButton = document.querySelector("#cancelQuickEntryButton");
 const shoppingList = document.querySelector("#shoppingList");
 const shoppingForm = document.querySelector("#shoppingForm");
 const shoppingName = document.querySelector("#shoppingName");
@@ -155,6 +163,10 @@ const homeFocusLabel = document.querySelector("#homeFocusLabel");
 const homeFocusTitle = document.querySelector("#homeFocusTitle");
 const homeFocusDetail = document.querySelector("#homeFocusDetail");
 const homeFocusButton = document.querySelector("#homeFocusButton");
+const homeAddMealCta = document.querySelector("#homeAddMealCta");
+const homeAddTaskCta = document.querySelector("#homeAddTaskCta");
+const homeAddShoppingCta = document.querySelector("#homeAddShoppingCta");
+const homeQuickEntryButton = document.querySelector("#homeQuickEntryButton");
 const homeActionList = document.querySelector("#homeActionList");
 const smartTipList = document.querySelector("#smartTipList");
 const weekPrepCount = document.querySelector("#weekPrepCount");
@@ -2291,6 +2303,21 @@ function closeMealDialog() {
   mealForm.reset();
 }
 
+function syncQuickEntryFields() {
+  if (!quickEntryType || !quickEntryCategoryWrap) return;
+  quickEntryCategoryWrap.hidden = quickEntryType.value !== "shopping";
+}
+
+function openQuickEntry(type = "task") {
+  if (!quickEntryDialog || !quickEntryForm) return;
+  quickEntryForm.reset();
+  quickEntryType.value = type;
+  quickEntryCategory.value = state.settings.defaultShoppingCategory || "Ostatné";
+  syncQuickEntryFields();
+  quickEntryDialog.showModal();
+  quickEntryName.focus();
+}
+
 function setActiveButton(selector, dataName, value) {
   document.querySelectorAll(selector).forEach((button) => {
     button.classList.toggle("is-active", button.dataset[dataName] === value);
@@ -2365,6 +2392,24 @@ document.querySelector("#addMealButton").addEventListener("click", () => {
   openMealDialog("add");
 });
 
+homeAddMealCta?.addEventListener("click", () => {
+  openMealDialog("add");
+});
+
+homeAddTaskCta?.addEventListener("click", () => {
+  setActiveTab("tasks");
+  taskName.focus();
+});
+
+homeAddShoppingCta?.addEventListener("click", () => {
+  setActiveTab("shopping");
+  shoppingName.focus();
+});
+
+homeQuickEntryButton?.addEventListener("click", () => {
+  openQuickEntry("task");
+});
+
 document.querySelector("#resetPlanButton").addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   savePlans();
@@ -2389,6 +2434,14 @@ document.querySelector(".sync-button").addEventListener("click", () => {
 
 document.querySelector("#closeDialogButton").addEventListener("click", closeMealDialog);
 document.querySelector("#cancelDialogButton").addEventListener("click", closeMealDialog);
+
+quickEntryType?.addEventListener("change", syncQuickEntryFields);
+closeQuickEntryButton?.addEventListener("click", () => quickEntryDialog.close());
+cancelQuickEntryButton?.addEventListener("click", () => quickEntryDialog.close());
+
+quickEntryDialog?.addEventListener("click", (event) => {
+  if (event.target === quickEntryDialog) quickEntryDialog.close();
+});
 
 mealDialog.addEventListener("click", (event) => {
   if (event.target === mealDialog) {
@@ -2486,6 +2539,55 @@ shoppingForm.addEventListener("submit", (event) => {
   saveSettingsState();
   saveShoppingState();
   renderShopping();
+});
+
+quickEntryForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = quickEntryName.value.trim();
+  if (!name) return;
+
+  if (quickEntryType.value === "task") {
+    currentTasks().push({
+      id: `task:${Date.now()}:${slug(name)}`,
+      title: name,
+      priority: "normal",
+      due: "",
+      repeat: "",
+      done: false,
+    });
+    saveTasksState();
+    setActiveTab("tasks");
+    showToast("Krok je pridaný.");
+  } else if (quickEntryType.value === "shopping") {
+    const key = contextKey();
+    const selectedCategory = quickEntryCategory?.value || "Ostatné";
+    state.shopping.manual[key] = [
+      ...manualShoppingItems(),
+      {
+        id: `manual:${Date.now()}:${slug(name)}`,
+        name,
+        category: selectedCategory,
+        automatic: false,
+      },
+    ];
+    state.settings.defaultShoppingCategory = selectedCategory;
+    saveSettingsState();
+    saveShoppingState();
+    setActiveTab("shopping");
+    showToast("Položka je pridaná do nákupu.");
+  } else {
+    const plan = currentPlan();
+    plan.days[0].meals.push({
+      typeKey: "dinner",
+      name,
+    });
+    savePlans();
+    setActiveTab("meals");
+    showToast("Jedlo je pridané do jedálnička.");
+  }
+
+  quickEntryDialog.close();
+  renderCurrentView();
 });
 
 pantryForm.addEventListener("submit", (event) => {

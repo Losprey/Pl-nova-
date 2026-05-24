@@ -212,9 +212,31 @@
               <div>
                 <p id="homeFocusLabel">Najbližší krok</p>
                 <h3 id="homeFocusTitle">Všetko vyzerá pokojne</h3>
-                <span id="homeFocusDetail">Nemáš nič súrne na vybavenie.</span>
+              <span id="homeFocusDetail">Nemáš nič súrne na vybavenie.</span>
               </div>
               <button type="button" id="homeFocusButton" data-jump-tab="tasks">Otvoriť</button>
+            </section>
+
+            <section class="home-quick-actions" aria-label="Rýchle akcie">
+              <button class="primary-action" type="button" id="homeAddMealCta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
+                <span>Pridať jedlo</span>
+              </button>
+              <button class="ghost-action" type="button" id="homeAddTaskCta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm4 5h6M9 13h6M9 17h4"></path></svg>
+                <span>Pridať krok</span>
+              </button>
+              <button class="ghost-action" type="button" id="homeAddShoppingCta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l2.2 9.2a2 2 0 0 0 2 1.5h5.9a2 2 0 0 0 1.9-1.4L21 9H8.1M11 21h.1M18 21h.1"></path></svg>
+                <span>Pridať nákup</span>
+              </button>
+            </section>
+
+            <section class="home-quick-entry" aria-label="Rýchly vstup">
+              <button class="ghost-action" type="button" id="homeQuickEntryButton">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                <span>Rýchly vstup</span>
+              </button>
             </section>
 
             <div class="stats-grid" aria-label="Súhrn">
@@ -820,6 +842,56 @@
         <div class="form-actions">
           <button class="ghost-action" type="button" id="cancelDialogButton">Zrušiť</button>
           <button class="primary-action" type="submit">Uložiť</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="meal-dialog quick-entry-dialog" id="quickEntryDialog">
+      <form class="meal-form" id="quickEntryForm" method="dialog">
+        <div class="form-header">
+          <div>
+            <p>Rýchly vstup</p>
+            <h2>Pridať bez hľadania</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" id="closeQuickEntryButton" aria-label="Zavrieť">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <label>
+          Typ
+          <select id="quickEntryType" required>
+            <option value="task">Krok</option>
+            <option value="shopping">Nákup</option>
+            <option value="meal">Jedlo</option>
+          </select>
+        </label>
+
+        <label>
+          Názov
+          <input id="quickEntryName" type="text" autocomplete="off" maxlength="90" required placeholder="Napr. Kúpiť mlieko">
+        </label>
+
+        <label id="quickEntryCategoryWrap">
+          Kategória nákupu
+          <select id="quickEntryCategory">
+            <option>Zelenina</option>
+            <option>Ovocie</option>
+            <option>Mliečne</option>
+            <option>Pečivo</option>
+            <option>Mäso</option>
+            <option>Mrazené</option>
+            <option>Trvanlivé</option>
+            <option>Domácnosť</option>
+            <option>Drogeria</option>
+            <option>Pre deti</option>
+            <option>Ostatné</option>
+          </select>
+        </label>
+
+        <div class="form-actions">
+          <button class="ghost-action" type="button" id="cancelQuickEntryButton">Zrušiť</button>
+          <button class="primary-action" type="submit">Pridať</button>
         </div>
       </form>
     </dialog>
