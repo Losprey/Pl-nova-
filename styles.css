@@ -41,6 +41,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
+  --ui-scale: 1;
 }
 
 body[data-theme="light"] .app-shell {
@@ -109,6 +110,19 @@ button {
     radial-gradient(circle at 82% 6%, rgba(38, 210, 138, 0.08), transparent 19rem),
     linear-gradient(180deg, #12182b 0%, #0f1426 38%);
   padding-bottom: 92px;
+  zoom: var(--ui-scale, 1);
+}
+
+@supports not (zoom: 1) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    transform: scale(var(--ui-scale, 1));
+    transform-origin: top center;
+    width: calc(100% / var(--ui-scale, 1));
+  }
 }
 
 .topbar {

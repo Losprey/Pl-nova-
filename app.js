@@ -629,6 +629,7 @@ function setActiveSetting(buttons, dataName, value) {
 
 function applyPersonalization() {
   state.settings.scale ||= 100;
+  state.settings.scale = Math.max(80, Math.min(130, Number(state.settings.scale)));
   state.settings.displayDensity ||= "cozy";
   state.settings.visualStyle ||= "home";
   state.settings.backdrop ||= "soft";
