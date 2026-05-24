@@ -711,7 +711,40 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-    <script src="firebase-config.js?v=20260524-1213"></script>
-    <script src="app.js?v=20260524-1213"></script>
+    <script>
+      (function () {
+        var knownTabs = ["home", "tasks", "shopping", "meals", "more"];
+
+        function activateTab(tab) {
+          if (knownTabs.indexOf(tab) === -1) return;
+
+          document.querySelectorAll(".bottom-nav button[data-tab]").forEach(function (button) {
+            button.classList.toggle("is-active", button.dataset.tab === tab);
+          });
+
+          document.querySelectorAll(".view").forEach(function (view) {
+            var active = view.dataset.view === tab;
+            view.hidden = !active;
+            view.classList.toggle("is-active", active);
+          });
+        }
+
+        window.setActiveTab = window.setActiveTab || activateTab;
+
+        document.addEventListener("click", function (event) {
+          var button = event.target.closest && event.target.closest(".bottom-nav button[data-tab], [data-jump-tab]");
+          if (!button) return;
+          activateTab(button.dataset.tab || button.dataset.jumpTab);
+        }, true);
+
+        document.addEventListener("touchstart", function (event) {
+          var button = event.target.closest && event.target.closest(".bottom-nav button[data-tab]");
+          if (!button) return;
+          activateTab(button.dataset.tab);
+        }, true);
+      }());
+    </script>
+    <script src="firebase-config.js?v=20260524-1220"></script>
+    <script src="app.js?v=20260524-1220"></script>
   </body>
 </html>
