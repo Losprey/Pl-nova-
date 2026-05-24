@@ -720,18 +720,22 @@ function ensureSignedInMember() {
 function renderCloudStatus() {
   const signedInName = cloud.user?.displayName || cloud.user?.email || "";
   document.body.dataset.cloud = cloud.user ? "signed-in" : cloud.enabled ? "ready" : "off";
-  syncStatusDot.title = cloudStatusText();
-  googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
-  googleLoginButton.hidden = Boolean(cloud.user);
-  googleLogoutButton.hidden = !cloud.user;
-  accountEyebrow.textContent = cloudStatusText();
-  accountTitle.textContent = cloud.user ? signedInName : "Prihlásenie cez Google";
-  accountDetail.textContent = !cloud.enabled
-    ? "Doplň Firebase konfiguráciu a appka zapne Google login aj realtime domácnosť."
-    : cloud.user
-      ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.`
-      : "Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.";
-  settingsStatus.textContent = cloudStatusText();
+  if (syncStatusDot) syncStatusDot.title = cloudStatusText();
+  if (googleLoginButton) {
+    googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
+    googleLoginButton.hidden = Boolean(cloud.user);
+  }
+  if (googleLogoutButton) googleLogoutButton.hidden = !cloud.user;
+  if (accountEyebrow) accountEyebrow.textContent = cloudStatusText();
+  if (accountTitle) accountTitle.textContent = cloud.user ? signedInName : "Prihlásenie cez Google";
+  if (accountDetail) {
+    accountDetail.textContent = !cloud.enabled
+      ? "Doplň Firebase konfiguráciu a appka zapne Google login aj realtime domácnosť."
+      : cloud.user
+        ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.`
+        : "Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.";
+  }
+  if (settingsStatus) settingsStatus.textContent = cloudStatusText();
 }
 
 function scheduleCloudSave() {
@@ -1626,6 +1630,7 @@ function renderBudget() {
 }
 
 function renderFamilySettings() {
+  if (!familyCodeDetail || !familyCodeButton || !memberList) return;
   ensureFamilySettings();
   const profile = familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm;
 
@@ -1637,7 +1642,7 @@ function renderFamilySettings() {
       : "Najprv sa prihlás cez Google, potom vytvoríš domáci kód.";
   familyCodeButton.textContent = state.settings.familyCode ? "Nový kód" : "Vytvoriť";
   familyCodeButton.disabled = !cloud.user;
-  if (!cloud.user) settingsStatus.textContent = profile.label;
+  if (!cloud.user && settingsStatus) settingsStatus.textContent = profile.label;
   memberList.innerHTML = state.settings.familyMembers.length
     ? state.settings.familyMembers.map((member) => `
         <div class="member-chip">
@@ -2011,29 +2016,36 @@ function renderPlan() {
 }
 
 function renderCurrentView() {
-  renderPlan();
-  renderShopping();
-  renderStockCheck();
-  renderPantry();
-  renderTasks();
-  renderHome();
-  renderFavoriteLibrary();
-  renderQuickMealIdeas();
-  renderPantryCookIdeas();
-  renderQuickTaskIdeas();
-  renderFamilySettings();
-  renderBudget();
-  renderWeeklyPlanner();
-  renderCheckin();
-  renderRhythm();
-  renderDailyNote();
-  applyTheme();
-  applyDensity();
-  applyNotePreference();
-  applyMealMode();
-  applyPersonalization();
-  settingsStatus.textContent = cloud.enabled ? cloudStatusText() : state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
-  renderCloudStatus();
+  try {
+    renderPlan();
+    renderShopping();
+    renderStockCheck();
+    renderPantry();
+    renderTasks();
+    renderHome();
+    renderFavoriteLibrary();
+    renderQuickMealIdeas();
+    renderPantryCookIdeas();
+    renderQuickTaskIdeas();
+    renderFamilySettings();
+    renderBudget();
+    renderWeeklyPlanner();
+    renderCheckin();
+    renderRhythm();
+    renderDailyNote();
+    applyTheme();
+    applyDensity();
+    applyNotePreference();
+    applyMealMode();
+    applyPersonalization();
+    if (settingsStatus) {
+      settingsStatus.textContent = cloud.enabled ? cloudStatusText() : state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
+    }
+    renderCloudStatus();
+  } catch (error) {
+    console.error(error);
+    showToast("Appka narazila na chybu zobrazenia. Skús obnoviť stránku.");
+  }
 }
 
 function setActiveTab(tab) {
@@ -2571,19 +2583,19 @@ memberList.addEventListener("click", (event) => {
   settingsStatus.textContent = "Člen odstránený";
 });
 
-familyCodeButton.addEventListener("click", () => {
+familyCodeButton?.addEventListener("click", () => {
   createFamilyInviteCode();
 });
 
-joinFamilyForm.addEventListener("submit", (event) => {
+joinFamilyForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   joinFamilyByCode(joinFamilyCode.value);
   joinFamilyCode.value = "";
 });
 
-googleLoginButton.addEventListener("click", signInWithGoogle);
+googleLoginButton?.addEventListener("click", signInWithGoogle);
 
-googleLogoutButton.addEventListener("click", signOutGoogle);
+googleLogoutButton?.addEventListener("click", signOutGoogle);
 
 monthlyBudgetInput.addEventListener("input", () => {
   state.settings.monthlyBudget = Math.max(0, Number(monthlyBudgetInput.value || 0));
