@@ -404,6 +404,10 @@ const cloud = {
   saveTimer: null,
   applyingRemote: false,
   householdId: "",
+  remoteMeta: {
+    updatedAt: "",
+    updatedByName: "",
+  },
 };
 
 const categoryEstimate = {
@@ -707,6 +711,20 @@ function cloudStatusText() {
   return cloud.householdId ? "Realtime zapnutý" : "Vyber domácnosť";
 }
 
+function formatCloudMeta() {
+  if (!cloud.remoteMeta.updatedAt) return "";
+  const date = new Date(cloud.remoteMeta.updatedAt);
+  if (Number.isNaN(date.getTime())) return "";
+  const when = new Intl.DateTimeFormat("sk-SK", {
+    day: "numeric",
+    month: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+  const by = cloud.remoteMeta.updatedByName || "člen domácnosti";
+  return `Naposledy upravil ${by} · ${when}`;
+}
+
 function bundleState() {
   return {
     version: 1,
@@ -750,6 +768,10 @@ function saveAllLocalOnly() {
 function applyRemoteBundle(payload) {
   if (!payload) return;
   cloud.applyingRemote = true;
+  cloud.remoteMeta = {
+    updatedAt: payload.updatedAt || "",
+    updatedByName: payload.updatedBy?.name || "",
+  };
   state.plans = payload.plans || state.plans;
   state.shopping = payload.shopping || state.shopping;
   state.tasks = payload.tasks || state.tasks;
@@ -799,10 +821,11 @@ function renderCloudStatus() {
   if (accountEyebrow) accountEyebrow.textContent = cloudStatusText();
   if (accountTitle) accountTitle.textContent = cloud.user ? signedInName : "Prihlásenie cez Google";
   if (accountDetail) {
+    const meta = formatCloudMeta();
     accountDetail.textContent = !cloud.enabled
       ? "Doplň Firebase konfiguráciu a appka zapne Google login aj realtime domácnosť."
       : cloud.user
-        ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.`
+        ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.${meta ? ` ${meta}.` : ""}`
         : "Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.";
   }
   if (settingsStatus) settingsStatus.textContent = cloudStatusText();
@@ -818,7 +841,12 @@ async function saveCloudNow() {
   if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return;
   try {
     const { doc, setDoc } = cloud.api;
-    await setDoc(doc(cloud.db, "households", cloud.householdId), bundleState(), { merge: true });
+    const payload = bundleState();
+    await setDoc(doc(cloud.db, "households", cloud.householdId), payload, { merge: true });
+    cloud.remoteMeta = {
+      updatedAt: payload.updatedAt,
+      updatedByName: payload.updatedBy?.name || "",
+    };
     renderCloudStatus();
   } catch (error) {
     console.error(error);
@@ -934,6 +962,7 @@ async function createFamilyInviteCode() {
   }
   ensureFamilySettings();
   const code = `DOM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString();
   const householdId = currentHouseholdId() || householdDocIdFor(cloud.user);
   const invitedRole = inviteRole?.value || "parent";
   const { doc, setDoc } = cloud.api;
@@ -948,6 +977,7 @@ async function createFamilyInviteCode() {
     createdBy: cloud.user.uid,
     createdByName: cloud.user.displayName || cloud.user.email || "Člen domácnosti",
     createdAt: new Date().toISOString(),
+    expiresAt,
     active: true,
   });
   await listenToHousehold(householdId);
@@ -974,6 +1004,10 @@ async function joinFamilyByCode(code) {
   const invite = snapshot.data();
   if (invite.active === false) {
     showToast("Tento domáci kód už nie je aktívny.");
+    return;
+  }
+  if (invite.expiresAt && Date.parse(invite.expiresAt) < Date.now()) {
+    showToast("Tento domáci kód vypršal. Vytvorte nový.");
     return;
   }
 
@@ -1827,8 +1861,9 @@ function renderFamilySettings() {
   if (copyFamilyCodeButton) copyFamilyCodeButton.disabled = !state.settings.familyCode;
   if (leaveHouseholdButton) leaveHouseholdButton.disabled = !cloud.user || !householdId;
   if (householdStatusDetail) {
+    const meta = formatCloudMeta();
     householdStatusDetail.textContent = cloud.user
-      ? `Pripojené ako ${state.settings.cloudUser?.name || "člen"}${householdId ? ` · ${householdId}` : ""}`
+      ? `Pripojené ako ${state.settings.cloudUser?.name || "člen"}${householdId ? ` · ${householdId}` : ""}${meta ? ` · ${meta}` : ""}`
       : "Neprihlásené cez Google";
   }
   if (!cloud.user && settingsStatus) settingsStatus.textContent = profile.label;
