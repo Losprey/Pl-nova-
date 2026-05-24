@@ -218,6 +218,9 @@ const memberList = document.querySelector("#memberList");
 const familyCodeDetail = document.querySelector("#familyCodeDetail");
 const familyCodeButton = document.querySelector("#familyCodeButton");
 const inviteRole = document.querySelector("#inviteRole");
+const copyFamilyCodeButton = document.querySelector("#copyFamilyCodeButton");
+const leaveHouseholdButton = document.querySelector("#leaveHouseholdButton");
+const householdStatusDetail = document.querySelector("#householdStatusDetail");
 const joinFamilyForm = document.querySelector("#joinFamilyForm");
 const joinFamilyCode = document.querySelector("#joinFamilyCode");
 const monthlyBudgetInput = document.querySelector("#monthlyBudgetInput");
@@ -1767,6 +1770,8 @@ function renderFamilySettings() {
   if (!familyCodeDetail || !familyCodeButton || !memberList) return;
   ensureFamilySettings();
   const profile = familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm;
+  const householdId = currentHouseholdId();
+  const me = state.settings.cloudUser?.uid;
 
   setActiveSetting(familyProfileButtons, "profileValue", state.settings.familyProfile);
   familyCodeDetail.textContent = state.settings.familyCode
@@ -1777,13 +1782,20 @@ function renderFamilySettings() {
   familyCodeButton.textContent = state.settings.familyCode ? "Nový kód" : "Vytvoriť";
   familyCodeButton.disabled = !cloud.user;
   if (inviteRole) inviteRole.disabled = !cloud.user;
+  if (copyFamilyCodeButton) copyFamilyCodeButton.disabled = !state.settings.familyCode;
+  if (leaveHouseholdButton) leaveHouseholdButton.disabled = !cloud.user || !householdId;
+  if (householdStatusDetail) {
+    householdStatusDetail.textContent = cloud.user
+      ? `Pripojené ako ${state.settings.cloudUser?.name || "člen"}${householdId ? ` · ${householdId}` : ""}`
+      : "Neprihlásené cez Google";
+  }
   if (!cloud.user && settingsStatus) settingsStatus.textContent = profile.label;
   memberList.innerHTML = state.settings.familyMembers.length
     ? state.settings.familyMembers.map((member) => `
         <div class="member-chip ${member.uid ? "is-linked" : ""}">
-          <span>${escapeHtml(member.name)}</span>
+          <span>${escapeHtml(member.name)}${me && member.uid === me ? " (Ja)" : ""}</span>
           <em>${roleCopy[member.role] || "Člen"}${member.uid ? " · Google" : ""}</em>
-          <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}">×</button>
+          <button type="button" data-remove-member="${member.id}" aria-label="Odstrániť ${escapeHtml(member.name)}" ${member.uid ? "disabled" : ""}>×</button>
         </div>
       `).join("")
     : `<div class="empty-state">Pridaj prvého člena domácnosti.</div>`;
@@ -2741,6 +2753,11 @@ memberForm?.addEventListener("submit", (event) => {
 memberList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-remove-member]");
   if (!button) return;
+  const blocked = state.settings.familyMembers.find((member) => member.id === button.dataset.removeMember && member.uid);
+  if (blocked) {
+    showToast("Google člena neodstraňuj ručne. Odhlási sa sám.");
+    return;
+  }
   state.settings.familyMembers = state.settings.familyMembers.filter((member) => member.id !== button.dataset.removeMember);
   saveSettingsState();
   renderFamilySettings();
@@ -2755,6 +2772,31 @@ joinFamilyForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   joinFamilyByCode(joinFamilyCode.value);
   joinFamilyCode.value = "";
+});
+
+copyFamilyCodeButton?.addEventListener("click", async () => {
+  if (!state.settings.familyCode) return;
+  try {
+    await navigator.clipboard.writeText(state.settings.familyCode);
+    showToast(`Kód ${state.settings.familyCode} je skopírovaný.`);
+  } catch {
+    showToast(`Skopíruj ručne: ${state.settings.familyCode}`);
+  }
+});
+
+leaveHouseholdButton?.addEventListener("click", async () => {
+  if (!cloud.user || !currentHouseholdId()) return;
+  const sure = confirm("Naozaj sa chceš odpojiť od tejto domácnosti?");
+  if (!sure) return;
+
+  state.settings.householdId = householdDocIdFor(cloud.user);
+  state.settings.familyCode = "";
+  state.settings.pendingRole = "";
+  state.settings.lastInviteRole = "";
+  saveSettingsState();
+  await listenToHousehold(state.settings.householdId);
+  renderCurrentView();
+  showToast("Odpojené. Vytvorená je tvoja vlastná domácnosť.");
 });
 
 googleLoginButton?.addEventListener("click", signInWithGoogle);

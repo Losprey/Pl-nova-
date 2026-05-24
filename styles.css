@@ -3805,6 +3805,11 @@ body[data-display-density="tight"] .pantry-cook {
   font-weight: 950;
 }
 
+.member-chip button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .theme-swatch {
   display: block;
   width: 44px;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1815">
+    <link rel="stylesheet" href="styles.css?v=20260524-1835">
   </head>
   <body>
     <div class="app-shell">
@@ -114,9 +114,9 @@
 
             <section class="family-handoff" aria-label="Rodinné odovzdanie">
               <div class="handoff-copy">
-                <p>Rodinné odovzdanie</p>
-                <h3 id="familyHandoffTitle">Kto čo drží?</h3>
-                <span id="familyHandoffDetail">Rozdeľte kroky tak, aby ich nemuseli nosiť v hlave obaja.</span>
+                <p>Rozdelenie doma</p>
+                <h3 id="familyHandoffTitle">Kto má čo na starosti?</h3>
+                <span id="familyHandoffDetail">Jasne si rozdeľte úlohy, aby všetko neostalo na jednom človeku.</span>
               </div>
               <div id="familyHandoffList" class="handoff-list"></div>
             </section>
@@ -703,6 +703,17 @@
                   </div>
                 </div>
 
+                <div class="settings-row">
+                  <div>
+                    <strong>Stav domácnosti</strong>
+                    <span id="householdStatusDetail">Nepripojené</span>
+                  </div>
+                  <div class="invite-actions">
+                    <button class="ghost-action" id="copyFamilyCodeButton" type="button">Kopírovať kód</button>
+                    <button class="ghost-action danger-action" id="leaveHouseholdButton" type="button">Odpojiť</button>
+                  </div>
+                </div>
+
                 <div class="settings-row setting-stack">
                   <div>
                     <strong>Pripojiť sa ku domácnosti</strong>
@@ -933,7 +944,7 @@
         });
       });
     </script>
-    <script src="firebase-config.js?v=20260524-1815"></script>
-    <script src="app.js?v=20260524-1815"></script>
+    <script src="firebase-config.js?v=20260524-1835"></script>
+    <script src="app.js?v=20260524-1835"></script>
   </body>
 </html>
