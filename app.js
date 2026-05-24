@@ -144,6 +144,7 @@ const homeFocusTitle = document.querySelector("#homeFocusTitle");
 const homeFocusDetail = document.querySelector("#homeFocusDetail");
 const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeActionList = document.querySelector("#homeActionList");
+const smartTipList = document.querySelector("#smartTipList");
 const homeMealVisualValue = document.querySelector("#homeMealVisualValue");
 const homeTaskVisualValue = document.querySelector("#homeTaskVisualValue");
 const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue");
@@ -152,6 +153,7 @@ const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
 const favoriteQuickList = document.querySelector("#favoriteQuickList");
 const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
+const simpleMealsButton = document.querySelector("#simpleMealsButton");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
@@ -254,7 +256,7 @@ function loadTasksState() {
 }
 
 function loadSettingsState() {
-  const fallback = { theme: "dark", density: "compact", showNote: true };
+  const fallback = { theme: "dark", density: "compact", showNote: true, simpleMeals: false };
 
   try {
     return { ...fallback, ...(JSON.parse(localStorage.getItem(settingsStorageKey)) || {}) };
@@ -342,6 +344,12 @@ function applyNotePreference() {
   state.settings.showNote ??= true;
   document.body.dataset.note = state.settings.showNote ? "show" : "hide";
   noteToggle.checked = state.settings.showNote;
+}
+
+function applyMealMode() {
+  document.body.dataset.mealMode = state.settings.simpleMeals ? "simple" : "full";
+  simpleMealsButton.classList.toggle("is-active", state.settings.simpleMeals);
+  simpleMealsButton.querySelector("span").textContent = state.settings.simpleMeals ? "Plný režim" : "Jednoducho";
 }
 
 function addDays(date, count) {
@@ -507,6 +515,7 @@ function renderShopping() {
             <div class="shopping-category-header">
               <h3>${group.category}</h3>
               <span>${group.items.filter((item) => !checked.has(item.id)).length} z ${group.items.length}</span>
+              <button type="button" data-check-category="${escapeHtml(group.category)}">Vybaviť</button>
             </div>
             ${group.items
               .map((item) => {
@@ -536,6 +545,64 @@ function renderShopping() {
         `)
         .join("")
     : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
+}
+
+function buildSmartTips(meals, tasks, shopping, openShopping) {
+  const tips = [];
+  const dinners = meals.filter((meal) => meal.typeKey === "dinner").length;
+  const favoriteToUse = state.favorites.find((name) => !meals.some((meal) => meal.name === name));
+
+  if (dinners < Math.min(3, currentPlan().days.length) && favoriteToUse) {
+    tips.push({
+      icon: "★",
+      title: "Doplniť večeru z obľúbených",
+      detail: favoriteToUse,
+      action: "favorite",
+      value: favoriteToUse,
+    });
+  }
+
+  if (openShopping.length > 8) {
+    tips.push({
+      icon: "🛒",
+      title: "Vybaviť nákup po kategóriách",
+      detail: `${openShopping.length} položiek čaká v zozname`,
+      action: "shopping",
+    });
+  }
+
+  if (!tasks.some((task) => task.priority === "low" && !task.done)) {
+    tips.push({
+      icon: "✓",
+      title: "Pridať krok na neskôr",
+      detail: "Niečo, čo nemusí byť dnes, ale nech sa nestratí.",
+      action: "tasks",
+    });
+  }
+
+  if (!tips.length && shopping.length) {
+    tips.push({
+      icon: "✓",
+      title: "Vyzerá to pripravené",
+      detail: "Najbližšie stačí priebežne odškrtávať hotové veci.",
+      action: "home",
+    });
+  }
+
+  return tips.slice(0, 3);
+}
+
+function renderSmartTips(meals, tasks, shopping, openShopping) {
+  const tips = buildSmartTips(meals, tasks, shopping, openShopping);
+  smartTipList.innerHTML = tips.length
+    ? tips.map((tip) => `
+        <button class="smart-tip" type="button" data-tip-action="${tip.action}" data-tip-value="${escapeHtml(tip.value || "")}">
+          <span aria-hidden="true">${tip.icon}</span>
+          <strong>${escapeHtml(tip.title)}</strong>
+          <em>${escapeHtml(tip.detail)}</em>
+        </button>
+      `).join("")
+    : `<div class="empty-state">Žiadne smart tipy teraz netreba.</div>`;
 }
 
 function priorityLabel(priority) {
@@ -821,6 +888,7 @@ function renderHome() {
   homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
+  renderSmartTips(meals, tasks, shopping, openShopping);
 
   const today = todaySummary(meals, openTasks, openShopping);
   homeTodayLabel.textContent = today.label;
@@ -985,6 +1053,7 @@ function renderCurrentView() {
   applyTheme();
   applyDensity();
   applyNotePreference();
+  applyMealMode();
   settingsStatus.textContent = state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
 }
 
@@ -1053,6 +1122,12 @@ document.querySelector("#resetPlanButton").addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   savePlans();
   renderCurrentView();
+});
+
+simpleMealsButton.addEventListener("click", () => {
+  state.settings.simpleMeals = !state.settings.simpleMeals;
+  saveSettingsState();
+  applyMealMode();
 });
 
 document.querySelector(".sync-button").addEventListener("click", () => {
@@ -1164,6 +1239,18 @@ shoppingList.addEventListener("change", (event) => {
 });
 
 shoppingList.addEventListener("click", (event) => {
+  const categoryButton = event.target.closest("button[data-check-category]");
+  if (categoryButton) {
+    const ids = shoppingItems()
+      .filter((item) => (item.category || "Ostatné") === categoryButton.dataset.checkCategory)
+      .map((item) => item.id);
+    setCheckedShoppingIds([...new Set([...checkedShoppingIds(), ...ids])]);
+    renderShopping();
+    renderHome();
+    showToast("Kategória je vybavená.");
+    return;
+  }
+
   const button = event.target.closest(".delete-shopping");
   if (!button) return;
 
@@ -1173,6 +1260,18 @@ shoppingList.addEventListener("click", (event) => {
   saveShoppingState();
   renderShopping();
   renderHome();
+});
+
+smartTipList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-tip-action]");
+  if (!button) return;
+
+  if (button.dataset.tipAction === "favorite" && button.dataset.tipValue) {
+    addFavoriteToPlan(button.dataset.tipValue);
+    return;
+  }
+
+  document.querySelector(`.bottom-nav button[data-tab="${button.dataset.tipAction}"]`)?.click();
 });
 
 taskForm.addEventListener("submit", (event) => {
@@ -1335,7 +1434,7 @@ resetAllButton.addEventListener("click", () => {
   state.plans = normalizePlans(starterPlans);
   state.shopping = { checked: {}, manual: {} };
   state.tasks = clone(starterTasks);
-  state.settings = { theme: "dark", density: "compact", showNote: true };
+  state.settings = { theme: "dark", density: "compact", showNote: true, simpleMeals: false };
   state.checkins = {};
   state.notes = {};
   state.rhythm = {};

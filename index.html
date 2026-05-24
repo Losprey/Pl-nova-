@@ -177,6 +177,13 @@
               <div id="homeActionList" class="action-list"></div>
             </section>
 
+            <section class="smart-tips" aria-label="Smart tipy">
+              <div class="mini-header">
+                <h3>Smart tipy</h3>
+              </div>
+              <div id="smartTipList" class="smart-tip-list"></div>
+            </section>
+
             <div class="dashboard-grid">
               <section class="mini-panel">
                 <div class="mini-header">
@@ -222,6 +229,10 @@
             <button class="ghost-action" id="resetPlanButton" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v6h6M20 17v-6h-6M6.3 17A7.8 7.8 0 0 0 19 14.5M17.7 7A7.8 7.8 0 0 0 5 9.5"></path></svg>
               <span>Obnoviť</span>
+            </button>
+            <button class="ghost-action" id="simpleMealsButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h10"></path></svg>
+              <span>Jednoducho</span>
             </button>
           </section>
 
@@ -328,6 +339,8 @@
                 </label>
               </div>
 
+              <details class="settings-details" open>
+                <summary>Dáta</summary>
               <div class="settings-row">
                 <div>
                   <strong>Export dát</strong>
@@ -352,6 +365,7 @@
                 </div>
                 <button class="ghost-action danger-action" id="resetAllButton" type="button">Reset</button>
               </div>
+              </details>
             </div>
           </section>
         </section>

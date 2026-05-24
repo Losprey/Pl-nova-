@@ -1120,7 +1120,8 @@ svg {
 }
 
 .mini-panel,
-.next-actions {
+.next-actions,
+.smart-tips {
   border: 1px solid var(--line);
   border-radius: 19px;
   background: #182337;
@@ -1155,6 +1156,47 @@ svg {
 
 .action-list {
   display: grid;
+}
+
+.smart-tip-list {
+  display: grid;
+}
+
+.smart-tip {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 2px 10px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+  background: transparent;
+  text-align: left;
+}
+
+.smart-tip:last-child {
+  border-bottom: 0;
+}
+
+.smart-tip span {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  background: rgba(52, 194, 138, 0.16);
+}
+
+.smart-tip strong {
+  font-size: 14px;
+}
+
+.smart-tip em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .action-row {
@@ -1404,6 +1446,16 @@ svg {
   gap: 12px;
   padding: 13px 18px;
   background: rgba(49, 67, 93, 0.34);
+}
+
+.shopping-category-header button {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(52, 194, 138, 0.14);
+  color: #8ee0bf;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .shopping-category-header h3 {
@@ -2546,6 +2598,35 @@ body[data-note="hide"] .family-note {
 
 body[data-note="hide"] .home-dashboard {
   gap: 7px;
+}
+
+body[data-meal-mode="simple"] .meal-row {
+  grid-template-columns: 34px minmax(0, 1fr);
+}
+
+body[data-meal-mode="simple"] .meal-type,
+body[data-meal-mode="simple"] .plate,
+body[data-meal-mode="simple"] .favorite-meal,
+body[data-meal-mode="simple"] .edit-meal,
+body[data-meal-mode="simple"] .delete-meal {
+  display: none;
+}
+
+.ghost-action.is-active {
+  border-color: rgba(52, 194, 138, 0.5);
+  background: rgba(52, 194, 138, 0.14);
+  color: #8ee0bf;
+}
+
+.settings-details {
+  border-top: 1px solid rgba(53, 66, 89, 0.72);
+}
+
+.settings-details summary {
+  cursor: pointer;
+  padding: 13px 16px;
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .tasks-panel .panel-header p,
