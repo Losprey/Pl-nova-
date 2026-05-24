@@ -169,10 +169,12 @@ const homeMealMeter = document.querySelector("#homeMealMeter");
 const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
 const homeStartEmpty = document.querySelector("#homeStartEmpty");
+const homeStatsGrid = document.querySelector(".stats-grid");
 const restoreDemoButton = document.querySelector("#restoreDemoButton");
 const familyHandoffTitle = document.querySelector("#familyHandoffTitle");
 const familyHandoffDetail = document.querySelector("#familyHandoffDetail");
 const familyHandoffList = document.querySelector("#familyHandoffList");
+const familyHandoffSection = familyHandoffList?.closest(".family-handoff");
 const weeklyCompassScore = document.querySelector("#weeklyCompassScore");
 const weeklyCompassTitle = document.querySelector("#weeklyCompassTitle");
 const weeklyCompassDetail = document.querySelector("#weeklyCompassDetail");
@@ -1986,6 +1988,9 @@ function renderFamilyHandoff(openTasks, openShopping) {
       `;
     })
     .join("");
+  if (familyHandoffSection) {
+    familyHandoffSection.hidden = !openTasks.length && !openShopping.length;
+  }
 }
 
 function renderHome() {
@@ -2016,6 +2021,9 @@ function renderHome() {
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
   homeStartEmpty.hidden = !isEmptyHome;
+  if (homeStatsGrid) {
+    homeStatsGrid.hidden = isEmptyHome;
+  }
   renderFamilyHandoff(openTasks, openShopping);
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderBudget();
