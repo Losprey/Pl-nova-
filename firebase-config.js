@@ -1,8 +1,9 @@
 window.DOMACI_RYTMUS_FIREBASE = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyB0WxKiySAq2DgONcH_q-L4SgUDjUcG0co",
+  authDomain: "rodinanovinka.firebaseapp.com",
+  projectId: "rodinanovinka",
+  storageBucket: "rodinanovinka.firebasestorage.app",
+  messagingSenderId: "461387637046",
+  appId: "1:461387637046:web:ef2177b06ec870768e9397",
+  measurementId: "G-6JEWB7DEQX",
 };
