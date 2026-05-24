@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1515">
+    <link rel="stylesheet" href="styles.css?v=20260524-1545">
   </head>
   <body>
     <div class="app-shell">
@@ -30,18 +30,6 @@
       </header>
 
       <main class="content">
-        <section class="week-switch" aria-label="Výber týždňa">
-          <button class="switch-option" data-week="current" type="button">Tento týždeň</button>
-          <button class="switch-option is-active" data-week="next" type="button">Budúci týždeň</button>
-        </section>
-
-        <section class="week-summary" aria-live="polite">
-          <div>
-            <p id="weekLabel">Budúci týždeň</p>
-            <h2 id="weekRange">13. apríla - 19. apríla</h2>
-          </div>
-        </section>
-
         <section class="view is-active" id="home" data-view="home">
           <section class="home-dashboard" aria-label="Domáci prehľad">
             <div class="dashboard-hero">
@@ -86,6 +74,29 @@
                 <strong id="homeShoppingVisualValue">0</strong>
                 <span>vybavené</span>
                 <i><b id="homeShoppingMeter"></b></i>
+              </button>
+            </section>
+
+            <section class="home-shortcuts" aria-label="Rýchle sekcie">
+              <button class="shortcut-tile tasks" type="button" data-jump-tab="tasks">
+                <span>☑️</span>
+                <strong>Úlohy</strong>
+                <em>Čo treba spraviť</em>
+              </button>
+              <button class="shortcut-tile shopping" type="button" data-jump-tab="shopping">
+                <span>🛒</span>
+                <strong>Nákup</strong>
+                <em>Zoznam na týždeň</em>
+              </button>
+              <button class="shortcut-tile meals" type="button" data-jump-tab="meals">
+                <span>🍴</span>
+                <strong>Jedálniček</strong>
+                <em>Plán jedál</em>
+              </button>
+              <button class="shortcut-tile family" type="button" data-jump-tab="more">
+                <span>👨‍👩‍👧‍👦</span>
+                <strong>Rodina</strong>
+                <em>Členovia a účet</em>
               </button>
             </section>
 
@@ -292,6 +303,20 @@
         </section>
 
         <section class="view" id="meals" data-view="meals" hidden>
+          <section class="meal-week-panel" aria-label="Výber týždňa jedálnička">
+            <section class="week-switch" aria-label="Výber týždňa">
+              <button class="switch-option" data-week="current" type="button">Tento týždeň</button>
+              <button class="switch-option is-active" data-week="next" type="button">Budúci týždeň</button>
+            </section>
+
+            <section class="week-summary" aria-live="polite">
+              <div>
+                <p id="weekLabel">Budúci týždeň</p>
+                <h2 id="weekRange">13. apríla - 19. apríla</h2>
+              </div>
+            </section>
+          </section>
+
           <section class="meal-audience-panel" aria-label="Typ jedálnička">
             <div>
               <p>Jedálniček</p>
@@ -796,7 +821,7 @@
         }, true);
       }());
     </script>
-    <script src="firebase-config.js?v=20260524-1305"></script>
-    <script src="app.js?v=20260524-1305"></script>
+    <script src="firebase-config.js?v=20260524-1545"></script>
+    <script src="app.js?v=20260524-1545"></script>
   </body>
 </html>

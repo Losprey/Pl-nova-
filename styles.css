@@ -5008,6 +5008,69 @@ body[data-theme="light"] .topbar {
   padding: 16px;
 }
 
+.meal-week-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.meal-week-panel .week-summary {
+  margin: 0;
+}
+
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.shortcut-tile {
+  display: grid;
+  min-height: 118px;
+  align-content: start;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #202b3d;
+  color: #ffffff;
+  text-align: left;
+}
+
+.shortcut-tile span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 12px;
+  border-radius: 13px;
+  background: #263349;
+  font-size: 22px;
+}
+
+.shortcut-tile strong {
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.shortcut-tile em {
+  margin-top: 4px;
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 750;
+}
+
+.shortcut-tile.tasks {
+  border-color: rgba(85, 71, 244, 0.58);
+}
+
+.shortcut-tile.shopping {
+  border-color: rgba(255, 153, 97, 0.55);
+}
+
+.shortcut-tile.family {
+  border-color: rgba(239, 71, 111, 0.55);
+}
+
 .more-grid {
   display: grid;
   gap: 14px;
@@ -5139,6 +5202,10 @@ body[data-theme="light"] .bottom-nav {
 
   .meal-audience-panel {
     grid-template-columns: 1fr;
+  }
+
+  .home-shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .more-grid > div {
