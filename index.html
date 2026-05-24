@@ -92,6 +92,18 @@
               </button>
             </section>
 
+            <section class="home-start-empty" id="homeStartEmpty" hidden>
+              <div>
+                <p>Začať pokojne</p>
+                <h3>Vyber 3 jedlá a appka z nich poskladá ďalšie kroky.</h3>
+                <span>Keď je všetko prázdne, nie je to chyba. Stačí začať jedným malým plánom.</span>
+              </div>
+              <div class="start-actions">
+                <button class="primary-action" type="button" data-jump-tab="meals">Pridať jedlo</button>
+                <button class="ghost-action" id="restoreDemoButton" type="button">Ukážkový týždeň</button>
+              </div>
+            </section>
+
             <section class="family-handoff" aria-label="Rodinné odovzdanie">
               <div class="handoff-copy">
                 <p>Rodinné odovzdanie</p>
@@ -609,7 +621,7 @@
       <nav class="bottom-nav" aria-label="Hlavná navigácia">
         <button class="is-active" type="button" data-tab="home" onclick="window.setActiveTab?.('home')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5h-4.2v-6.3H8.7V22H4.5A1.5 1.5 0 0 1 3 20.5z"></path></svg>
-          <span>Domov</span>
+          <span>Prehľad</span>
         </button>
         <button type="button" data-tab="tasks" onclick="window.setActiveTab?.('tasks')">
           <span class="badge" id="tasksBadge">0</span>
@@ -623,7 +635,7 @@
         </button>
         <button type="button" data-tab="meals" onclick="window.setActiveTab?.('meals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
-          <span>Jedálniček</span>
+          <span>Jedlá</span>
         </button>
         <button type="button" data-tab="more" onclick="window.setActiveTab?.('more')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg>

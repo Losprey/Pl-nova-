@@ -831,6 +831,57 @@ svg {
   gap: 10px;
 }
 
+.home-start-empty {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(39, 210, 138, 0.34);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(39, 210, 138, 0.14), rgba(103, 87, 255, 0.1)),
+    rgba(24, 35, 55, 0.94);
+}
+
+.home-start-empty[hidden] {
+  display: none;
+}
+
+.home-start-empty p,
+.home-start-empty h3 {
+  margin: 0;
+}
+
+.home-start-empty p {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.home-start-empty h3 {
+  margin-top: 3px;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.home-start-empty span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .family-handoff {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(230px, 0.9fr);
@@ -2363,6 +2414,10 @@ svg {
     grid-template-columns: 1fr;
   }
 
+  .home-start-empty {
+    grid-template-columns: 1fr;
+  }
+
   .family-handoff {
     grid-template-columns: 1fr;
   }
@@ -2523,6 +2578,50 @@ svg {
   border-radius: 20px;
 }
 
+.today-card {
+  order: 1;
+}
+
+.home-start-empty {
+  order: 2;
+}
+
+.home-glance {
+  order: 3;
+}
+
+.family-handoff {
+  order: 4;
+}
+
+.weekly-compass {
+  order: 5;
+}
+
+.budget-card {
+  order: 6;
+}
+
+.daily-checkin {
+  order: 7;
+}
+
+.daily-rhythm {
+  order: 8;
+}
+
+.next-actions {
+  order: 9;
+}
+
+.smart-tips {
+  order: 10;
+}
+
+.family-note {
+  order: 11;
+}
+
 .dashboard-hero {
   display: none;
 }
@@ -2596,6 +2695,16 @@ svg {
 
 .home-glance {
   gap: 7px;
+}
+
+.home-start-empty {
+  grid-template-columns: 1fr;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.start-actions {
+  justify-content: flex-start;
 }
 
 .glance-card {
@@ -2687,6 +2796,15 @@ svg {
 .family-note,
 .next-actions {
   border-radius: 16px;
+}
+
+.weekend-planner {
+  display: none;
+}
+
+.next-actions,
+.smart-tips {
+  display: none;
 }
 
 .daily-checkin {
@@ -3111,6 +3229,15 @@ body[data-density="full"] .stats-grid {
 
 body[data-density="full"] .dashboard-grid {
   display: grid;
+}
+
+body[data-density="full"] .weekend-planner {
+  display: grid;
+}
+
+body[data-density="full"] .next-actions,
+body[data-density="full"] .smart-tips {
+  display: block;
 }
 
 body[data-density="full"] .daily-rhythm .mini-header {

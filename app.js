@@ -160,6 +160,8 @@ const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue
 const homeMealMeter = document.querySelector("#homeMealMeter");
 const homeTaskMeter = document.querySelector("#homeTaskMeter");
 const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
+const homeStartEmpty = document.querySelector("#homeStartEmpty");
+const restoreDemoButton = document.querySelector("#restoreDemoButton");
 const familyHandoffTitle = document.querySelector("#familyHandoffTitle");
 const familyHandoffDetail = document.querySelector("#familyHandoffDetail");
 const familyHandoffList = document.querySelector("#familyHandoffList");
@@ -1450,6 +1452,19 @@ function buildDashboardActions(meals, openTasks, openShopping) {
   return actions.slice(0, 3);
 }
 
+function restoreDemoData() {
+  state.plans = normalizePlans(starterPlans);
+  state.tasks = clone(starterTasks);
+  state.shopping = { checked: {}, manual: {} };
+  state.pantry = pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
+  savePlans();
+  saveTasksState();
+  saveShoppingState();
+  savePantryState();
+  renderCurrentView();
+  showToast("Ukážkový týždeň je späť.");
+}
+
 function renderFamilyHandoff(openTasks, openShopping) {
   const members = familyMembers();
   const buckets = [
@@ -1489,6 +1504,7 @@ function renderHome() {
   const openShopping = shopping.filter((item) => !checked.has(item.id));
   const plan = currentPlan();
   const mood = currentMood();
+  const isEmptyHome = !meals.length && !tasks.length && !shopping.length;
 
   homeEyebrow.textContent = plan.label;
   homeTitle.textContent = plan.range;
@@ -1505,6 +1521,7 @@ function renderHome() {
   homeMealMeter.style.width = `${progressPercent(meals.length, 21)}%`;
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
+  homeStartEmpty.hidden = !isEmptyHome;
   renderFamilyHandoff(openTasks, openShopping);
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderBudget();
@@ -1540,6 +1557,7 @@ function renderHome() {
       </button>
     `)
     .join("");
+  homeActionList.closest(".next-actions").hidden = !homeActionList.children.length;
   renderCheckin();
 
   homeMealsList.innerHTML = meals.length
@@ -1605,6 +1623,7 @@ function renderHome() {
         `)
         .join("")
     : emptyMiniRow("Označ hviezdičkou jedlá, ku ktorým sa chcete vracať.");
+  smartTipList.closest(".smart-tips").hidden = !smartTipList.children.length;
 }
 
 function escapeHtml(value) {
@@ -2030,8 +2049,10 @@ smartTipList.addEventListener("click", (event) => {
     return;
   }
 
-  document.querySelector(`.bottom-nav button[data-tab="${button.dataset.tipAction}"]`)?.click();
+  setActiveTab(button.dataset.tipAction);
 });
+
+restoreDemoButton.addEventListener("click", restoreDemoData);
 
 taskForm.addEventListener("submit", (event) => {
   event.preventDefault();

@@ -20,6 +20,8 @@ Appka nemá build krok ani závislosti. Interakcie fungujú priamo v prehliadač
 - domovský dashboard so súhrnom jedál, krokov a nákupu,
 - ľudskejší dashboard s odporúčaným najbližším krokom,
 - vizuálny prehľad domácnosti s malou ilustráciou a priebehom týždňa,
+- zjednodušený dashboard s jasným poradím toho, čo riešiť ako prvé,
+- ľudský prázdny stav s možnosťou obnoviť ukážkový týždeň,
 - týždenný kompas pripravenosti, ktorý spojí jedlá, nákup, zásoby a kroky,
 - karta `Dnes doma` s najbližším praktickým krokom,
 - denný check-in nálady domácnosti bez tlaku na výkon,
