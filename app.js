@@ -9,6 +9,7 @@ const favoritesStorageKey = "domaci-rytmus-favorites-v1";
 const weeklyStorageKey = "domaci-rytmus-weekly-v1";
 const pantryStorageKey = "domaci-rytmus-pantry-v1";
 const householdStorageKey = "domaci-rytmus-household-id-v1";
+const extrasStorageKey = "domaci-rytmus-extras-v1";
 const firebaseSdkVersion = "10.12.5";
 
 const mealTypes = [
@@ -101,6 +102,7 @@ const state = {
   favorites: loadFavoritesState(),
   weekly: loadWeeklyState(),
   pantry: loadPantryState(),
+  extras: loadExtrasState(),
   activeTab: "home",
 };
 
@@ -125,6 +127,7 @@ const taskForm = document.querySelector("#taskForm");
 const taskName = document.querySelector("#taskName");
 const taskPriority = document.querySelector("#taskPriority");
 const taskDue = document.querySelector("#taskDue");
+const taskRepeat = document.querySelector("#taskRepeat");
 const taskList = document.querySelector("#taskList");
 const tasksCount = document.querySelector("#tasksCount");
 const tasksBadge = document.querySelector("#tasksBadge");
@@ -223,6 +226,20 @@ const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
 const toast = document.querySelector("#toast");
 const brandTitle = document.querySelector("#brandTitle");
+const petForm = document.querySelector("#petForm");
+const petName = document.querySelector("#petName");
+const petList = document.querySelector("#petList");
+const petsTileMeta = document.querySelector("#petsTileMeta");
+const energyForm = document.querySelector("#energyForm");
+const energyName = document.querySelector("#energyName");
+const energyList = document.querySelector("#energyList");
+const energyTileMeta = document.querySelector("#energyTileMeta");
+const contactForm = document.querySelector("#contactForm");
+const contactName = document.querySelector("#contactName");
+const contactPhone = document.querySelector("#contactPhone");
+const contactList = document.querySelector("#contactList");
+const contactsTileMeta = document.querySelector("#contactsTileMeta");
+const historyList = document.querySelector("#historyList");
 const syncStatusDot = document.querySelector("#syncStatusDot");
 const googleLoginButton = document.querySelector("#googleLoginButton");
 const googleLogoutButton = document.querySelector("#googleLogoutButton");
@@ -510,6 +527,14 @@ function loadPantryState() {
   }
 }
 
+function loadExtrasState() {
+  try {
+    return JSON.parse(localStorage.getItem(extrasStorageKey)) || { pets: [], energy: [], contacts: [] };
+  } catch {
+    return { pets: [], energy: [], contacts: [] };
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
   scheduleCloudSave();
@@ -560,6 +585,11 @@ function saveWeeklyState() {
 
 function savePantryState() {
   localStorage.setItem(pantryStorageKey, JSON.stringify(state.pantry));
+  scheduleCloudSave();
+}
+
+function saveExtrasState() {
+  localStorage.setItem(extrasStorageKey, JSON.stringify(state.extras));
   scheduleCloudSave();
 }
 
@@ -667,6 +697,7 @@ function bundleState() {
     favorites: state.favorites,
     weekly: state.weekly,
     pantry: state.pantry,
+    extras: state.extras,
   };
 }
 
@@ -681,6 +712,7 @@ function saveAllLocalOnly() {
   localStorage.setItem(favoritesStorageKey, JSON.stringify(state.favorites));
   localStorage.setItem(weeklyStorageKey, JSON.stringify(state.weekly));
   localStorage.setItem(pantryStorageKey, JSON.stringify(state.pantry));
+  localStorage.setItem(extrasStorageKey, JSON.stringify(state.extras));
   if (state.settings.householdId) {
     localStorage.setItem(householdStorageKey, state.settings.householdId);
   }
@@ -699,6 +731,7 @@ function applyRemoteBundle(payload) {
   state.favorites = payload.favorites || state.favorites;
   state.weekly = payload.weekly || state.weekly;
   state.pantry = payload.pantry || state.pantry;
+  state.extras = payload.extras || state.extras;
   ensureSignedInMember();
   saveAllLocalOnly();
   renderCurrentView();
@@ -1173,6 +1206,42 @@ function renderPantry() {
     : `<div class="empty-state">Pridaj veci, ktoré máte doma. Nákup bude múdrejší.</div>`;
 }
 
+function renderExtras() {
+  state.extras.pets ||= [];
+  state.extras.energy ||= [];
+  state.extras.contacts ||= [];
+
+  if (petsTileMeta) petsTileMeta.textContent = state.extras.pets.length ? `${state.extras.pets.length} v domácnosti` : "Pridaj miláčika";
+  if (energyTileMeta) energyTileMeta.textContent = state.extras.energy.length ? `${state.extras.energy.length} záznamov` : "Žiadne záznamy";
+  if (contactsTileMeta) contactsTileMeta.textContent = state.extras.contacts.length ? `${state.extras.contacts.length} kontaktov` : "Záchranné čísla";
+
+  if (!petList || !energyList || !contactList || !historyList) return;
+
+  petList.innerHTML = state.extras.pets.length
+    ? state.extras.pets.map((item) => `
+        <span class="mini-chip">🐾 ${escapeHtml(item.name)}<button type="button" data-remove-extra="pets|${item.id}">×</button></span>
+      `).join("")
+    : `<div class="empty-state">Zatiaľ žiadny miláčik.</div>`;
+
+  energyList.innerHTML = state.extras.energy.length
+    ? state.extras.energy.map((item) => `
+        <span class="mini-chip">⚡ ${escapeHtml(item.name)}<button type="button" data-remove-extra="energy|${item.id}">×</button></span>
+      `).join("")
+    : `<div class="empty-state">Pridaj meranie alebo dodávateľa.</div>`;
+
+  contactList.innerHTML = state.extras.contacts.length
+    ? state.extras.contacts.map((item) => `
+        <span class="mini-chip">📞 ${escapeHtml(item.name)}${item.phone ? ` · ${escapeHtml(item.phone)}` : ""}<button type="button" data-remove-extra="contacts|${item.id}">×</button></span>
+      `).join("")
+    : `<div class="empty-state">Pridaj dôležité kontakty.</div>`;
+
+  historyList.innerHTML = [
+    `${allMeals().length} jedál v aktuálnom pláne`,
+    `${currentTasks().filter((task) => task.done).length} hotových úloh`,
+    `${checkedShoppingIds().length} vybavených nákupných položiek`,
+  ].map((text) => `<div class="history-row">${escapeHtml(text)}</div>`).join("");
+}
+
 function renderStockCheck() {
   const weekly = weeklyContext();
   const checked = new Set(weekly.stock || []);
@@ -1335,6 +1404,39 @@ function taskSuggestion(task) {
   return "Ak je to väčšie, rozdeľ to na jednu drobnú vec, ktorá sa dá urobiť hneď.";
 }
 
+function repeatLabel(value) {
+  return value ? `Každých ${value} dní` : "Jednorazovo";
+}
+
+function nextRepeatDue(task) {
+  const days = Number(task.repeat || 0);
+  if (!days) return "";
+  const base = task.due ? new Date(`${task.due}T12:00:00`) : new Date();
+  return dateKey(addDays(base, days));
+}
+
+function completeTask(task, done) {
+  const wasDone = task.done;
+  task.done = done;
+
+  if (!wasDone && done && task.repeat && !task.nextCreatedAt) {
+    task.nextCreatedAt = new Date().toISOString();
+    currentTasks().push({
+      id: `task:${Date.now()}:repeat:${slug(task.title)}`,
+      title: task.title,
+      priority: task.priority,
+      due: nextRepeatDue(task),
+      repeat: task.repeat,
+      assignee: task.assignee,
+      done: false,
+      repeatedFrom: task.id,
+    });
+    return true;
+  }
+
+  return false;
+}
+
 function taskBucket(task) {
   if (task.done) return "done";
   if (task.priority === "high") return "now";
@@ -1362,7 +1464,7 @@ function taskRow(task) {
         <button class="assignee-pill" type="button" data-assign-task="${task.id}" aria-label="Priradiť krok ${escapeHtml(task.title)}">
           ${escapeHtml(assigneeLabel(task.assignee))}
         </button>
-        <p>${escapeHtml(taskSuggestion(task))}</p>
+        <p>${escapeHtml(repeatLabel(task.repeat || ""))}</p>
         <button class="task-done-button" type="button" data-complete-task="${task.id}">
           <span aria-hidden="true">✓</span>
           ${task.done ? "Hotové" : "Hotovo"}
@@ -2044,6 +2146,7 @@ function renderCurrentView() {
     renderShopping();
     renderStockCheck();
     renderPantry();
+    renderExtras();
     renderTasks();
     renderHome();
     renderFavoriteLibrary();
@@ -2442,12 +2545,14 @@ taskForm.addEventListener("submit", (event) => {
     title,
     priority: taskPriority.value,
     due: taskDue.value,
+    repeat: taskRepeat.value,
     done: false,
   });
 
   taskName.value = "";
   taskPriority.value = "normal";
   taskDue.value = "";
+  taskRepeat.value = "";
   saveTasksState();
   renderTasks();
   renderHome();
@@ -2466,11 +2571,11 @@ taskList.addEventListener("change", (event) => {
   const task = currentTasks().find((item) => item.id === checkbox.dataset.id);
   if (!task) return;
 
-  task.done = checkbox.checked;
+  const createdRepeat = completeTask(task, checkbox.checked);
   saveTasksState();
   renderTasks();
   renderHome();
-  if (checkbox.checked) showToast("Zapísané ako hotové. Pekne.");
+  if (checkbox.checked) showToast(createdRepeat ? "Hotovo. Ďalší výskyt je pripravený." : "Zapísané ako hotové. Pekne.");
 });
 
 taskList.addEventListener("click", (event) => {
@@ -2478,11 +2583,11 @@ taskList.addEventListener("click", (event) => {
   if (completeButton) {
     const task = currentTasks().find((item) => item.id === completeButton.dataset.completeTask);
     if (!task) return;
-    task.done = !task.done;
+    const createdRepeat = completeTask(task, !task.done);
     saveTasksState();
     renderTasks();
     renderHome();
-    showToast(task.done ? "Hotovo. O kúsok ľahší deň." : "Vrátené medzi otvorené úlohy.");
+    showToast(task.done ? createdRepeat ? "Hotovo. Ďalší výskyt je pripravený." : "Hotovo. O kúsok ľahší deň." : "Vrátené medzi otvorené úlohy.");
     return;
   }
 
@@ -2640,6 +2745,56 @@ googleLoginButton?.addEventListener("click", signInWithGoogle);
 
 googleLogoutButton?.addEventListener("click", signOutGoogle);
 
+document.addEventListener("click", (event) => {
+  const trigger = event.target.closest("[data-open-section]");
+  if (!trigger) return;
+  const target = document.getElementById(trigger.dataset.openSection);
+  if (!target) return;
+  target.open = true;
+  setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+});
+
+function addExtraItem(collection, payload) {
+  state.extras[collection] ||= [];
+  state.extras[collection] = [{ id: `extra:${Date.now()}:${slug(Object.values(payload).join("-"))}`, ...payload }, ...state.extras[collection]].slice(0, 12);
+  saveExtrasState();
+  renderExtras();
+}
+
+petForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = petName.value.trim();
+  if (!name) return;
+  addExtraItem("pets", { name });
+  petName.value = "";
+});
+
+energyForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = energyName.value.trim();
+  if (!name) return;
+  addExtraItem("energy", { name });
+  energyName.value = "";
+});
+
+contactForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = contactName.value.trim();
+  if (!name) return;
+  addExtraItem("contacts", { name, phone: contactPhone.value.trim() });
+  contactName.value = "";
+  contactPhone.value = "";
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-extra]");
+  if (!button) return;
+  const [collection, id] = button.dataset.removeExtra.split("|");
+  state.extras[collection] = (state.extras[collection] || []).filter((item) => item.id !== id);
+  saveExtrasState();
+  renderExtras();
+});
+
 monthlyBudgetInput.addEventListener("input", () => {
   state.settings.monthlyBudget = Math.max(0, Number(monthlyBudgetInput.value || 0));
   saveSettingsState();
@@ -2661,6 +2816,7 @@ exportDataButton.addEventListener("click", () => {
     favorites: state.favorites,
     weekly: state.weekly,
     pantry: state.pantry,
+    extras: state.extras,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -2693,6 +2849,7 @@ importDataInput.addEventListener("change", async () => {
     state.favorites = payload.favorites || state.favorites;
     state.weekly = payload.weekly || state.weekly;
     state.pantry = payload.pantry || state.pantry;
+    state.extras = payload.extras || state.extras;
     savePlans();
     saveShoppingState();
     saveTasksState();
@@ -2703,6 +2860,7 @@ importDataInput.addEventListener("change", async () => {
     saveFavoritesState();
     saveWeeklyState();
     savePantryState();
+    saveExtrasState();
     renderCurrentView();
     settingsStatus.textContent = "Import hotový";
   } catch {
@@ -2744,6 +2902,7 @@ resetAllButton.addEventListener("click", () => {
   state.favorites = [];
   state.weekly = {};
   state.pantry = pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
+  state.extras = { pets: [], energy: [], contacts: [] };
   savePlans();
   saveShoppingState();
   saveTasksState();
@@ -2754,6 +2913,7 @@ resetAllButton.addEventListener("click", () => {
   saveFavoritesState();
   saveWeeklyState();
   savePantryState();
+  saveExtrasState();
   renderCurrentView();
   settingsStatus.textContent = "Reset hotový";
 });

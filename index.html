@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1615">
+    <link rel="stylesheet" href="styles.css?v=20260524-1745">
   </head>
   <body>
     <div class="app-shell">
@@ -435,6 +435,12 @@
                 <option value="low">Nízka</option>
               </select>
               <input id="taskDue" type="date" aria-label="Termín kroku">
+              <select id="taskRepeat" aria-label="Opakovanie kroku">
+                <option value="">Bez opakovania</option>
+                <option value="7">Každých 7 dní</option>
+                <option value="14">Každých 14 dní</option>
+                <option value="30">Každých 30 dní</option>
+              </select>
               <button class="primary-action" type="submit" aria-label="Pridať krok">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               </button>
@@ -466,22 +472,22 @@
               <section class="more-grid" aria-label="Ďalšie sekcie">
                 <p>Ďalšie sekcie</p>
                 <div>
-                  <a class="more-tile pets" href="#more">
+                  <a class="more-tile pets" href="#petsSection" data-open-section="petsSection">
                     <span>🐾</span>
                     <strong>Zvieratá</strong>
-                    <em>Pridaj miláčika</em>
+                    <em id="petsTileMeta">Pridaj miláčika</em>
                   </a>
-                  <a class="more-tile energy" href="#more">
+                  <a class="more-tile energy" href="#energySection" data-open-section="energySection">
                     <span>⚡</span>
                     <strong>Energie</strong>
-                    <em>Žiadne záznamy</em>
+                    <em id="energyTileMeta">Žiadne záznamy</em>
                   </a>
-                  <a class="more-tile contacts" href="#more">
+                  <a class="more-tile contacts" href="#contactsSection" data-open-section="contactsSection">
                     <span>📞</span>
                     <strong>Kontakty</strong>
-                    <em>Záchranné čísla</em>
+                    <em id="contactsTileMeta">Záchranné čísla</em>
                   </a>
-                  <a class="more-tile history" href="#more">
+                  <a class="more-tile history" href="#historySection" data-open-section="historySection">
                     <span>📋</span>
                     <strong>História</strong>
                     <em>Aktivity domácnosti</em>
@@ -497,6 +503,41 @@
                     <em>Profil, téma, dáta</em>
                   </a>
                 </div>
+              </section>
+
+              <section class="more-live-sections" aria-label="Domáce doplnky">
+                <details class="more-section-card" id="petsSection" open>
+                  <summary><span>🐾</span><strong>Zvieratá</strong></summary>
+                  <form class="mini-add-form" id="petForm">
+                    <input id="petName" type="text" maxlength="36" autocomplete="off" placeholder="Meno miláčika">
+                    <button class="ghost-action" type="submit">Pridať</button>
+                  </form>
+                  <div class="mini-chip-list" id="petList"></div>
+                </details>
+
+                <details class="more-section-card" id="energySection">
+                  <summary><span>⚡</span><strong>Energie</strong></summary>
+                  <form class="mini-add-form" id="energyForm">
+                    <input id="energyName" type="text" maxlength="42" autocomplete="off" placeholder="Napr. elektrina, plyn">
+                    <button class="ghost-action" type="submit">Pridať</button>
+                  </form>
+                  <div class="mini-chip-list" id="energyList"></div>
+                </details>
+
+                <details class="more-section-card" id="contactsSection">
+                  <summary><span>📞</span><strong>Kontakty</strong></summary>
+                  <form class="mini-add-form" id="contactForm">
+                    <input id="contactName" type="text" maxlength="36" autocomplete="off" placeholder="Názov kontaktu">
+                    <input id="contactPhone" type="tel" maxlength="24" autocomplete="off" placeholder="Telefón">
+                    <button class="ghost-action" type="submit">Pridať</button>
+                  </form>
+                  <div class="mini-chip-list" id="contactList"></div>
+                </details>
+
+                <details class="more-section-card" id="historySection">
+                  <summary><span>📋</span><strong>História</strong></summary>
+                  <div class="history-list" id="historyList"></div>
+                </details>
               </section>
 
               <section class="account-card" aria-label="Google účet a synchronizácia">
@@ -756,6 +797,16 @@
         function activateTab(tab) {
           if (knownTabs.indexOf(tab) === -1) return;
 
+          var titles = {
+            home: "Domov",
+            tasks: "Úlohy",
+            shopping: "Nákup",
+            meals: "Jedálniček",
+            more: "Viac"
+          };
+          var title = document.querySelector("#brandTitle");
+          if (title) title.textContent = titles[tab] || "Domáci Rytmus";
+
           document.querySelectorAll(".bottom-nav [data-tab]").forEach(function (button) {
             button.classList.toggle("is-active", button.dataset.tab === tab);
           });
@@ -821,7 +872,7 @@
         }, true);
       }());
     </script>
-    <script src="firebase-config.js?v=20260524-1615"></script>
-    <script src="app.js?v=20260524-1615"></script>
+    <script src="firebase-config.js?v=20260524-1745"></script>
+    <script src="app.js?v=20260524-1745"></script>
   </body>
 </html>
