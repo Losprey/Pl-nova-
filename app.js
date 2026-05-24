@@ -6,6 +6,7 @@ const checkinsStorageKey = "domaci-rytmus-checkins-v1";
 const notesStorageKey = "domaci-rytmus-notes-v1";
 const rhythmStorageKey = "domaci-rytmus-rhythm-v1";
 const favoritesStorageKey = "domaci-rytmus-favorites-v1";
+const weeklyStorageKey = "domaci-rytmus-weekly-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -95,6 +96,7 @@ const state = {
   notes: loadNotesState(),
   rhythm: loadRhythmState(),
   favorites: loadFavoritesState(),
+  weekly: loadWeeklyState(),
   activeTab: "home",
 };
 
@@ -145,6 +147,11 @@ const homeFocusDetail = document.querySelector("#homeFocusDetail");
 const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeActionList = document.querySelector("#homeActionList");
 const smartTipList = document.querySelector("#smartTipList");
+const weekPrepCount = document.querySelector("#weekPrepCount");
+const weekModeButtons = document.querySelectorAll("[data-week-mode] button");
+const cookingModeButtons = document.querySelectorAll("[data-cooking-mode] button");
+const busyDayList = document.querySelector("#busyDayList");
+const weekPrepList = document.querySelector("#weekPrepList");
 const homeMealVisualValue = document.querySelector("#homeMealVisualValue");
 const homeTaskVisualValue = document.querySelector("#homeTaskVisualValue");
 const homeShoppingVisualValue = document.querySelector("#homeShoppingVisualValue");
@@ -154,6 +161,8 @@ const homeShoppingMeter = document.querySelector("#homeShoppingMeter");
 const favoriteQuickList = document.querySelector("#favoriteQuickList");
 const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
 const simpleMealsButton = document.querySelector("#simpleMealsButton");
+const stockCount = document.querySelector("#stockCount");
+const stockList = document.querySelector("#stockList");
 const checkinMessage = document.querySelector("#checkinMessage");
 const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
@@ -202,6 +211,29 @@ const shoppingCategoryOrder = [
   "Detské",
   "Ostatné",
 ];
+
+const prepSteps = [
+  { key: "meals", label: "Potvrdiť jedlá" },
+  { key: "stock", label: "Skontrolovať zásoby" },
+  { key: "shopping", label: "Pripraviť veľký nákup" },
+  { key: "busy", label: "Označiť rušné dni" },
+  { key: "prep", label: "Vybrať 2 veci dopredu" },
+];
+
+const stockBasics = ["Mlieko", "Vajcia", "Jogurty", "Ovocie", "Pečivo", "Ryža", "Cestoviny", "Zelenina"];
+
+const weekModeCopy = {
+  normal: "Bežný týždeň",
+  busy: "Rušný týždeň",
+  budget: "Lacnejší týždeň",
+  light: "Ľahší týždeň",
+};
+
+const cookingModeCopy = {
+  normal: "Bežné varenie",
+  "two-days": "Varenie na 2 dni",
+  minimal: "Minimum varenia",
+};
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -297,6 +329,14 @@ function loadFavoritesState() {
   }
 }
 
+function loadWeeklyState() {
+  try {
+    return JSON.parse(localStorage.getItem(weeklyStorageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -327,6 +367,10 @@ function saveRhythmState() {
 
 function saveFavoritesState() {
   localStorage.setItem(favoritesStorageKey, JSON.stringify(state.favorites));
+}
+
+function saveWeeklyState() {
+  localStorage.setItem(weeklyStorageKey, JSON.stringify(state.weekly));
 }
 
 function applyTheme() {
@@ -414,6 +458,23 @@ function currentPlan() {
 
 function contextKey() {
   return `${state.audience}:${state.week}`;
+}
+
+function weeklyContext() {
+  const key = contextKey();
+  state.weekly[key] ||= {
+    mode: "normal",
+    cooking: "normal",
+    busyDays: [],
+    prep: [],
+    stock: [],
+  };
+  state.weekly[key].mode ||= "normal";
+  state.weekly[key].cooking ||= "normal";
+  state.weekly[key].busyDays ||= [];
+  state.weekly[key].prep ||= [];
+  state.weekly[key].stock ||= [];
+  return state.weekly[key];
 }
 
 function currentTasks() {
@@ -547,10 +608,43 @@ function renderShopping() {
     : `<div class="empty-state">Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne.</div>`;
 }
 
+function renderStockCheck() {
+  const weekly = weeklyContext();
+  const checked = new Set(weekly.stock || []);
+  stockCount.textContent = `${checked.size}/${stockBasics.length}`;
+  stockList.innerHTML = stockBasics
+    .map((item) => `
+      <label class="stock-item">
+        <input type="checkbox" data-stock="${escapeHtml(item)}" ${checked.has(item) ? "checked" : ""}>
+        <span>${escapeHtml(item)}</span>
+      </label>
+    `)
+    .join("");
+}
+
 function buildSmartTips(meals, tasks, shopping, openShopping) {
   const tips = [];
   const dinners = meals.filter((meal) => meal.typeKey === "dinner").length;
   const favoriteToUse = state.favorites.find((name) => !meals.some((meal) => meal.name === name));
+  const weekly = weeklyContext();
+
+  if (weekly.cooking === "two-days") {
+    tips.push({
+      icon: "2",
+      title: "Naplánovať jedlá na dva dni",
+      detail: "Vyber 2-3 jedlá, ktoré sa dajú použiť aj na ďalší deň.",
+      action: "meals",
+    });
+  }
+
+  if (weekly.mode === "busy") {
+    tips.push({
+      icon: "⏱",
+      title: "Zjednodušiť rušné dni",
+      detail: "Na označené dni sa hodia rýchle večere alebo zvyšky.",
+      action: "meals",
+    });
+  }
 
   if (dinners < Math.min(3, currentPlan().days.length) && favoriteToUse) {
     tips.push({
@@ -603,6 +697,38 @@ function renderSmartTips(meals, tasks, shopping, openShopping) {
         </button>
       `).join("")
     : `<div class="empty-state">Žiadne smart tipy teraz netreba.</div>`;
+}
+
+function renderWeeklyPlanner() {
+  const plan = currentPlan();
+  const weekly = weeklyContext();
+  const prepDone = new Set(weekly.prep || []);
+  const busyDays = new Set(weekly.busyDays || []);
+
+  weekModeButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mode === weekly.mode);
+  });
+  cookingModeButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.cooking === weekly.cooking);
+  });
+
+  busyDayList.innerHTML = plan.days
+    .map((day, index) => `
+      <button type="button" class="${busyDays.has(String(index)) ? "is-active" : ""}" data-busy-day="${index}">
+        ${escapeHtml(day.name.split(",")[0])}
+      </button>
+    `)
+    .join("");
+
+  weekPrepCount.textContent = `${prepDone.size}/${prepSteps.length}`;
+  weekPrepList.innerHTML = prepSteps
+    .map((step) => `
+      <label class="prep-item ${prepDone.has(step.key) ? "is-done" : ""}">
+        <input type="checkbox" data-prep-step="${step.key}" ${prepDone.has(step.key) ? "checked" : ""}>
+        <span>${escapeHtml(step.label)}</span>
+      </label>
+    `)
+    .join("");
 }
 
 function priorityLabel(priority) {
@@ -1044,9 +1170,11 @@ function renderPlan() {
 function renderCurrentView() {
   renderPlan();
   renderShopping();
+  renderStockCheck();
   renderTasks();
   renderHome();
   renderFavoriteLibrary();
+  renderWeeklyPlanner();
   renderCheckin();
   renderRhythm();
   renderDailyNote();
@@ -1112,6 +1240,54 @@ document.querySelector(".audience-toggle").addEventListener("click", (event) => 
   state.audience = button.dataset.audience;
   setActiveButton(".audience-toggle button", "audience", state.audience);
   renderCurrentView();
+});
+
+weekModeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    weeklyContext().mode = button.dataset.mode;
+    saveWeeklyState();
+    renderCurrentView();
+    showToast(weekModeCopy[button.dataset.mode]);
+  });
+});
+
+cookingModeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    weeklyContext().cooking = button.dataset.cooking;
+    saveWeeklyState();
+    renderCurrentView();
+    showToast(cookingModeCopy[button.dataset.cooking]);
+  });
+});
+
+busyDayList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-busy-day]");
+  if (!button) return;
+  const weekly = weeklyContext();
+  const busy = new Set(weekly.busyDays || []);
+  if (busy.has(button.dataset.busyDay)) {
+    busy.delete(button.dataset.busyDay);
+  } else {
+    busy.add(button.dataset.busyDay);
+  }
+  weekly.busyDays = [...busy];
+  saveWeeklyState();
+  renderWeeklyPlanner();
+});
+
+weekPrepList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-prep-step]");
+  if (!checkbox) return;
+  const weekly = weeklyContext();
+  const prep = new Set(weekly.prep || []);
+  if (checkbox.checked) {
+    prep.add(checkbox.dataset.prepStep);
+  } else {
+    prep.delete(checkbox.dataset.prepStep);
+  }
+  weekly.prep = [...prep];
+  saveWeeklyState();
+  renderWeeklyPlanner();
 });
 
 document.querySelector("#addMealButton").addEventListener("click", () => {
@@ -1262,6 +1438,21 @@ shoppingList.addEventListener("click", (event) => {
   renderHome();
 });
 
+stockList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-stock]");
+  if (!checkbox) return;
+  const weekly = weeklyContext();
+  const stock = new Set(weekly.stock || []);
+  if (checkbox.checked) {
+    stock.add(checkbox.dataset.stock);
+  } else {
+    stock.delete(checkbox.dataset.stock);
+  }
+  weekly.stock = [...stock];
+  saveWeeklyState();
+  renderStockCheck();
+});
+
 smartTipList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-tip-action]");
   if (!button) return;
@@ -1381,6 +1572,7 @@ exportDataButton.addEventListener("click", () => {
     notes: state.notes,
     rhythm: state.rhythm,
     favorites: state.favorites,
+    weekly: state.weekly,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1411,6 +1603,7 @@ importDataInput.addEventListener("change", async () => {
     state.notes = payload.notes || state.notes;
     state.rhythm = payload.rhythm || state.rhythm;
     state.favorites = payload.favorites || state.favorites;
+    state.weekly = payload.weekly || state.weekly;
     savePlans();
     saveShoppingState();
     saveTasksState();
@@ -1419,6 +1612,7 @@ importDataInput.addEventListener("change", async () => {
     saveNotesState();
     saveRhythmState();
     saveFavoritesState();
+    saveWeeklyState();
     renderCurrentView();
     settingsStatus.textContent = "Import hotový";
   } catch {
@@ -1439,6 +1633,7 @@ resetAllButton.addEventListener("click", () => {
   state.notes = {};
   state.rhythm = {};
   state.favorites = [];
+  state.weekly = {};
   savePlans();
   saveShoppingState();
   saveTasksState();
@@ -1447,6 +1642,7 @@ resetAllButton.addEventListener("click", () => {
   saveNotesState();
   saveRhythmState();
   saveFavoritesState();
+  saveWeeklyState();
   renderCurrentView();
   settingsStatus.textContent = "Reset hotový";
 });

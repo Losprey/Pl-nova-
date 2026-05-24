@@ -92,6 +92,35 @@
               </button>
             </section>
 
+            <section class="weekend-planner" aria-label="Víkendová príprava budúceho týždňa">
+              <div class="mini-header">
+                <h3>Pripraviť budúci týždeň</h3>
+                <span id="weekPrepCount">0/5</span>
+              </div>
+              <div class="planner-choice">
+                <p>Aký bude týždeň?</p>
+                <div class="choice-row" data-week-mode>
+                  <button type="button" data-mode="normal">Bežný</button>
+                  <button type="button" data-mode="busy">Rušný</button>
+                  <button type="button" data-mode="budget">Lacnejší</button>
+                  <button type="button" data-mode="light">Ľahší</button>
+                </div>
+              </div>
+              <div class="planner-choice">
+                <p>Koľko variť?</p>
+                <div class="choice-row" data-cooking-mode>
+                  <button type="button" data-cooking="normal">Bežne</button>
+                  <button type="button" data-cooking="two-days">Na 2 dni</button>
+                  <button type="button" data-cooking="minimal">Minimum</button>
+                </div>
+              </div>
+              <div class="busy-days">
+                <p>Rušné dni</p>
+                <div id="busyDayList" class="busy-day-list"></div>
+              </div>
+              <div id="weekPrepList" class="prep-list"></div>
+            </section>
+
             <section class="today-card" aria-label="Dnes doma">
               <div class="today-card-art" aria-hidden="true">
                 <span class="today-bowl"></span>
@@ -265,6 +294,13 @@
             </form>
 
             <div id="shoppingList" class="shopping-list"></div>
+            <section class="stock-panel" aria-label="Kontrola zásob pred nákupom">
+              <div class="mini-header">
+                <h3>Skontrolovať doma</h3>
+                <span id="stockCount">0/0</span>
+              </div>
+              <div id="stockList" class="stock-list"></div>
+            </section>
           </section>
         </section>
 

@@ -1121,7 +1121,9 @@ svg {
 
 .mini-panel,
 .next-actions,
-.smart-tips {
+.smart-tips,
+.weekend-planner,
+.stock-panel {
   border: 1px solid var(--line);
   border-radius: 19px;
   background: #182337;
@@ -1160,6 +1162,91 @@ svg {
 
 .smart-tip-list {
   display: grid;
+}
+
+.planner-choice,
+.busy-days {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+}
+
+.planner-choice p,
+.busy-days p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.choice-row,
+.busy-day-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.choice-row button,
+.busy-day-list button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(53, 66, 89, 0.86);
+  border-radius: 999px;
+  background: rgba(17, 26, 45, 0.54);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.choice-row button.is-active,
+.busy-day-list button.is-active {
+  border-color: rgba(52, 194, 138, 0.55);
+  background: rgba(52, 194, 138, 0.16);
+  color: #8ee0bf;
+}
+
+.prep-list,
+.stock-list {
+  display: grid;
+}
+
+.prep-item,
+.stock-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.58);
+}
+
+.prep-item:last-child,
+.stock-item:last-child {
+  border-bottom: 0;
+}
+
+.prep-item input,
+.stock-item input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+}
+
+.prep-item span,
+.stock-item span {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.prep-item.is-done span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.stock-panel {
+  margin-top: 12px;
 }
 
 .smart-tip {
