@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-2010">
+    <link rel="stylesheet" href="styles.css?v=20260524-2035">
   </head>
   <body>
     <div class="app-shell">
@@ -104,7 +104,7 @@
               <div id="familyHandoffList" class="handoff-list"></div>
             </section>
 
-            <section class="weekly-compass" aria-label="Týždenný kompas">
+            <section class="weekly-compass" aria-label="Týždenný kompas" hidden>
               <div class="compass-ring" aria-hidden="true">
                 <span id="weeklyCompassScore">0%</span>
               </div>
@@ -116,7 +116,7 @@
               </div>
             </section>
 
-            <section class="budget-card" aria-label="Mesačný rozpočet">
+            <section class="budget-card" aria-label="Mesačný rozpočet" hidden>
               <div>
                 <p>Rozpočet mesiaca</p>
                 <h3 id="budgetTitle">Nastav mesačný limit</h3>
@@ -128,7 +128,7 @@
               </div>
             </section>
 
-            <section class="weekend-planner" aria-label="Víkendová príprava budúceho týždňa">
+            <section class="weekend-planner" aria-label="Víkendová príprava budúceho týždňa" hidden>
               <div class="mini-header">
                 <h3>Pripraviť budúci týždeň</h3>
                 <span id="weekPrepCount">0/5</span>
@@ -182,7 +182,7 @@
               </div>
             </section>
 
-            <section class="daily-rhythm" aria-label="Denný rytmus">
+            <section class="daily-rhythm" aria-label="Denný rytmus" hidden>
               <div class="mini-header">
                 <h3>Dnešný rytmus</h3>
               </div>
@@ -454,7 +454,7 @@
             </div>
 
             <div class="settings-list">
-              <section class="more-grid" aria-label="Ďalšie sekcie">
+              <section class="more-grid" aria-label="Ďalšie sekcie" hidden>
                 <p>Ďalšie sekcie</p>
                 <div>
                   <a class="more-tile pets" href="#petsSection" data-open-section="petsSection">
@@ -929,7 +929,7 @@
         });
       });
     </script>
-    <script src="firebase-config.js?v=20260524-2010"></script>
-    <script src="app.js?v=20260524-2010"></script>
+    <script src="firebase-config.js?v=20260524-2035"></script>
+    <script src="app.js?v=20260524-2035"></script>
   </body>
 </html>

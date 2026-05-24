@@ -473,6 +473,7 @@ function loadSettingsState() {
     displayDensity: "cozy",
     visualStyle: "home",
     backdrop: "soft",
+    defaultShoppingCategory: "Ostatné",
     householdId: localStorage.getItem(householdStorageKey) || "",
     cloudUser: null,
   };
@@ -656,6 +657,7 @@ function ensureFamilySettings() {
   state.settings.familyCode ||= "";
   state.settings.householdId ||= localStorage.getItem(householdStorageKey) || "";
   state.settings.cloudUser ||= null;
+  state.settings.defaultShoppingCategory ||= "Ostatné";
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
 }
 
@@ -1174,6 +1176,7 @@ function renderShopping() {
   shoppingProgressBar.style.width = `${progress}%`;
   hideDoneShoppingButton.textContent = state.settings.hideDoneShopping ? "Ukázať hotové" : "Skryť hotové";
   hideDoneShoppingButton.classList.toggle("is-active", state.settings.hideDoneShopping);
+  if (shoppingCategory) shoppingCategory.value = state.settings.defaultShoppingCategory || "Ostatné";
 
   shoppingList.innerHTML = groups.length
     ? groups
@@ -2460,16 +2463,19 @@ shoppingForm.addEventListener("submit", (event) => {
   if (!name) return;
 
   const key = contextKey();
+  const selectedCategory = shoppingCategory?.value || "Ostatné";
   const item = {
     id: `manual:${Date.now()}:${slug(name)}`,
     name,
-    category: shoppingCategory?.value || "Ostatné",
+    category: selectedCategory,
     automatic: false,
   };
 
   state.shopping.manual[key] = [...manualShoppingItems(), item];
+  state.settings.defaultShoppingCategory = selectedCategory;
   shoppingName.value = "";
-  if (shoppingCategory) shoppingCategory.value = "Ostatné";
+  if (shoppingCategory) shoppingCategory.value = selectedCategory;
+  saveSettingsState();
   saveShoppingState();
   renderShopping();
 });
@@ -2959,6 +2965,7 @@ resetAllButton.addEventListener("click", () => {
     displayDensity: "cozy",
     visualStyle: "home",
     backdrop: "soft",
+    defaultShoppingCategory: "Ostatné",
     householdId: currentHouseholdId(),
     cloudUser: state.settings.cloudUser || null,
   };
