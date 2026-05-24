@@ -65,6 +65,7 @@ body[data-theme="light"] .weekly-compass,
 body[data-theme="light"] .budget-card,
 body[data-theme="light"] .quick-meals,
 body[data-theme="light"] .quick-tasks,
+body[data-theme="light"] .pantry-cook,
 body[data-theme="light"] .quick-add input,
 body[data-theme="light"] .task-form input,
 body[data-theme="light"] .task-form select,
@@ -278,7 +279,8 @@ svg {
 }
 
 .quick-meals,
-.quick-tasks {
+.quick-tasks,
+.pantry-cook {
   display: grid;
   gap: 10px;
   margin: 0 0 22px;
@@ -289,14 +291,16 @@ svg {
 }
 
 .quick-meal-list,
-.quick-task-list {
+.quick-task-list,
+.pantry-cook-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .quick-meal-list button,
-.quick-task-list button {
+.quick-task-list button,
+.pantry-cook-list button {
   min-width: 0;
   border: 1px solid rgba(53, 66, 89, 0.8);
   border-radius: 14px;
@@ -305,7 +309,8 @@ svg {
   text-align: left;
 }
 
-.quick-meal-list button {
+.quick-meal-list button,
+.pantry-cook-list button {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
   column-gap: 8px;
@@ -313,7 +318,8 @@ svg {
   padding: 9px;
 }
 
-.quick-meal-list button span {
+.quick-meal-list button span,
+.pantry-cook-list button span {
   display: grid;
   place-items: center;
   grid-row: span 2;
@@ -324,7 +330,8 @@ svg {
 }
 
 .quick-meal-list strong,
-.quick-task-list strong {
+.quick-task-list strong,
+.pantry-cook-list strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -332,7 +339,8 @@ svg {
 }
 
 .quick-meal-list em,
-.quick-task-list span {
+.quick-task-list span,
+.pantry-cook-list em {
   overflow: hidden;
   color: var(--muted);
   font-size: 11px;
@@ -1366,11 +1374,73 @@ svg {
 .next-actions,
 .smart-tips,
 .weekend-planner,
-.stock-panel {
+.stock-panel,
+.pantry-panel {
   border: 1px solid var(--line);
   border-radius: 19px;
   background: #182337;
   overflow: hidden;
+}
+
+.pantry-panel {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 14px;
+  background:
+    linear-gradient(135deg, rgba(39, 210, 138, 0.08), rgba(17, 26, 45, 0.2)),
+    #182337;
+}
+
+.pantry-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.pantry-form input {
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #111a2d;
+  color: var(--text);
+  padding: 0 12px;
+  outline: 0;
+}
+
+.pantry-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.pantry-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 34px;
+  padding: 5px 5px 5px 11px;
+  border: 1px solid rgba(39, 210, 138, 0.34);
+  border-radius: 999px;
+  background: rgba(39, 210, 138, 0.11);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.pantry-chip button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(17, 26, 45, 0.6);
+  color: var(--muted);
+  font-weight: 950;
 }
 
 .mini-header {
@@ -1905,6 +1975,20 @@ svg {
 .task-item.is-done strong {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+.shopping-item.is-pantry {
+  background: rgba(39, 210, 138, 0.08);
+}
+
+.shopping-item.is-pantry strong::after {
+  content: " doma";
+  margin-left: 6px;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 950;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 
 .priority-pill {
@@ -3122,7 +3206,8 @@ body[data-display-density="tight"] .compass-signals {
 }
 
 body[data-display-density="tight"] .quick-meals,
-body[data-display-density="tight"] .quick-tasks {
+body[data-display-density="tight"] .quick-tasks,
+body[data-display-density="tight"] .pantry-cook {
   padding: 10px;
 }
 
@@ -3145,7 +3230,8 @@ body[data-display-density="tight"] .quick-tasks {
 
   .compass-signals,
   .quick-meal-list,
-  .quick-task-list {
+  .quick-task-list,
+  .pantry-cook-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

@@ -305,6 +305,14 @@
             <div id="quickMealList" class="quick-meal-list"></div>
           </section>
 
+          <section class="pantry-cook" aria-label="Varíme z toho, čo máme">
+            <div class="mini-header">
+              <h3>Varíme z domu</h3>
+              <span id="pantryCookHint">Podľa špajze</span>
+            </div>
+            <div id="pantryCookList" class="pantry-cook-list"></div>
+          </section>
+
           <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
         </section>
 
@@ -340,6 +348,17 @@
                 <span id="stockCount">0/0</span>
               </div>
               <div id="stockList" class="stock-list"></div>
+            </section>
+            <section class="pantry-panel" aria-label="Špajza">
+              <div class="mini-header">
+                <h3>Špajza doma</h3>
+                <span id="pantryCount">0 vecí</span>
+              </div>
+              <form class="pantry-form" id="pantryForm">
+                <input id="pantryName" type="text" maxlength="50" autocomplete="off" placeholder="Pridať zásobu">
+                <button class="ghost-action" type="submit">Pridať</button>
+              </form>
+              <div id="pantryList" class="pantry-list"></div>
             </section>
           </section>
         </section>

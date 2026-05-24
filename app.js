@@ -7,6 +7,7 @@ const notesStorageKey = "domaci-rytmus-notes-v1";
 const rhythmStorageKey = "domaci-rytmus-rhythm-v1";
 const favoritesStorageKey = "domaci-rytmus-favorites-v1";
 const weeklyStorageKey = "domaci-rytmus-weekly-v1";
+const pantryStorageKey = "domaci-rytmus-pantry-v1";
 
 const mealTypes = [
   { key: "breakfast", label: "Raňajky", icon: "🌅" },
@@ -97,6 +98,7 @@ const state = {
   rhythm: loadRhythmState(),
   favorites: loadFavoritesState(),
   weekly: loadWeeklyState(),
+  pantry: loadPantryState(),
   activeTab: "home",
 };
 
@@ -170,12 +172,18 @@ const favoriteQuickList = document.querySelector("#favoriteQuickList");
 const favoriteLibraryCount = document.querySelector("#favoriteLibraryCount");
 const quickMealHint = document.querySelector("#quickMealHint");
 const quickMealList = document.querySelector("#quickMealList");
+const pantryCookHint = document.querySelector("#pantryCookHint");
+const pantryCookList = document.querySelector("#pantryCookList");
 const simpleMealsButton = document.querySelector("#simpleMealsButton");
 const shoppingProgressText = document.querySelector("#shoppingProgressText");
 const shoppingProgressBar = document.querySelector("#shoppingProgressBar");
 const hideDoneShoppingButton = document.querySelector("#hideDoneShoppingButton");
 const stockCount = document.querySelector("#stockCount");
 const stockList = document.querySelector("#stockList");
+const pantryCount = document.querySelector("#pantryCount");
+const pantryForm = document.querySelector("#pantryForm");
+const pantryName = document.querySelector("#pantryName");
+const pantryList = document.querySelector("#pantryList");
 const quickTaskHint = document.querySelector("#quickTaskHint");
 const quickTaskList = document.querySelector("#quickTaskList");
 const checkinMessage = document.querySelector("#checkinMessage");
@@ -250,6 +258,17 @@ const prepSteps = [
 ];
 
 const stockBasics = ["Mlieko", "Vajcia", "Jogurty", "Ovocie", "Pečivo", "Ryža", "Cestoviny", "Zelenina"];
+
+const pantryStarter = ["Ryža", "Cestoviny", "Vajcia", "Mlieko"];
+
+const pantryRecipeIdeas = [
+  { name: "Vaječná omeleta so zeleninou", typeKey: "dinner", needs: ["Vajcia", "Zelenina"] },
+  { name: "Cestoviny s paradajkovou omáčkou", typeKey: "dinner", needs: ["Cestoviny", "Paradajkový základ"] },
+  { name: "Ryžová kaša s ovocím", typeKey: "breakfast", needs: ["Ryža", "Mlieko", "Ovocie"] },
+  { name: "Jogurtová miska s ovocím", typeKey: "snack", needs: ["Jogurty", "Ovocie"] },
+  { name: "Zeleninová polievka zo zásob", typeKey: "dinner", needs: ["Zelenina", "Pečivo"] },
+  { name: "Palacinky zo špajze", typeKey: "afternoon", needs: ["Múka", "Vajcia", "Mlieko"] },
+];
 
 const weekModeCopy = {
   normal: "Bežný týždeň",
@@ -446,6 +465,14 @@ function loadWeeklyState() {
   }
 }
 
+function loadPantryState() {
+  try {
+    return JSON.parse(localStorage.getItem(pantryStorageKey)) || pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
+  } catch {
+    return pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
+  }
+}
+
 function savePlans() {
   localStorage.setItem(storageKey, JSON.stringify(state.plans));
 }
@@ -480,6 +507,10 @@ function saveFavoritesState() {
 
 function saveWeeklyState() {
   localStorage.setItem(weeklyStorageKey, JSON.stringify(state.weekly));
+}
+
+function savePantryState() {
+  localStorage.setItem(pantryStorageKey, JSON.stringify(state.pantry));
 }
 
 function applyTheme() {
@@ -697,6 +728,15 @@ function setCheckedShoppingIds(ids) {
   saveShoppingState();
 }
 
+function pantryNames() {
+  return new Set(state.pantry.map((item) => item.name.toLowerCase()));
+}
+
+function isInPantry(name) {
+  const normalized = name.toLowerCase();
+  return [...pantryNames()].some((pantryItem) => normalized.includes(pantryItem) || pantryItem.includes(normalized));
+}
+
 function renderShopping() {
   const checked = new Set(checkedShoppingIds());
   const items = shoppingItems();
@@ -743,11 +783,11 @@ function renderShopping() {
             `;
 
           return `
-            <label class="shopping-item ${isDone ? "is-done" : ""}">
+            <label class="shopping-item ${isDone ? "is-done" : ""} ${isInPantry(item.name) ? "is-pantry" : ""}">
               <input type="checkbox" data-id="${item.id}" ${isDone ? "checked" : ""}>
               <span>
                 <strong>${escapeHtml(item.name)}</strong>
-                <span>${source}</span>
+                <span>${isInPantry(item.name) ? "Máš doma v špajzi" : source}</span>
               </span>
               ${deleteButton}
             </label>
@@ -758,6 +798,18 @@ function renderShopping() {
         `)
         .join("")
     : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne."}</div>`;
+}
+
+function renderPantry() {
+  pantryCount.textContent = `${state.pantry.length} ${state.pantry.length === 1 ? "vec" : "vecí"}`;
+  pantryList.innerHTML = state.pantry.length
+    ? state.pantry.map((item) => `
+        <span class="pantry-chip">
+          ${escapeHtml(item.name)}
+          <button type="button" data-remove-pantry="${item.id}" aria-label="Odstrániť ${escapeHtml(item.name)}">×</button>
+        </span>
+      `).join("")
+    : `<div class="empty-state">Pridaj veci, ktoré máte doma. Nákup bude múdrejší.</div>`;
 }
 
 function renderStockCheck() {
@@ -1041,12 +1093,12 @@ function progressPercent(done, total) {
 function weeklyReadiness(meals, tasks, shopping, openShopping) {
   const weekly = weeklyContext();
   const prepDone = weekly.prep?.length || 0;
-  const stockDone = weekly.stock?.length || 0;
+  const stockDone = Math.max(weekly.stock?.length || 0, state.pantry.length);
   const openTasks = tasks.filter((task) => !task.done).length;
   const signals = [
     { label: "Jedlá", value: progressPercent(meals.length, 21) },
     { label: "Príprava", value: progressPercent(prepDone, prepSteps.length) },
-    { label: "Zásoby", value: progressPercent(stockDone, stockBasics.length) },
+    { label: "Zásoby", value: progressPercent(stockDone, Math.max(stockBasics.length, 1)) },
     { label: "Nákup", value: progressPercent(shopping.length - openShopping.length, shopping.length) },
   ];
   const score = Math.round(signals.reduce((sum, signal) => sum + signal.value, 0) / signals.length);
@@ -1126,6 +1178,36 @@ function renderQuickMealIdeas() {
         `;
       }).join("")
     : `<div class="empty-state">Návrhy sú už v pláne. Pridaj vlastné jedlo alebo použi obľúbené.</div>`;
+}
+
+function pantryCookIdeas() {
+  const pantry = pantryNames();
+  const existing = new Set(allMeals().map((meal) => meal.name));
+  return pantryRecipeIdeas
+    .map((idea) => {
+      const matches = idea.needs.filter((need) => pantry.has(need.toLowerCase()));
+      return { ...idea, matches };
+    })
+    .filter((idea) => idea.matches.length && !existing.has(idea.name))
+    .sort((a, b) => b.matches.length - a.matches.length)
+    .slice(0, 4);
+}
+
+function renderPantryCookIdeas() {
+  const ideas = pantryCookIdeas();
+  pantryCookHint.textContent = ideas.length ? `${ideas.length} tipy` : "Doplň špajzu";
+  pantryCookList.innerHTML = ideas.length
+    ? ideas.map((idea) => {
+        const type = mealTypeFor(idea.typeKey);
+        return `
+          <button type="button" data-pantry-meal="${escapeHtml(idea.name)}" data-pantry-meal-type="${idea.typeKey}">
+            <span aria-hidden="true">${type.icon}</span>
+            <strong>${escapeHtml(idea.name)}</strong>
+            <em>${idea.matches.length}/${idea.needs.length} doma</em>
+          </button>
+        `;
+      }).join("")
+    : `<div class="empty-state">Pridaj do špajze ryžu, vajcia, zeleninu alebo cestoviny a appka navrhne jedlá.</div>`;
 }
 
 function addQuickMeal(name, typeKey) {
@@ -1529,10 +1611,12 @@ function renderCurrentView() {
   renderPlan();
   renderShopping();
   renderStockCheck();
+  renderPantry();
   renderTasks();
   renderHome();
   renderFavoriteLibrary();
   renderQuickMealIdeas();
+  renderPantryCookIdeas();
   renderQuickTaskIdeas();
   renderFamilySettings();
   renderBudget();
@@ -1747,6 +1831,12 @@ quickMealList.addEventListener("click", (event) => {
   addQuickMeal(button.dataset.quickMeal, button.dataset.quickMealType);
 });
 
+pantryCookList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-pantry-meal]");
+  if (!button) return;
+  addQuickMeal(button.dataset.pantryMeal, button.dataset.pantryMealType);
+});
+
 shoppingForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const name = shoppingName.value.trim();
@@ -1764,6 +1854,27 @@ shoppingForm.addEventListener("submit", (event) => {
   shoppingName.value = "";
   saveShoppingState();
   renderShopping();
+});
+
+pantryForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = pantryName.value.trim();
+  if (!name) return;
+  if (!state.pantry.some((item) => item.name.toLowerCase() === name.toLowerCase())) {
+    state.pantry = [{ id: `pantry:${Date.now()}:${slug(name)}`, name }, ...state.pantry].slice(0, 30);
+    savePantryState();
+  }
+  pantryName.value = "";
+  renderCurrentView();
+  showToast("Pridané do špajze.");
+});
+
+pantryList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-pantry]");
+  if (!button) return;
+  state.pantry = state.pantry.filter((item) => item.id !== button.dataset.removePantry);
+  savePantryState();
+  renderCurrentView();
 });
 
 hideDoneShoppingButton.addEventListener("click", () => {
@@ -2037,6 +2148,7 @@ exportDataButton.addEventListener("click", () => {
     rhythm: state.rhythm,
     favorites: state.favorites,
     weekly: state.weekly,
+    pantry: state.pantry,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -2068,6 +2180,7 @@ importDataInput.addEventListener("change", async () => {
     state.rhythm = payload.rhythm || state.rhythm;
     state.favorites = payload.favorites || state.favorites;
     state.weekly = payload.weekly || state.weekly;
+    state.pantry = payload.pantry || state.pantry;
     savePlans();
     saveShoppingState();
     saveTasksState();
@@ -2077,6 +2190,7 @@ importDataInput.addEventListener("change", async () => {
     saveRhythmState();
     saveFavoritesState();
     saveWeeklyState();
+    savePantryState();
     renderCurrentView();
     settingsStatus.textContent = "Import hotový";
   } catch {
@@ -2115,6 +2229,7 @@ resetAllButton.addEventListener("click", () => {
   state.rhythm = {};
   state.favorites = [];
   state.weekly = {};
+  state.pantry = pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
   savePlans();
   saveShoppingState();
   saveTasksState();
@@ -2124,6 +2239,7 @@ resetAllButton.addEventListener("click", () => {
   saveRhythmState();
   saveFavoritesState();
   saveWeeklyState();
+  savePantryState();
   renderCurrentView();
   settingsStatus.textContent = "Reset hotový";
 });
