@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
-    <title>Domáci Rytmus - Jedálniček</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-1330">
+    <title>Domáci Rytmus</title>
+    <link rel="stylesheet" href="styles.css?v=20260524-1415">
   </head>
   <body>
     <div class="app-shell">
@@ -18,7 +18,7 @@
           </button>
           <div>
             <p>Domáci Rytmus</p>
-            <h1>Jedálniček</h1>
+            <h1>Prehľad domácnosti</h1>
           </div>
         </div>
         <button class="sync-button" type="button" aria-label="Synchronizácia" title="Synchronizácia">
@@ -39,10 +39,6 @@
           <div>
             <p id="weekLabel">Budúci týždeň</p>
             <h2 id="weekRange">13. apríla - 19. apríla</h2>
-          </div>
-          <div class="audience-toggle" role="group" aria-label="Typ jedálnička">
-            <button type="button" data-audience="adults">👥 Dospelí</button>
-            <button class="is-active" type="button" data-audience="kids">🧒 Deti</button>
           </div>
         </section>
 
@@ -296,6 +292,17 @@
         </section>
 
         <section class="view" id="meals" data-view="meals" hidden>
+          <section class="meal-audience-panel" aria-label="Typ jedálnička">
+            <div>
+              <p>Jedálniček</p>
+              <h2>Pre koho plánujeme jedlá?</h2>
+            </div>
+            <div class="audience-toggle" role="group" aria-label="Typ jedálnička">
+              <button type="button" data-audience="adults">Dospelí</button>
+              <button class="is-active" type="button" data-audience="kids">Deti</button>
+            </div>
+          </section>
+
           <section class="planner-actions" aria-label="Akcie jedálnička">
             <button class="primary-action" id="addMealButton" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
@@ -447,94 +454,64 @@
                 </div>
               </section>
 
-              <div class="settings-row">
-                <div>
-                  <strong>Svetlá téma</strong>
-                  <span>Prepne appku na svetlejší režim.</span>
+              <section class="settings-group" aria-label="Vzhľad aplikácie">
+                <p class="settings-group-title">Vzhľad</p>
+                <div class="settings-row">
+                  <div>
+                    <strong>Svetlá téma</strong>
+                    <span>Prepne appku na svetlejší režim.</span>
+                  </div>
+                  <label class="switch-control">
+                    <input id="themeToggle" type="checkbox" aria-label="Svetlá téma">
+                    <span></span>
+                  </label>
                 </div>
-                <label class="switch-control">
-                  <input id="themeToggle" type="checkbox" aria-label="Svetlá téma">
-                  <span></span>
-                </label>
-              </div>
 
-              <div class="settings-row">
-                <div>
-                  <strong>Kompaktný dashboard</strong>
-                  <span>Zobrazí pokojnejší prehľad bez zbytočných panelov.</span>
+                <div class="settings-row">
+                  <div>
+                    <strong>Kompaktný dashboard</strong>
+                    <span>Zobrazí pokojnejší prehľad bez zbytočných panelov.</span>
+                  </div>
+                  <label class="switch-control">
+                    <input id="densityToggle" type="checkbox" aria-label="Kompaktný dashboard">
+                    <span></span>
+                  </label>
                 </div>
-                <label class="switch-control">
-                  <input id="densityToggle" type="checkbox" aria-label="Kompaktný dashboard">
-                  <span></span>
-                </label>
-              </div>
 
-              <div class="settings-row">
-                <div>
-                  <strong>Poznámka na dashboarde</strong>
-                  <span>Nechaj ju zapnutú len vtedy, keď ju doma používate často.</span>
+                <div class="settings-row">
+                  <div>
+                    <strong>Poznámka na dashboarde</strong>
+                    <span>Nechaj ju zapnutú len vtedy, keď ju doma používate často.</span>
+                  </div>
+                  <label class="switch-control">
+                    <input id="noteToggle" type="checkbox" aria-label="Poznámka na dashboarde">
+                    <span></span>
+                  </label>
                 </div>
-                <label class="switch-control">
-                  <input id="noteToggle" type="checkbox" aria-label="Poznámka na dashboarde">
-                  <span></span>
-                </label>
-              </div>
 
-              <div class="settings-row setting-stack">
-                <div>
-                  <strong>Veľkosť rozhrania</strong>
-                  <span>Upraví veľkosť textov, kariet a ovládacích prvkov v celej appke.</span>
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Veľkosť rozhrania</strong>
+                    <span>Upraví veľkosť textov, kariet a ovládacích prvkov v celej appke.</span>
+                  </div>
+                  <div class="range-control">
+                    <input id="scaleRange" type="range" min="88" max="112" step="4" value="100" aria-label="Veľkosť rozhrania">
+                    <output id="scaleValue">100%</output>
+                  </div>
                 </div>
-                <div class="range-control">
-                  <input id="scaleRange" type="range" min="88" max="112" step="4" value="100" aria-label="Veľkosť rozhrania">
-                  <output id="scaleValue">100%</output>
-                </div>
-              </div>
 
-              <div class="settings-row setting-stack">
-                <div>
-                  <strong>Hustota zobrazenia</strong>
-                  <span>Vyber, koľko informácií má byť vidieť naraz.</span>
+                <div class="settings-row setting-stack">
+                  <div>
+                    <strong>Hustota zobrazenia</strong>
+                    <span>Vyber, koľko informácií má byť vidieť naraz.</span>
+                  </div>
+                  <div class="segmented-control" data-setting-density>
+                    <button type="button" data-density-value="air">Vzdušne</button>
+                    <button type="button" data-density-value="cozy">Bežne</button>
+                    <button type="button" data-density-value="tight">Husto</button>
+                  </div>
                 </div>
-                <div class="segmented-control" data-setting-density>
-                  <button type="button" data-density-value="air">Vzdušne</button>
-                  <button type="button" data-density-value="cozy">Bežne</button>
-                  <button type="button" data-density-value="tight">Husto</button>
-                </div>
-              </div>
-
-              <div class="settings-row setting-stack">
-                <div>
-                  <strong>Grafický štýl</strong>
-                  <span>Zmení atmosféru celej appky bez zmeny funkcií.</span>
-                </div>
-                <div class="theme-cards" data-setting-visual>
-                  <button type="button" data-visual-value="home">
-                    <span class="theme-swatch home"></span>
-                    Domov
-                  </button>
-                  <button type="button" data-visual-value="fresh">
-                    <span class="theme-swatch fresh"></span>
-                    Sviežo
-                  </button>
-                  <button type="button" data-visual-value="playful">
-                    <span class="theme-swatch playful"></span>
-                    Hravé
-                  </button>
-                </div>
-              </div>
-
-              <div class="settings-row setting-stack">
-                <div>
-                  <strong>Pozadie</strong>
-                  <span>Vyber, či má byť appka úplne čistá alebo trochu grafickejšia.</span>
-                </div>
-                <div class="segmented-control" data-setting-backdrop>
-                  <button type="button" data-backdrop-value="plain">Čisté</button>
-                  <button type="button" data-backdrop-value="soft">Jemné</button>
-                  <button type="button" data-backdrop-value="illustrated">Grafické</button>
-                </div>
-              </div>
+              </section>
 
               <details class="settings-details" open>
                 <summary>Domácnosť</summary>
@@ -772,8 +749,6 @@
           document.querySelectorAll(".audience-toggle button").forEach(function (button) {
             button.classList.toggle("is-active", button.dataset.audience === audience);
           });
-          var homeAudience = document.querySelector("#homeAudience");
-          if (homeAudience) homeAudience.textContent = audience === "kids" ? "Deti" : "Dospelí";
         }
 
         document.addEventListener("click", function (event) {

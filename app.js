@@ -417,7 +417,13 @@ function loadShoppingState() {
 }
 
 function loadTasksState() {
-  const fallback = clone(starterTasks);
+  const fallback = {
+    ...clone(starterTasks),
+    family: {
+      current: clone(starterTasks.kids.current),
+      next: clone(starterTasks.kids.next),
+    },
+  };
 
   try {
     return JSON.parse(localStorage.getItem(tasksStorageKey)) || fallback;
@@ -985,7 +991,7 @@ function currentPlan() {
 }
 
 function contextKey() {
-  return `${state.audience}:${state.week}`;
+  return `family:${state.week}`;
 }
 
 function weeklyContext() {
@@ -1006,9 +1012,9 @@ function weeklyContext() {
 }
 
 function currentTasks() {
-  state.tasks[state.audience] ||= {};
-  state.tasks[state.audience][state.week] ||= [];
-  return state.tasks[state.audience][state.week];
+  state.tasks.family ||= {};
+  state.tasks.family[state.week] ||= clone(starterTasks.kids[state.week] || []);
+  return state.tasks.family[state.week];
 }
 
 function mealTypeFor(key) {
@@ -1789,7 +1795,13 @@ function buildDashboardActions(meals, openTasks, openShopping) {
 
 function restoreDemoData() {
   state.plans = normalizePlans(starterPlans);
-  state.tasks = clone(starterTasks);
+  state.tasks = {
+    ...clone(starterTasks),
+    family: {
+      current: clone(starterTasks.kids.current),
+      next: clone(starterTasks.kids.next),
+    },
+  };
   state.shopping = { checked: {}, manual: {} };
   state.pantry = pantryStarter.map((name) => ({ id: `pantry:${slug(name)}`, name }));
   savePlans();
@@ -1843,7 +1855,7 @@ function renderHome() {
 
   homeEyebrow.textContent = plan.label;
   homeTitle.textContent = plan.range;
-  homeAudience.textContent = `${state.audience === "kids" ? "Deti" : "Dospelí"} · ${(familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm).label.replace(" domácnosť", "")}`;
+  homeAudience.textContent = (familyProfileCopy[state.settings.familyProfile] || familyProfileCopy.calm).label.replace(" domácnosť", "");
   homeMealsCount.textContent = String(meals.length);
   homeTasksCount.textContent = String(openTasks.length);
   homeShoppingCount.textContent = String(openShopping.length);
@@ -2458,7 +2470,7 @@ taskList.addEventListener("click", (event) => {
   const button = event.target.closest(".delete-task");
   if (!button) return;
 
-  state.tasks[state.audience][state.week] = currentTasks().filter((task) => task.id !== button.dataset.id);
+  state.tasks.family[state.week] = currentTasks().filter((task) => task.id !== button.dataset.id);
   saveTasksState();
   renderTasks();
   renderHome();

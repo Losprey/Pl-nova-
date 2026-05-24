@@ -4643,6 +4643,68 @@ body[data-theme="light"] .bottom-nav {
   font-size: 11px;
 }
 
+.meal-audience-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid #dfe7ef;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.meal-audience-panel p,
+.meal-audience-panel h2 {
+  margin: 0;
+}
+
+.meal-audience-panel p {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.meal-audience-panel h2 {
+  margin-top: 2px;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.settings-list {
+  gap: 12px;
+}
+
+.settings-group {
+  overflow: hidden;
+  border: 1px solid #dfe7ef;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.settings-group-title {
+  margin: 0;
+  padding: 13px 14px 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.settings-details {
+  overflow: hidden;
+  border: 1px solid #dfe7ef;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.settings-details summary {
+  padding: 14px;
+}
+
 @media (max-width: 430px) {
   .content {
     padding-inline: 12px;
@@ -4658,5 +4720,9 @@ body[data-theme="light"] .bottom-nav {
 
   .planner-actions span {
     display: none;
+  }
+
+  .meal-audience-panel {
+    grid-template-columns: 1fr;
   }
 }
