@@ -5091,6 +5091,134 @@ body[data-visual="playful"] {
   }
 }
 
+/* Full app style unification */
+#meals .meal-week-panel,
+#meals .meal-audience-panel,
+#meals .meal-summary-pill,
+#meals .day-card,
+#tasks .tasks-panel,
+#shopping .shopping-panel,
+#more .settings-panel,
+#shopping .shopping-category,
+#tasks .classic-task-card,
+#more .settings-details,
+#more .account-card {
+  border-radius: 22px;
+  border: 1px solid rgba(82, 98, 127, 0.56);
+  background: linear-gradient(180deg, rgba(34, 47, 70, 0.95), rgba(29, 41, 61, 0.92));
+  box-shadow: 0 10px 26px rgba(7, 12, 25, 0.26);
+}
+
+#meals .meal-top-summary {
+  gap: 10px;
+}
+
+#meals .meal-summary-pill strong {
+  font-size: 30px;
+}
+
+#meals .day-header {
+  padding: 16px 16px 14px;
+}
+
+#meals .day-card h3 {
+  font-size: 28px;
+}
+
+#meals .meal-row {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#meals .meal-name {
+  font-size: 21px;
+}
+
+#tasks .panel-header,
+#shopping .panel-header,
+#more .panel-header {
+  padding: 0;
+  margin-bottom: 14px;
+  border: 0;
+}
+
+#tasks .panel-header h2,
+#shopping .panel-header h2,
+#more .panel-header h2 {
+  font-size: 34px;
+  line-height: 1.02;
+}
+
+#tasks .task-form,
+#shopping .quick-add {
+  border-radius: 18px;
+  border: 1px solid rgba(91, 108, 136, 0.45);
+  background: rgba(22, 33, 52, 0.86);
+  padding: 8px;
+}
+
+#tasks .quick-task-list button,
+#shopping .stock-item,
+#shopping .shopping-item {
+  border-radius: 14px;
+}
+
+#shopping .shopping-category-header h3 {
+  font-size: 22px;
+}
+
+#shopping .shopping-item {
+  min-height: 58px;
+}
+
+#more .settings-details {
+  overflow: hidden;
+}
+
+#more .settings-details summary {
+  background: rgba(20, 31, 49, 0.72);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+#more .settings-row {
+  border-bottom-color: rgba(85, 102, 130, 0.35);
+}
+
+#more .settings-row strong {
+  font-size: 24px;
+}
+
+#more .settings-row span {
+  font-size: 15px;
+}
+
+#more .settings-group,
+#more .account-card {
+  border-radius: 18px;
+}
+
+@media (max-width: 430px) {
+  #meals .day-card h3 {
+    font-size: 22px;
+  }
+
+  #meals .meal-name {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  #tasks .panel-header h2,
+  #shopping .panel-header h2,
+  #more .panel-header h2 {
+    font-size: 27px;
+  }
+
+  #more .settings-row strong {
+    font-size: 20px;
+  }
+}
+
 /* Global UX polish: cleaner visual rhythm and predictable controls */
 :root {
   --ux-space-1: 8px;
