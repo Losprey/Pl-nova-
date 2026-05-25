@@ -7273,6 +7273,55 @@ body[data-sync-loading="on"] #more .settings-details::after {
   }
 }
 
+/* Radical home simplification: hero + 2 visual widgets + 1 action panel */
+#home .today-card,
+#home .daily-checkin,
+#home .daily-rhythm,
+#home .family-note,
+#home .today-focus,
+#home .family-handoff,
+#home .stats-grid,
+#home .next-actions,
+#home .smart-tips,
+#home .dashboard-grid,
+#home .home-quick-entry {
+  display: none !important;
+}
+
+#home .home-dashboard {
+  gap: 12px;
+}
+
+#home .dashboard-hero {
+  min-height: 160px;
+  padding: 16px;
+}
+
+#home .dashboard-hero h2 {
+  font-size: 26px;
+}
+
+#home .dashboard-hero p {
+  font-size: 13px;
+}
+
+#home .weekend-ritual {
+  padding: 10px;
+}
+
+#home .weekend-ritual #weekendRitualList .action-row {
+  min-height: 56px;
+  padding: 8px 10px;
+}
+
+#home .home-quick-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+#home .home-quick-actions #homeAutopilotCta {
+  grid-column: 1 / -1;
+}
+
 body[data-visual="fresh"] {
   --purple: #207fda;
   --purple-2: #31a1e8;
