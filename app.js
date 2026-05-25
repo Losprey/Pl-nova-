@@ -106,6 +106,7 @@ const state = {
   pantry: loadPantryState(),
   extras: loadExtrasState(),
   activeTab: "home",
+  onboardingStep: 1,
 };
 
 const mealPlan = document.querySelector("#mealPlan");
@@ -265,6 +266,11 @@ const onboardingMealOne = document.querySelector("#onboardingMealOne");
 const onboardingMealTwo = document.querySelector("#onboardingMealTwo");
 const onboardingMealThree = document.querySelector("#onboardingMealThree");
 const skipOnboardingButton = document.querySelector("#skipOnboardingButton");
+const onboardingBackButton = document.querySelector("#onboardingBackButton");
+const onboardingNextButton = document.querySelector("#onboardingNextButton");
+const finishOnboardingButton = document.querySelector("#finishOnboardingButton");
+const onboardingStepLabel = document.querySelector("#onboardingStepLabel");
+const onboardingSteps = Array.from(document.querySelectorAll("[data-onboarding-step]"));
 const brandTitle = document.querySelector("#brandTitle");
 const petForm = document.querySelector("#petForm");
 const petName = document.querySelector("#petName");
@@ -2100,7 +2106,19 @@ function todaySummary(meals, openTasks, openShopping) {
 function openOnboardingIfNeeded() {
   ensureFamilySettings();
   if (state.settings.onboardingDone || !onboardingDialog) return;
+  state.onboardingStep = 1;
+  renderOnboardingStep();
   onboardingDialog.showModal();
+}
+
+function renderOnboardingStep() {
+  onboardingSteps.forEach((section) => {
+    section.hidden = Number(section.dataset.onboardingStep) !== state.onboardingStep;
+  });
+  if (onboardingStepLabel) onboardingStepLabel.textContent = `Krok ${state.onboardingStep}/3`;
+  if (onboardingBackButton) onboardingBackButton.hidden = state.onboardingStep === 1;
+  if (onboardingNextButton) onboardingNextButton.hidden = state.onboardingStep === 3;
+  if (finishOnboardingButton) finishOnboardingButton.hidden = state.onboardingStep !== 3;
 }
 
 function finishOnboarding({ skipped = false } = {}) {
@@ -3295,6 +3313,16 @@ onboardingForm?.addEventListener("submit", (event) => {
 
 skipOnboardingButton?.addEventListener("click", () => {
   finishOnboarding({ skipped: true });
+});
+
+onboardingBackButton?.addEventListener("click", () => {
+  state.onboardingStep = Math.max(1, state.onboardingStep - 1);
+  renderOnboardingStep();
+});
+
+onboardingNextButton?.addEventListener("click", () => {
+  state.onboardingStep = Math.min(3, state.onboardingStep + 1);
+  renderOnboardingStep();
 });
 
 document.addEventListener("click", (event) => {

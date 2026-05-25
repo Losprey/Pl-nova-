@@ -2268,6 +2268,14 @@ body[data-cloud="signed-in"] #syncStatusDot {
   font-weight: 900;
 }
 
+#onboardingStepLabel {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .settings-list {
   display: grid;
 }
