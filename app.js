@@ -10,6 +10,7 @@ const weeklyStorageKey = "domaci-rytmus-weekly-v1";
 const pantryStorageKey = "domaci-rytmus-pantry-v1";
 const householdStorageKey = "domaci-rytmus-household-id-v1";
 const extrasStorageKey = "domaci-rytmus-extras-v1";
+const cloudQueueStorageKey = "domaci-rytmus-cloud-queue-v1";
 const firebaseSdkVersion = "10.12.5";
 
 const mealTypes = [
@@ -431,6 +432,7 @@ const cloud = {
   enabled: false,
   ready: false,
   syncing: false,
+  flushingQueue: false,
   user: null,
   auth: null,
   db: null,
@@ -446,6 +448,9 @@ const cloud = {
     updatedAt: "",
     updatedByName: "",
   },
+  lastSeenUpdatedAt: "",
+  conflict: null,
+  pendingQueue: [],
 };
 
 const categoryEstimate = {
@@ -458,6 +463,8 @@ const categoryEstimate = {
   Detské: 12,
   Ostatné: 10,
 };
+
+cloud.pendingQueue = loadCloudQueue();
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -768,9 +775,40 @@ function currentHouseholdId() {
 
 function cloudStatusText() {
   if (!cloud.enabled) return "Lokálny režim";
+  if (cloud.conflict) return "Konflikt zmien";
+  if (cloud.pendingQueue.length) return `Čaká na sync (${cloud.pendingQueue.length})`;
   if (!cloud.ready) return "Pripájam";
   if (!cloud.user) return "Neprihlásené";
+  if (!navigator.onLine) return "Offline";
   return cloud.householdId ? "Realtime zapnutý" : "Vyber domácnosť";
+}
+
+function loadCloudQueue() {
+  try {
+    return JSON.parse(localStorage.getItem(cloudQueueStorageKey)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCloudQueue() {
+  localStorage.setItem(cloudQueueStorageKey, JSON.stringify(cloud.pendingQueue));
+}
+
+function enqueueCloudPayload(payload) {
+  cloud.pendingQueue.push(payload);
+  cloud.pendingQueue = cloud.pendingQueue.slice(-40);
+  saveCloudQueue();
+}
+
+async function pullLatestHousehold() {
+  if (!cloud.ready || !cloud.householdId) return;
+  const { doc, getDoc } = cloud.api;
+  const latest = await getDoc(doc(cloud.db, "households", cloud.householdId));
+  if (!latest.exists()) return;
+  applyRemoteBundle(latest.data());
+  cloud.conflict = null;
+  renderCloudStatus();
 }
 
 function authErrorMessage(error) {
@@ -876,6 +914,7 @@ function applyRemoteBundle(payload) {
     updatedAt: payload.updatedAt || "",
     updatedByName: payload.updatedBy?.name || "",
   };
+  cloud.lastSeenUpdatedAt = payload.updatedAt || cloud.lastSeenUpdatedAt;
   state.plans = payload.plans || state.plans;
   state.shopping = payload.shopping || state.shopping;
   state.tasks = payload.tasks || state.tasks;
@@ -918,7 +957,14 @@ function renderCloudStatus() {
   document.body.dataset.cloud = cloud.user ? "signed-in" : cloud.enabled ? "ready" : "off";
   document.body.dataset.syncLoading = cloud.syncing ? "on" : "off";
   if (syncStatusDot) syncStatusDot.title = cloudStatusText();
-  if (syncInlineStatus) syncInlineStatus.hidden = !cloud.syncing;
+  if (syncInlineStatus) {
+    syncInlineStatus.hidden = !cloud.syncing && !cloud.pendingQueue.length && !cloud.conflict;
+    syncInlineStatus.textContent = cloud.conflict
+      ? "Konflikt zmien"
+      : cloud.pendingQueue.length
+        ? `Čaká na sync: ${cloud.pendingQueue.length}`
+        : "Synchronizujem domácnosť…";
+  }
   if (googleLoginButton) {
     googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
     googleLoginButton.hidden = Boolean(cloud.user);
@@ -930,6 +976,10 @@ function renderCloudStatus() {
     const meta = formatCloudMeta();
     accountDetail.textContent = !cloud.enabled
       ? "Doplň Firebase konfiguráciu a appka zapne Google login aj realtime domácnosť."
+      : cloud.conflict
+        ? "Zmeny upravili dvaja členovia naraz. Načítaj najnovšie dáta a potom pokračuj."
+        : cloud.pendingQueue.length
+          ? `Čakajúce zmeny na odoslanie: ${cloud.pendingQueue.length}. Odošlem ich hneď po pripojení.`
       : cloud.user
         ? `Domácnosť: ${currentHouseholdId() || "zatiaľ bez kódu"}. Zmeny sa ukladajú pre všetkých členov.${meta ? ` ${meta}.` : ""}`
         : "Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.";
@@ -938,25 +988,65 @@ function renderCloudStatus() {
 }
 
 function scheduleCloudSave() {
-  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return;
+  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote || cloud.conflict) return;
   clearTimeout(cloud.saveTimer);
   cloud.saveTimer = setTimeout(saveCloudNow, 650);
 }
 
-async function saveCloudNow() {
-  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return;
+async function saveCloudNow(payloadOverride = null, skipConflictCheck = false) {
+  if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote) return false;
   try {
-    const { doc, setDoc } = cloud.api;
-    const payload = bundleState();
-    await setDoc(doc(cloud.db, "households", cloud.householdId), payload, { merge: true });
+    const { doc, setDoc, getDoc } = cloud.api;
+    const payload = payloadOverride || bundleState();
+    const ref = doc(cloud.db, "households", cloud.householdId);
+    if (!skipConflictCheck) {
+      const latest = await getDoc(ref);
+      const remoteUpdatedAt = latest.exists() ? latest.data()?.updatedAt || "" : "";
+      if (remoteUpdatedAt && cloud.lastSeenUpdatedAt && remoteUpdatedAt !== cloud.lastSeenUpdatedAt) {
+        cloud.conflict = {
+          remoteUpdatedAt,
+          remoteBy: latest.data()?.updatedBy?.name || "člen domácnosti",
+          localUpdatedAt: payload.updatedAt,
+        };
+        renderCloudStatus();
+        showToast("Konflikt zmien. Načítať najnovšie dáta?", "Načítať", () => {
+          pullLatestHousehold();
+        });
+        return false;
+      }
+    }
+    await setDoc(ref, payload, { merge: true });
     cloud.remoteMeta = {
       updatedAt: payload.updatedAt,
       updatedByName: payload.updatedBy?.name || "",
     };
+    cloud.lastSeenUpdatedAt = payload.updatedAt;
+    cloud.conflict = null;
     renderCloudStatus();
+    return true;
   } catch (error) {
     console.error(error);
-    showToast("Cloud uloženie zlyhalo. Lokálne dáta ostali v appke.");
+    enqueueCloudPayload(payloadOverride || bundleState());
+    renderCloudStatus();
+    showToast("Offline režim: zmena sa uloží a neskôr synchronizuje.");
+    return false;
+  }
+}
+
+async function flushCloudQueue() {
+  if (cloud.flushingQueue || !cloud.pendingQueue.length || !navigator.onLine || cloud.conflict) return;
+  cloud.flushingQueue = true;
+  try {
+    while (cloud.pendingQueue.length) {
+      const next = cloud.pendingQueue[0];
+      const ok = await saveCloudNow(next, true);
+      if (!ok) break;
+      cloud.pendingQueue.shift();
+      saveCloudQueue();
+    }
+  } finally {
+    cloud.flushingQueue = false;
+    renderCloudStatus();
   }
 }
 
@@ -1035,6 +1125,7 @@ async function listenToHousehold(householdId) {
     applyRemoteBundle(nextSnapshot.data());
     cloud.syncing = false;
     renderCloudStatus();
+    flushCloudQueue();
   }, (error) => {
     console.error(error);
     cloud.syncing = false;
@@ -1068,6 +1159,7 @@ async function handleAuthUser(user) {
   saveSettingsState();
   renderCloudStatus();
   await listenToHousehold(householdId);
+  flushCloudQueue();
   showToast("Google účet je pripojený.");
 }
 
@@ -3821,6 +3913,13 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("beforeunload", () => {
   if (!cloud.user || !cloud.householdId) return;
   updatePresence(false);
+});
+window.addEventListener("online", () => {
+  flushCloudQueue();
+  renderCloudStatus();
+});
+window.addEventListener("offline", () => {
+  renderCloudStatus();
 });
 
 renderCurrentView();
