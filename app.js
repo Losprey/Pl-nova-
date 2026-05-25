@@ -714,6 +714,23 @@ function cloudStatusText() {
   return cloud.householdId ? "Realtime zapnutý" : "Vyber domácnosť";
 }
 
+function authErrorMessage(error) {
+  const code = error?.code || "";
+  if (code.includes("auth/unauthorized-domain")) {
+    return "Doména nie je povolená vo Firebase Auth. Pridaj losprey.github.io do Authorized domains.";
+  }
+  if (code.includes("auth/popup-blocked")) {
+    return "Popup bol blokovaný prehliadačom. Skúsim prihlásenie cez presmerovanie.";
+  }
+  if (code.includes("auth/popup-closed-by-user")) {
+    return "Prihlasovacie okno bolo zavreté.";
+  }
+  if (code.includes("auth/network-request-failed")) {
+    return "Prihlásenie zlyhalo kvôli sieti. Skús to znova.";
+  }
+  return "Google prihlásenie sa nepodarilo.";
+}
+
 function formatLastSeen(value) {
   if (!value) return "neznámy čas";
   const date = new Date(value);
@@ -1005,6 +1022,8 @@ async function initCloud() {
     cloud.api = {
       GoogleAuthProvider: authModule.GoogleAuthProvider,
       signInWithPopup: authModule.signInWithPopup,
+      signInWithRedirect: authModule.signInWithRedirect,
+      getRedirectResult: authModule.getRedirectResult,
       signOut: authModule.signOut,
       onAuthStateChanged: authModule.onAuthStateChanged,
       doc: firestoreModule.doc,
@@ -1014,6 +1033,12 @@ async function initCloud() {
       onSnapshot: firestoreModule.onSnapshot,
     };
     cloud.ready = true;
+    try {
+      await cloud.api.getRedirectResult(cloud.auth);
+    } catch (error) {
+      console.error(error);
+      showToast(authErrorMessage(error));
+    }
     cloud.api.onAuthStateChanged(cloud.auth, handleAuthUser);
     renderCloudStatus();
   } catch (error) {
@@ -1030,11 +1055,24 @@ async function signInWithGoogle() {
     showToast("Najprv doplň Firebase konfiguráciu.");
     return;
   }
+  const provider = new cloud.api.GoogleAuthProvider();
   try {
-    await cloud.api.signInWithPopup(cloud.auth, new cloud.api.GoogleAuthProvider());
+    await cloud.api.signInWithPopup(cloud.auth, provider);
   } catch (error) {
     console.error(error);
-    showToast("Google prihlásenie sa nepodarilo.");
+    const code = error?.code || "";
+    if (code.includes("auth/popup-blocked")) {
+      showToast(authErrorMessage(error));
+      try {
+        await cloud.api.signInWithRedirect(cloud.auth, provider);
+        return;
+      } catch (redirectError) {
+        console.error(redirectError);
+        showToast(authErrorMessage(redirectError));
+        return;
+      }
+    }
+    showToast(authErrorMessage(error));
   }
 }
 
