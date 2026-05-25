@@ -4919,6 +4919,91 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+/* Global UX polish: cleaner visual rhythm and predictable controls */
+:root {
+  --ux-space-1: 8px;
+  --ux-space-2: 12px;
+  --ux-space-3: 16px;
+  --ux-control-h: 44px;
+}
+
+.primary-action,
+.ghost-action,
+.quick-add input,
+.quick-add select,
+.task-form input,
+.task-form select,
+.pantry-form input,
+.member-form input,
+.member-form select,
+.join-family-form input,
+.invite-actions select {
+  min-height: var(--ux-control-h);
+}
+
+.content > .view > section {
+  margin-bottom: var(--ux-space-2);
+}
+
+.settings-row span,
+.panel-header p,
+.mini-header span,
+.meal-type {
+  color: var(--muted-2);
+}
+
+.app-shell::before,
+.today-card::after,
+.home-dashboard::before {
+  opacity: 0.45;
+}
+
+.shopping-panel .quick-add,
+.tasks-panel .task-form {
+  position: sticky;
+  top: 72px;
+  z-index: 6;
+  background: inherit;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.5);
+}
+
+.shopping-panel .panel-header,
+.tasks-panel .panel-header {
+  margin-bottom: 8px;
+}
+
+.empty-state {
+  display: grid;
+  gap: 10px;
+}
+
+.empty-state button {
+  width: fit-content;
+  border: 1px solid rgba(95, 109, 136, 0.7);
+  border-radius: 10px;
+  min-height: 36px;
+  padding: 0 12px;
+  background: rgba(23, 34, 54, 0.66);
+  color: var(--text);
+  font-weight: 800;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(92, 108, 255, 0.75);
+  outline-offset: 2px;
+}
+
+button[disabled],
+input[disabled],
+select[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 /* Meals view clarity overrides */
 #meals .meal-top-summary {
   display: grid;

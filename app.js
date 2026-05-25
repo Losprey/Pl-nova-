@@ -1461,7 +1461,7 @@ function renderShopping() {
           </section>
         `)
         .join("")
-    : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne."}</div>`;
+    : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne."}<button type="button" data-empty-fill="shopping">Pridať položku</button></div>`;
 }
 
 function renderPantry() {
@@ -1774,7 +1774,7 @@ function renderTasks() {
           </section>
         `)
         .join("")
-    : `<div class="empty-state">Zatiaľ tu nie sú žiadne kroky.</div>`;
+    : `<div class="empty-state">Zatiaľ tu nie sú žiadne kroky.<button type="button" data-empty-fill="tasks">Pridať krok</button></div>`;
 }
 
 function allMeals() {
@@ -3541,6 +3541,20 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-jump-tab]");
   if (!button) return;
   setActiveTab(button.dataset.jumpTab);
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-empty-fill]");
+  if (!button) return;
+  if (button.dataset.emptyFill === "shopping") {
+    setActiveTab("shopping");
+    shoppingName?.focus();
+    return;
+  }
+  if (button.dataset.emptyFill === "tasks") {
+    setActiveTab("tasks");
+    taskName?.focus();
+  }
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
