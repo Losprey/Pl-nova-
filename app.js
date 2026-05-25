@@ -193,6 +193,7 @@ const weekendRitualCount = document.querySelector("#weekendRitualCount");
 const weekendRitualHint = document.querySelector("#weekendRitualHint");
 const weekendRitualList = document.querySelector("#weekendRitualList");
 const startWeekendRitualButton = document.querySelector("#startWeekendRitualButton");
+const weekendRitualSection = document.querySelector(".weekend-ritual");
 const weekPrepCount = document.querySelector("#weekPrepCount");
 const weekModeButtons = document.querySelectorAll("[data-week-mode] button");
 const cookingModeButtons = document.querySelectorAll("[data-cooking-mode] button");
@@ -2633,6 +2634,10 @@ function weekendRitualData() {
 
 function renderWeekendRitual() {
   if (!weekendRitualList || !weekendRitualCount || !weekendRitualHint) return;
+  const day = new Date().getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+  const showRitual = day === 5 || day === 6 || day === 0; // Fri-Sun
+  if (weekendRitualSection) weekendRitualSection.hidden = !showRitual;
+  if (!showRitual) return;
   const steps = weekendRitualData();
   const done = steps.filter((step) => step.done).length;
   weekendRitualCount.textContent = `${done}/${steps.length}`;
