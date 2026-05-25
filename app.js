@@ -3103,13 +3103,36 @@ function setActiveTab(tab) {
 
 window.setActiveTab = setActiveTab;
 
+function forceTabDomState(tab) {
+  const safeTab = ["home", "tasks", "shopping", "meals", "more"].includes(tab) ? tab : "home";
+  const tabTitles = {
+    home: "Domov",
+    tasks: "Úlohy",
+    shopping: "Nákup",
+    meals: "Jedálniček",
+    more: "Viac",
+  };
+  if (brandTitle) brandTitle.textContent = tabTitles[safeTab];
+  document.querySelectorAll(".bottom-nav [data-tab]").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.tab === safeTab);
+  });
+  document.querySelectorAll(".view").forEach((view) => {
+    const active = view.dataset.view === safeTab;
+    view.hidden = !active;
+    view.classList.toggle("is-active", active);
+  });
+  state.activeTab = safeTab;
+}
+
 function jumpToTab(tab) {
   if (!["home", "tasks", "shopping", "meals", "more"].includes(tab)) return;
   renderCurrentView();
   setActiveTab(tab);
+  forceTabDomState(tab);
   requestAnimationFrame(() => {
     renderCurrentView();
     setActiveTab(tab);
+    forceTabDomState(tab);
   });
 }
 
