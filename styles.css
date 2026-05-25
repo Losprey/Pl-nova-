@@ -6910,6 +6910,132 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   }
 }
 
+/* Motion polish */
+:root {
+  --anim-fast: 140ms;
+  --anim-base: 220ms;
+  --anim-slow: 320ms;
+  --anim-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.view {
+  transform-origin: 50% 32%;
+}
+
+.view.is-active.tab-enter {
+  animation: tabFadeIn var(--anim-base) var(--anim-ease) both;
+}
+
+.primary-action,
+.ghost-action,
+.stat-tile,
+.shopping-item,
+.classic-task-card,
+.day-card,
+.settings-details,
+.more-tile {
+  transition:
+    transform var(--anim-fast) var(--anim-ease),
+    box-shadow var(--anim-base) var(--anim-ease),
+    border-color var(--anim-fast) var(--anim-ease),
+    background-color var(--anim-fast) var(--anim-ease);
+}
+
+.primary-action:active,
+.ghost-action:active,
+.stat-tile:active,
+.shopping-item:active,
+.classic-task-card:active,
+.day-card:active,
+.more-tile:active {
+  transform: translateY(1px) scale(0.992);
+}
+
+.primary-action:hover,
+.ghost-action:hover,
+.stat-tile:hover,
+.shopping-item:hover,
+.classic-task-card:hover,
+.day-card:hover,
+.settings-details:hover,
+.more-tile:hover {
+  box-shadow: 0 14px 32px rgba(8, 13, 27, 0.34);
+}
+
+.bottom-nav button,
+.bottom-nav a {
+  transition: color var(--anim-fast) var(--anim-ease), transform var(--anim-fast) var(--anim-ease);
+}
+
+.bottom-nav button.is-active,
+.bottom-nav a.is-active {
+  animation: navNudge var(--anim-slow) var(--anim-ease);
+}
+
+.badge {
+  animation: badgeIn var(--anim-slow) var(--anim-ease);
+}
+
+.meal-row,
+.task-item,
+.shopping-item {
+  animation: rowIn var(--anim-fast) var(--anim-ease);
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.998);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes navNudge {
+  0% {
+    transform: translateY(1px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes badgeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body[data-visual="fresh"] {
   --purple: #207fda;
   --purple-2: #31a1e8;
