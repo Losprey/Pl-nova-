@@ -211,6 +211,8 @@ const simpleMealsButton = document.querySelector("#simpleMealsButton");
 const shoppingProgressText = document.querySelector("#shoppingProgressText");
 const shoppingProgressBar = document.querySelector("#shoppingProgressBar");
 const hideDoneShoppingButton = document.querySelector("#hideDoneShoppingButton");
+const clearDoneShoppingButton = document.querySelector("#clearDoneShoppingButton");
+const clearAllShoppingButton = document.querySelector("#clearAllShoppingButton");
 const stockCount = document.querySelector("#stockCount");
 const stockList = document.querySelector("#stockList");
 const pantryCount = document.querySelector("#pantryCount");
@@ -2830,6 +2832,42 @@ hideDoneShoppingButton.addEventListener("click", () => {
   state.settings.hideDoneShopping = !state.settings.hideDoneShopping;
   saveSettingsState();
   renderShopping();
+});
+
+clearDoneShoppingButton?.addEventListener("click", () => {
+  const checked = new Set(checkedShoppingIds());
+  const items = shoppingItems();
+  const doneIds = items.filter((item) => checked.has(item.id)).map((item) => item.id);
+  if (!doneIds.length) {
+    showToast("Nemáš žiadne hotové položky na vymazanie.");
+    return;
+  }
+  if (!window.confirm(`Vymazať ${doneIds.length} hotových položiek?`)) return;
+
+  const key = contextKey();
+  state.shopping.manual[key] = manualShoppingItems().filter((item) => !doneIds.includes(item.id));
+  state.shopping.checked[key] = checkedShoppingIds().filter((id) => !doneIds.includes(id));
+  saveShoppingState();
+  renderShopping();
+  renderHome();
+  showToast("Hotové položky sú vymazané.");
+});
+
+clearAllShoppingButton?.addEventListener("click", () => {
+  const items = shoppingItems();
+  if (!items.length) {
+    showToast("Nákupný zoznam je už prázdny.");
+    return;
+  }
+  if (!window.confirm("Vymazať celý nákupný zoznam pre tento týždeň?")) return;
+
+  const key = contextKey();
+  state.shopping.manual[key] = [];
+  state.shopping.checked[key] = [];
+  saveShoppingState();
+  renderShopping();
+  renderHome();
+  showToast("Celý nákupný zoznam je vymazaný.");
 });
 
 shoppingList.addEventListener("change", (event) => {
