@@ -919,7 +919,53 @@
       </form>
     </dialog>
 
-    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <dialog class="meal-dialog" id="onboardingDialog">
+      <form class="meal-form" id="onboardingForm" method="dialog">
+        <div class="form-header">
+          <div>
+            <p>Začíname</p>
+            <h2>Rýchle nastavenie domácnosti</h2>
+          </div>
+        </div>
+        <label>
+          Člen 1
+          <input id="onboardingMemberOne" type="text" maxlength="40" placeholder="Napr. Mama">
+        </label>
+        <label>
+          Člen 2
+          <input id="onboardingMemberTwo" type="text" maxlength="40" placeholder="Napr. Tato">
+        </label>
+        <label>
+          Štýl týždňa
+          <select id="onboardingProfile">
+            <option value="calm">Pokojná</option>
+            <option value="busy">Rušná</option>
+            <option value="budget">Úsporná</option>
+          </select>
+        </label>
+        <label>
+          Jedlo 1
+          <input id="onboardingMealOne" type="text" maxlength="80" placeholder="Napr. Cestoviny">
+        </label>
+        <label>
+          Jedlo 2
+          <input id="onboardingMealTwo" type="text" maxlength="80" placeholder="Napr. Polievka">
+        </label>
+        <label>
+          Jedlo 3
+          <input id="onboardingMealThree" type="text" maxlength="80" placeholder="Napr. Rizoto">
+        </label>
+        <div class="form-actions">
+          <button class="ghost-action" type="button" id="skipOnboardingButton">Preskočiť</button>
+          <button class="primary-action" type="submit">Dokončiť</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+      <span id="toastText"></span>
+      <button type="button" id="toastAction" hidden></button>
+    </div>
 
     <script>
       (function () {

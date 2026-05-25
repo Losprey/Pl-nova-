@@ -254,6 +254,17 @@ const importDataInput = document.querySelector("#importDataInput");
 const resetAllButton = document.querySelector("#resetAllButton");
 const settingsStatus = document.querySelector("#settingsStatus");
 const toast = document.querySelector("#toast");
+const toastText = document.querySelector("#toastText");
+const toastAction = document.querySelector("#toastAction");
+const onboardingDialog = document.querySelector("#onboardingDialog");
+const onboardingForm = document.querySelector("#onboardingForm");
+const onboardingMemberOne = document.querySelector("#onboardingMemberOne");
+const onboardingMemberTwo = document.querySelector("#onboardingMemberTwo");
+const onboardingProfile = document.querySelector("#onboardingProfile");
+const onboardingMealOne = document.querySelector("#onboardingMealOne");
+const onboardingMealTwo = document.querySelector("#onboardingMealTwo");
+const onboardingMealThree = document.querySelector("#onboardingMealThree");
+const skipOnboardingButton = document.querySelector("#skipOnboardingButton");
 const brandTitle = document.querySelector("#brandTitle");
 const petForm = document.querySelector("#petForm");
 const petName = document.querySelector("#petName");
@@ -503,6 +514,7 @@ function loadSettingsState() {
     visualStyle: "home",
     backdrop: "soft",
     defaultShoppingCategory: "Ostatné",
+    onboardingDone: false,
     householdId: localStorage.getItem(householdStorageKey) || "",
     cloudUser: null,
   };
@@ -688,6 +700,7 @@ function ensureFamilySettings() {
   state.settings.cloudUser ||= null;
   state.settings.defaultShoppingCategory ||= "Ostatné";
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
+  if (state.settings.onboardingDone === undefined) state.settings.onboardingDone = false;
 }
 
 function isFirebaseConfigured() {
@@ -1775,8 +1788,24 @@ function isFavoriteMeal(name) {
   return state.favorites.includes(name);
 }
 
-function showToast(message) {
-  toast.textContent = message;
+function showToast(message, actionLabel = "", actionHandler = null) {
+  if (toastText) {
+    toastText.textContent = message;
+  } else {
+    toast.textContent = message;
+  }
+  if (toastAction) {
+    toastAction.hidden = !actionLabel || typeof actionHandler !== "function";
+    if (!toastAction.hidden) {
+      toastAction.textContent = actionLabel;
+      toastAction.onclick = () => {
+        actionHandler();
+        toast.hidden = true;
+      };
+    } else {
+      toastAction.onclick = null;
+    }
+  }
   toast.hidden = false;
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => {
@@ -2022,6 +2051,20 @@ function addQuickTask(title, priority) {
 }
 
 function todaySummary(meals, openTasks, openShopping) {
+  if (openTasks.length) {
+    return {
+      label: "Dnes doma",
+      title: openTasks[0].title,
+      detail: "Najprv vybavíme jednu úlohu, potom bude deň pokojnejší.",
+    };
+  }
+  if (openShopping.length) {
+    return {
+      label: "Dnes doma",
+      title: `Nákup: ${openShopping[0].name}`,
+      detail: `V zozname chýba ešte ${openShopping.length} položiek.`,
+    };
+  }
   const firstMeal = meals[0];
   if (firstMeal) {
     return {
@@ -2052,6 +2095,43 @@ function todaySummary(meals, openTasks, openShopping) {
     title: "Doma to vyzerá pokojne",
     detail: "Nie je tu nič, čo by si teraz musel riešiť.",
   };
+}
+
+function openOnboardingIfNeeded() {
+  ensureFamilySettings();
+  if (state.settings.onboardingDone || !onboardingDialog) return;
+  onboardingDialog.showModal();
+}
+
+function finishOnboarding({ skipped = false } = {}) {
+  ensureFamilySettings();
+  if (!skipped) {
+    const members = [onboardingMemberOne?.value?.trim(), onboardingMemberTwo?.value?.trim()].filter(Boolean);
+    if (members.length) {
+      state.settings.familyMembers = members.map((name, index) => ({
+        id: `member:onboarding:${Date.now()}:${index}`,
+        name,
+        role: index === 0 ? "parent" : "helper",
+      }));
+    }
+    if (onboardingProfile?.value) state.settings.familyProfile = onboardingProfile.value;
+    const mealInputs = [onboardingMealOne?.value, onboardingMealTwo?.value, onboardingMealThree?.value]
+      .map((item) => item?.trim())
+      .filter(Boolean);
+    if (mealInputs.length) {
+      const plan = state.plans[state.audience].next;
+      plan.days[0] ||= { name: "", meals: [] };
+      mealInputs.forEach((name, index) => {
+        plan.days[0].meals.push({ typeKey: mealTypes[index]?.key || "dinner", name });
+      });
+      savePlans();
+    }
+  }
+  state.settings.onboardingDone = true;
+  saveSettingsState();
+  onboardingDialog?.close();
+  renderCurrentView();
+  showToast(skipped ? "Onboarding môžeš dokončiť neskôr v appke." : "Domácnosť je pripravená.");
 }
 
 function nextMealSlot() {
@@ -2706,9 +2786,17 @@ mealPlan.addEventListener("click", (event) => {
   }
 
   if (deleteButton) {
-    currentPlan().days[Number(deleteButton.dataset.day)].meals.splice(Number(deleteButton.dataset.meal), 1);
+    const dayIndex = Number(deleteButton.dataset.day);
+    const mealIndex = Number(deleteButton.dataset.meal);
+    const removed = currentPlan().days[dayIndex].meals[mealIndex];
+    currentPlan().days[dayIndex].meals.splice(mealIndex, 1);
     savePlans();
     renderCurrentView();
+    showToast("Jedlo zmazané.", "Späť", () => {
+      currentPlan().days[dayIndex].meals.splice(mealIndex, 0, removed);
+      savePlans();
+      renderCurrentView();
+    });
   }
 });
 
@@ -2904,11 +2992,22 @@ shoppingList.addEventListener("click", (event) => {
   if (!button) return;
 
   const key = contextKey();
+  const removed = manualShoppingItems().find((item) => item.id === button.dataset.id);
+  const removedWasChecked = checkedShoppingIds().includes(button.dataset.id);
   state.shopping.manual[key] = manualShoppingItems().filter((item) => item.id !== button.dataset.id);
   state.shopping.checked[key] = checkedShoppingIds().filter((id) => id !== button.dataset.id);
   saveShoppingState();
   renderShopping();
   renderHome();
+  if (removed) {
+    showToast("Položka zmazaná.", "Späť", () => {
+      state.shopping.manual[key] = [...manualShoppingItems(), removed];
+      if (removedWasChecked) state.shopping.checked[key] = [...new Set([...checkedShoppingIds(), removed.id])];
+      saveShoppingState();
+      renderShopping();
+      renderHome();
+    });
+  }
 });
 
 stockList.addEventListener("change", (event) => {
@@ -3011,10 +3110,19 @@ taskList.addEventListener("click", (event) => {
   const button = event.target.closest(".delete-task");
   if (!button) return;
 
+  const removed = currentTasks().find((task) => task.id === button.dataset.id);
   state.tasks.family[state.week] = currentTasks().filter((task) => task.id !== button.dataset.id);
   saveTasksState();
   renderTasks();
   renderHome();
+  if (removed) {
+    showToast("Krok zmazaný.", "Späť", () => {
+      state.tasks.family[state.week] = [removed, ...currentTasks()];
+      saveTasksState();
+      renderTasks();
+      renderHome();
+    });
+  }
 });
 
 moodButtons.forEach((button) => {
@@ -3180,6 +3288,15 @@ googleLoginButton?.addEventListener("click", signInWithGoogle);
 
 googleLogoutButton?.addEventListener("click", signOutGoogle);
 
+onboardingForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  finishOnboarding({ skipped: false });
+});
+
+skipOnboardingButton?.addEventListener("click", () => {
+  finishOnboarding({ skipped: true });
+});
+
 document.addEventListener("click", (event) => {
   const trigger = event.target.closest("[data-open-section]");
   if (!trigger) return;
@@ -3329,6 +3446,7 @@ resetAllButton.addEventListener("click", () => {
     visualStyle: "home",
     backdrop: "soft",
     defaultShoppingCategory: "Ostatné",
+    onboardingDone: false,
     householdId: currentHouseholdId(),
     cloudUser: state.settings.cloudUser || null,
   };
@@ -3395,3 +3513,4 @@ window.addEventListener("beforeunload", () => {
 renderCurrentView();
 setActiveTab(state.activeTab);
 initCloud();
+openOnboardingIfNeeded();
