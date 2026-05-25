@@ -4317,14 +4317,6 @@ homeNextList?.addEventListener("click", (event) => {
   jumpToTab(button.dataset.jumpTab);
 });
 
-homeNextList?.addEventListener("touchend", (event) => {
-  const button = event.target.closest(".home-next-item[data-jump-tab]");
-  if (!button) return;
-  event.preventDefault();
-  event.stopPropagation();
-  jumpToTab(button.dataset.jumpTab);
-}, { passive: false });
-
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) ensureOneVisibleView();
 });
@@ -4362,19 +4354,6 @@ document.querySelector(".bottom-nav").addEventListener("click", (event) => {
   if (!button) return;
   setActiveTab(button.dataset.tab);
 });
-
-document.querySelectorAll(".bottom-nav [data-tab]").forEach((button) => {
-  button.addEventListener("click", () => setActiveTab(button.dataset.tab));
-});
-
-function handleTabActivation(event) {
-  const button = event.target.closest?.(".bottom-nav [data-tab]");
-  if (!button) return;
-  setActiveTab(button.dataset.tab);
-}
-
-document.addEventListener("pointerup", handleTabActivation, true);
-document.addEventListener("touchend", handleTabActivation, true);
 document.addEventListener("visibilitychange", () => {
   if (!cloud.user || !cloud.householdId) return;
   if (document.visibilityState === "hidden") {
