@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-2108">
+    <link rel="stylesheet" href="styles.css?v=20260525-2135">
   </head>
   <body>
     <div class="app-shell">
@@ -992,6 +992,12 @@
           </div>
         </div>
         <div data-onboarding-step="1">
+          <section class="onboarding-install-guide">
+            <p>Inštalácia aplikácie</p>
+            <h3 id="onboardingInstallTitle">Pridaj na plochu</h3>
+            <span id="onboardingInstallHint">Po inštalácii bude appka rýchlejšia a dostupná aj offline.</span>
+            <button class="ghost-action" type="button" id="onboardingInstallButton">Nainštalovať appku</button>
+          </section>
           <label>
             Člen 1
             <input id="onboardingMemberOne" type="text" maxlength="40" placeholder="Napr. Mama">
@@ -1143,6 +1149,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-2108"></script>
+    <script src="app.js?v=20260525-2135"></script>
   </body>
 </html>

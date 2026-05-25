@@ -285,6 +285,9 @@ const onboardingNextButton = document.querySelector("#onboardingNextButton");
 const finishOnboardingButton = document.querySelector("#finishOnboardingButton");
 const onboardingStepLabel = document.querySelector("#onboardingStepLabel");
 const onboardingSteps = Array.from(document.querySelectorAll("[data-onboarding-step]"));
+const onboardingInstallTitle = document.querySelector("#onboardingInstallTitle");
+const onboardingInstallHint = document.querySelector("#onboardingInstallHint");
+const onboardingInstallButton = document.querySelector("#onboardingInstallButton");
 const brandTitle = document.querySelector("#brandTitle");
 const petForm = document.querySelector("#petForm");
 const petName = document.querySelector("#petName");
@@ -452,6 +455,8 @@ const cloud = {
   conflict: null,
   pendingQueue: [],
 };
+
+let deferredInstallPrompt = null;
 
 const categoryEstimate = {
   "Ovocie a zelenina": 18,
@@ -2290,8 +2295,49 @@ function openOnboardingIfNeeded() {
   ensureFamilySettings();
   if (state.settings.onboardingDone || !onboardingDialog) return;
   state.onboardingStep = 1;
+  renderOnboardingInstallGuide();
   renderOnboardingStep();
   onboardingDialog.showModal();
+}
+
+function installGuideContent() {
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  if (isIOS) {
+    return {
+      title: "iPhone: Pridať na plochu",
+      hint: "V Safari otvor Zdieľať a vyber „Pridať na plochu“.",
+      cta: "Mám návod",
+      canPrompt: false,
+    };
+  }
+  if (isAndroid) {
+    return {
+      title: "Android: Nainštaluj appku",
+      hint: deferredInstallPrompt
+        ? "Ťukni na tlačidlo nižšie a potvrď inštaláciu."
+        : "V menu prehliadača vyber „Inštalovať aplikáciu“ alebo „Pridať na plochu“.",
+      cta: deferredInstallPrompt ? "Nainštalovať appku" : "Mám návod",
+      canPrompt: Boolean(deferredInstallPrompt),
+    };
+  }
+  return {
+    title: "Pridaj appku na plochu",
+    hint: "Použi menu prehliadača a vyber inštaláciu aplikácie.",
+    cta: deferredInstallPrompt ? "Nainštalovať appku" : "Mám návod",
+    canPrompt: Boolean(deferredInstallPrompt),
+  };
+}
+
+function renderOnboardingInstallGuide() {
+  if (!onboardingInstallTitle || !onboardingInstallHint || !onboardingInstallButton) return;
+  const guide = installGuideContent();
+  onboardingInstallTitle.textContent = guide.title;
+  onboardingInstallHint.textContent = guide.hint;
+  onboardingInstallButton.textContent = guide.cta;
+  onboardingInstallButton.disabled = false;
+  onboardingInstallButton.dataset.canPrompt = guide.canPrompt ? "yes" : "no";
 }
 
 function renderOnboardingStep() {
@@ -3683,6 +3729,22 @@ onboardingNextButton?.addEventListener("click", () => {
   renderOnboardingStep();
 });
 
+onboardingInstallButton?.addEventListener("click", async () => {
+  if (onboardingInstallButton.dataset.canPrompt !== "yes" || !deferredInstallPrompt) {
+    showToast("Použi menu prehliadača: Pridať na plochu.");
+    return;
+  }
+  try {
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    deferredInstallPrompt = null;
+    renderOnboardingInstallGuide();
+  }
+});
+
 document.addEventListener("click", (event) => {
   const trigger = event.target.closest("[data-open-section]");
   if (!trigger) return;
@@ -3920,6 +3982,16 @@ window.addEventListener("online", () => {
 });
 window.addEventListener("offline", () => {
   renderCloudStatus();
+});
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  renderOnboardingInstallGuide();
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  renderOnboardingInstallGuide();
+  showToast("Appka je nainštalovaná.");
 });
 
 renderCurrentView();

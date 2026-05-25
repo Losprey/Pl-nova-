@@ -2286,6 +2286,40 @@ body[data-cloud="signed-in"] #syncStatusDot {
   font-weight: 800;
 }
 
+.onboarding-install-guide {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid rgba(88, 102, 131, 0.52);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(85, 71, 244, 0.18), rgba(39, 210, 138, 0.1));
+}
+
+.onboarding-install-guide p,
+.onboarding-install-guide h3,
+.onboarding-install-guide span {
+  margin: 0;
+}
+
+.onboarding-install-guide p {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.onboarding-install-guide h3 {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.onboarding-install-guide span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .settings-list {
   display: grid;
 }
