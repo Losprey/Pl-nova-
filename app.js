@@ -2463,6 +2463,8 @@ function escapeHtml(value) {
 
 function renderPlan() {
   const plan = currentPlan();
+  const start = weekMeta(state.week).start;
+  const today = dateKey();
   weekLabel.textContent = plan.label;
   weekRange.textContent = plan.range;
   const totalMeals = plan.days.reduce((sum, day) => sum + day.meals.length, 0);
@@ -2472,6 +2474,8 @@ function renderPlan() {
 
   mealPlan.innerHTML = plan.days
     .map((day, dayIndex) => {
+      const dayDate = dateKey(addDays(start, dayIndex));
+      const isToday = dayDate === today;
       const rows = day.meals.length
         ? day.meals
             .map((meal, mealIndex) => {
@@ -2499,10 +2503,10 @@ function renderPlan() {
         : `<div class="empty-state">Tento deň zatiaľ nemá žiadne jedlá.</div>`;
 
       return `
-        <article class="day-card">
+        <article class="day-card ${isToday ? "is-today" : ""}">
           <div class="day-header">
             <h3>${day.name}</h3>
-            <p>${day.meals.length} jedál</p>
+            <p>${day.meals.length} jedál ${isToday ? "<span class=\"today-badge\">Dnes</span>" : ""}</p>
           </div>
           ${rows}
         </article>
