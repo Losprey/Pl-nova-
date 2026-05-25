@@ -7240,9 +7240,11 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 /* Final mobile-first fix for meals readability */
 #meals .meal-week-panel,
 #meals .meal-audience-panel {
-  border: 1px solid rgba(88, 102, 130, 0.34);
-  background: linear-gradient(180deg, rgba(17, 27, 46, 0.9), rgba(14, 22, 39, 0.94));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(104, 120, 150, 0.24);
+  background: linear-gradient(180deg, rgba(18, 29, 48, 0.72), rgba(14, 22, 39, 0.8));
+  box-shadow: 0 12px 24px rgba(4, 10, 24, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
 }
 
 #meals .week-switch {
@@ -7271,15 +7273,16 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 }
 
 #meals .day-card {
-  border-radius: 12px;
-  border: 1px solid rgba(82, 97, 124, 0.4);
-  background: linear-gradient(180deg, rgba(23, 34, 56, 0.98), rgba(17, 26, 44, 0.98));
-  box-shadow: 0 8px 22px rgba(4, 10, 26, 0.35);
+  border-radius: 18px;
+  border: 1px solid rgba(99, 115, 145, 0.28);
+  background: linear-gradient(180deg, rgba(24, 36, 58, 0.84), rgba(18, 28, 47, 0.86));
+  box-shadow: 0 14px 28px rgba(3, 9, 22, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 #meals .day-card.is-today {
-  border-color: rgba(92, 108, 255, 0.75);
-  box-shadow: 0 0 0 1px rgba(92, 108, 255, 0.3), 0 10px 24px rgba(39, 58, 148, 0.42);
+  border-color: rgba(111, 127, 255, 0.62);
+  box-shadow: 0 0 0 1px rgba(110, 125, 255, 0.24), 0 14px 30px rgba(39, 58, 148, 0.28);
 }
 
 #meals .day-header p {
@@ -7307,9 +7310,9 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 #meals .meal-row {
   grid-template-columns: 24px minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 6px;
-  padding: 9px 10px;
-  border-bottom: 1px solid rgba(73, 88, 113, 0.42);
+  gap: 8px;
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(87, 103, 131, 0.28);
 }
 
 #meals .meal-row .meal-type,
@@ -7320,7 +7323,7 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 #meals .meal-row-add {
   width: 100%;
   border: 0;
-  background: rgba(21, 32, 52, 0.5);
+  background: rgba(28, 40, 63, 0.4);
   color: var(--muted);
   cursor: pointer;
 }
@@ -7332,7 +7335,7 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 
 #meals .meal-row-add:hover,
 #meals .meal-row-add:focus-visible {
-  background: rgba(71, 88, 140, 0.2);
+  background: rgba(89, 104, 154, 0.2);
 }
 
 #meals .meal-name {
@@ -7340,7 +7343,7 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   white-space: normal;
   overflow-wrap: break-word;
   word-break: normal;
-  line-height: 1.25;
+  line-height: 1.35;
   font-size: 15px;
   width: 100%;
   color: #f1f5ff;
@@ -7357,8 +7360,9 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 #meals .delete-meal {
   width: 28px;
   height: 28px;
-  border: 1px solid rgba(88, 103, 132, 0.54);
-  background: rgba(18, 27, 46, 0.76);
+  border: 1px solid rgba(103, 119, 147, 0.34);
+  background: rgba(24, 35, 56, 0.58);
+  box-shadow: 0 4px 12px rgba(4, 10, 24, 0.2);
 }
 
 #meals .delete-meal {
@@ -7447,6 +7451,11 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 
 #meals .meal-row-editable {
   cursor: pointer;
+  transition: background 160ms ease;
+}
+
+#meals .meal-row-editable:hover {
+  background: rgba(95, 110, 159, 0.09);
 }
 
 @media (max-width: 430px) {
@@ -7461,11 +7470,12 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   }
 
   #meals .day-header {
-    padding: 10px 11px;
+    padding: 12px 13px;
   }
 
   #meals .meal-row {
     grid-template-columns: 20px minmax(0, 1fr) 26px;
+    padding: 10px 11px;
   }
 
   #meals .favorite-meal {
