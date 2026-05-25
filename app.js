@@ -3084,6 +3084,12 @@ function setActiveTab(tab) {
 
 window.setActiveTab = setActiveTab;
 
+function jumpToTab(tab) {
+  if (!["home", "tasks", "shopping", "meals", "more"].includes(tab)) return;
+  setActiveTab(tab);
+  requestAnimationFrame(() => setActiveTab(tab));
+}
+
 function fillFormOptions() {
   const plan = currentPlan();
 
@@ -4245,19 +4251,31 @@ resetAllButton.addEventListener("click", () => {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-jump-tab]");
   if (!button) return;
-  const targetTab = button.dataset.jumpTab;
-  if (!["home", "tasks", "shopping", "meals", "more"].includes(targetTab)) return;
-  setActiveTab(targetTab);
-  // Ensure target section is freshly rendered when jumping from Home cards/feed.
-  renderCurrentView();
+  jumpToTab(button.dataset.jumpTab);
 });
 
-document.addEventListener("pointerup", (event) => {
-  const button = event.target.closest?.("[data-jump-tab]");
+homeNextList?.addEventListener("click", (event) => {
+  const button = event.target.closest(".home-next-item[data-jump-tab]");
   if (!button) return;
-  const targetTab = button.dataset.jumpTab;
-  if (!["home", "tasks", "shopping", "meals", "more"].includes(targetTab)) return;
-  setActiveTab(targetTab);
+  event.preventDefault();
+  event.stopPropagation();
+  jumpToTab(button.dataset.jumpTab);
+});
+
+homeNextList?.addEventListener("touchend", (event) => {
+  const button = event.target.closest(".home-next-item[data-jump-tab]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  jumpToTab(button.dataset.jumpTab);
+}, { passive: false });
+
+homeActionList?.addEventListener("click", (event) => {
+  const button = event.target.closest(".action-row[data-jump-tab]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  jumpToTab(button.dataset.jumpTab);
 });
 
 document.addEventListener("click", (event) => {
