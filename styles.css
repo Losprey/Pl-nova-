@@ -4952,6 +4952,145 @@ body[data-visual="playful"] {
   accent-color: var(--purple);
 }
 
+/* Home refresh: closer to original premium layout */
+#home .home-dashboard {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 2px 0 14px;
+  gap: 14px;
+}
+
+#home .dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(100, 114, 142, 0.34);
+  border-radius: 26px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(146, 108, 255, 0.42) 0%, rgba(95, 79, 235, 0.2) 50%, rgba(40, 54, 88, 0.2) 100%),
+    linear-gradient(145deg, #553ae0 0%, #6f56ff 38%, #3b2f9a 100%);
+  box-shadow: 0 20px 44px rgba(23, 13, 62, 0.42);
+}
+
+#home .dashboard-hero p {
+  color: rgba(240, 233, 255, 0.88);
+  font-size: 14px;
+}
+
+#home .dashboard-hero h2 {
+  color: #fff;
+  font-size: 36px;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+#home .count-pill {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+#home .today-card,
+#home .family-handoff,
+#home .weekly-compass,
+#home .mini-panel,
+#home .stat-tile,
+#home .home-quick-entry .ghost-action,
+#home .home-quick-actions .ghost-action,
+#home .home-quick-actions .primary-action {
+  border-radius: 22px;
+  border: 1px solid rgba(82, 98, 127, 0.56);
+  background: linear-gradient(180deg, rgba(34, 47, 70, 0.95), rgba(29, 41, 61, 0.92));
+  box-shadow: 0 10px 26px rgba(7, 12, 25, 0.26);
+}
+
+#home .today-card {
+  grid-template-columns: 56px minmax(0, 1fr);
+  padding: 14px 15px;
+}
+
+#home .today-card h3 {
+  font-size: 29px;
+  line-height: 1.08;
+}
+
+#home .today-card span {
+  font-size: 16px;
+}
+
+#home .home-quick-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#home #homeAutopilotCta {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #2d3a57, #26344e);
+}
+
+#home .stats-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#home .stat-tile {
+  min-height: 102px;
+  padding: 10px 8px;
+}
+
+#home .stat-tile strong {
+  font-size: 34px;
+}
+
+#home .stat-tile em {
+  font-size: 14px;
+}
+
+#home .mini-panel .mini-header h3 {
+  font-size: 24px;
+}
+
+.bottom-nav {
+  border-top-color: rgba(86, 103, 131, 0.56);
+  background: linear-gradient(180deg, #1f2b41 0%, #1c273b 100%);
+}
+
+.bottom-nav button.is-active,
+.bottom-nav a.is-active {
+  color: #ff8b57;
+}
+
+@media (max-width: 430px) {
+  .content {
+    padding: 14px 12px 0;
+  }
+
+  #home .dashboard-hero {
+    padding: 14px;
+    min-height: 186px;
+  }
+
+  #home .dashboard-hero h2 {
+    font-size: 24px;
+  }
+
+  #home .today-card h3 {
+    font-size: 20px;
+  }
+
+  #home .today-card span {
+    font-size: 14px;
+  }
+
+  #home .stat-tile {
+    min-height: 86px;
+  }
+
+  #home .stat-tile strong {
+    font-size: 26px;
+  }
+}
+
 /* Global UX polish: cleaner visual rhythm and predictable controls */
 :root {
   --ux-space-1: 8px;
