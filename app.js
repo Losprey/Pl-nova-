@@ -294,6 +294,7 @@ const accountTitle = document.querySelector("#accountTitle");
 const accountDetail = document.querySelector("#accountDetail");
 const placeholderEyebrow = document.querySelector("#placeholderEyebrow");
 const placeholderTitle = document.querySelector("#placeholderTitle");
+const moreDetailsSections = document.querySelectorAll("#more .settings-details");
 
 const ingredientRules = [
   { match: ["chleb", "toast", "rožok"], items: [["Pečivo", "Pečivo"], ["Maslo", "Mliečne"]] },
@@ -693,6 +694,31 @@ function applyPersonalization() {
   setActiveSetting(displayDensityButtons, "densityValue", state.settings.displayDensity);
   setActiveSetting(visualStyleButtons, "visualValue", state.settings.visualStyle);
   setActiveSetting(backdropButtons, "backdropValue", state.settings.backdrop);
+}
+
+function applyMoreSectionState() {
+  if (!moreDetailsSections.length) return;
+  let map = {};
+  try {
+    const raw = localStorage.getItem("domaci-rytmus-more-sections-v1");
+    map = raw ? JSON.parse(raw) : {};
+  } catch {
+    map = {};
+  }
+  moreDetailsSections.forEach((section) => {
+    if (!section.id) return;
+    if (typeof map[section.id] === "boolean") section.open = map[section.id];
+  });
+}
+
+function saveMoreSectionState() {
+  if (!moreDetailsSections.length) return;
+  const map = {};
+  moreDetailsSections.forEach((section) => {
+    if (!section.id) return;
+    map[section.id] = section.open;
+  });
+  localStorage.setItem("domaci-rytmus-more-sections-v1", JSON.stringify(map));
 }
 
 function ensureFamilySettings() {
@@ -3331,7 +3357,12 @@ document.addEventListener("click", (event) => {
   const target = document.getElementById(trigger.dataset.openSection);
   if (!target) return;
   if ("open" in target) target.open = true;
+  saveMoreSectionState();
   setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+});
+
+moreDetailsSections.forEach((section) => {
+  section.addEventListener("toggle", saveMoreSectionState);
 });
 
 function addExtraItem(collection, payload) {
@@ -3539,6 +3570,7 @@ window.addEventListener("beforeunload", () => {
 });
 
 renderCurrentView();
+applyMoreSectionState();
 setActiveTab(state.activeTab);
 initCloud();
 openOnboardingIfNeeded();

@@ -202,7 +202,7 @@
               </div>
             </section>
 
-            <section class="family-note" aria-label="Poznámka dňa" hidden>
+            <section class="family-note" aria-label="Poznámka dňa">
               <label for="dailyNote">Poznámka dňa</label>
               <textarea id="dailyNote" maxlength="180" placeholder="Napr. dnes škôlka skôr, návšteva, jednoduchá večera..."></textarea>
             </section>
@@ -552,24 +552,28 @@
                 </details>
               </section>
 
-              <section class="account-card" aria-label="Google účet a synchronizácia">
-                <div class="account-art" aria-hidden="true">
-                  <span></span>
-                  <strong>G</strong>
-                </div>
-                <div>
-                  <p id="accountEyebrow">Účet</p>
-                  <h3 id="accountTitle">Prihlásenie cez Google</h3>
-                  <span id="accountDetail">Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.</span>
-                </div>
-                <div class="account-actions">
-                  <button class="primary-action" id="googleLoginButton" type="button">Prihlásiť Google</button>
-                  <button class="ghost-action" id="googleLogoutButton" type="button" hidden>Odhlásiť</button>
-                </div>
-              </section>
+              <details class="settings-details" id="accountSettings" open>
+                <summary>Účet a synchronizácia</summary>
+                <section class="account-card" aria-label="Google účet a synchronizácia">
+                  <div class="account-art" aria-hidden="true">
+                    <span></span>
+                    <strong>G</strong>
+                  </div>
+                  <div>
+                    <p id="accountEyebrow">Účet</p>
+                    <h3 id="accountTitle">Prihlásenie cez Google</h3>
+                    <span id="accountDetail">Po prihlásení môže domácnosť zdieľať jedlá, nákup a kroky v reálnom čase.</span>
+                  </div>
+                  <div class="account-actions">
+                    <button class="primary-action" id="googleLoginButton" type="button">Prihlásiť Google</button>
+                    <button class="ghost-action" id="googleLogoutButton" type="button" hidden>Odhlásiť</button>
+                  </div>
+                </section>
+              </details>
 
-              <section class="settings-group" id="appearanceSettings" aria-label="Vzhľad aplikácie">
-                <p class="settings-group-title">Vzhľad</p>
+              <details class="settings-details" id="appearanceSettings" open>
+                <summary>Vzhľad</summary>
+                <section class="settings-group" aria-label="Vzhľad aplikácie">
                 <div class="settings-row">
                   <div>
                     <strong>Svetlá téma</strong>
@@ -658,7 +662,8 @@
                     <button type="button" data-backdrop-value="graphic">Grafické</button>
                   </div>
                 </div>
-              </section>
+                </section>
+              </details>
 
               <details class="settings-details" id="householdSettings">
                 <summary>Domácnosť</summary>
@@ -749,7 +754,7 @@
                 </div>
               </details>
 
-              <details class="settings-details" hidden>
+              <details class="settings-details" id="dataSettings">
                 <summary>Dáta</summary>
                 <div class="settings-row">
                   <div>
