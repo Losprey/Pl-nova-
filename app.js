@@ -1985,6 +1985,8 @@ function mealPrepEntries() {
     day.meals.map((meal, mealIndex) => ({
       key: `prep:${dayIndex}:${mealIndex}:${slug(meal.name)}`,
       dayName: day.name,
+      dayIndex,
+      mealIndex,
       name: meal.name,
       typeLabel: mealTypeFor(meal.typeKey).label,
     })),
@@ -2000,16 +2002,29 @@ function renderMealPrep() {
   const doneCount = entries.filter((entry) => done.has(entry.key)).length;
 
   mealPrepCount.textContent = `${doneCount}/${entries.length}`;
+  const byDay = entries.reduce((acc, entry) => {
+    acc[entry.dayName] ||= [];
+    acc[entry.dayName].push(entry);
+    return acc;
+  }, {});
+
   mealPrepList.innerHTML = entries.length
-    ? entries
-        .map((entry) => `
-          <label class="meal-prep-item ${done.has(entry.key) ? "is-done" : ""}">
-            <input type="checkbox" data-meal-prep="${entry.key}" ${done.has(entry.key) ? "checked" : ""}>
-            <div>
-              <strong>${escapeHtml(entry.name)}</strong>
-              <span>${escapeHtml(entry.dayName)} · ${escapeHtml(entry.typeLabel)}</span>
-            </div>
-          </label>
+    ? Object.entries(byDay)
+        .map(([dayName, dayEntries]) => `
+          <div class="meal-prep-day">
+            <div class="meal-prep-day-head">${escapeHtml(dayName)}</div>
+            ${dayEntries
+              .map((entry) => `
+                <label class="meal-prep-item ${done.has(entry.key) ? "is-done" : ""}">
+                  <input type="checkbox" data-meal-prep="${entry.key}" ${done.has(entry.key) ? "checked" : ""}>
+                  <div>
+                    <strong>${escapeHtml(entry.name)}</strong>
+                    <span>${escapeHtml(entry.typeLabel)}</span>
+                  </div>
+                </label>
+              `)
+              .join("")}
+          </div>
         `)
         .join("")
     : `<div class="empty-state">Najprv pridaj jedlá do týždňa a potom ich označ na prípravu vopred.</div>`;
@@ -2534,7 +2549,7 @@ function renderPlan() {
           }
 
           return `
-            <div class="meal-row">
+            <div class="meal-row meal-row-editable" data-edit-day="${dayIndex}" data-edit-meal="${mealIndex}">
               <span class="meal-emoji" aria-hidden="true">${type.icon}</span>
               <span class="meal-type">${type.label}</span>
               <span class="plate" aria-hidden="true">🍽️</span>
@@ -2891,6 +2906,7 @@ mealPlan.addEventListener("click", (event) => {
   const favoriteButton = event.target.closest(".favorite-meal");
   const editButton = event.target.closest(".edit-meal");
   const deleteButton = event.target.closest(".delete-meal");
+  const editableRow = event.target.closest(".meal-row-editable");
 
   if (favoriteButton) {
     const name = favoriteButton.dataset.mealName;
@@ -2906,6 +2922,11 @@ mealPlan.addEventListener("click", (event) => {
 
   if (editButton) {
     openMealDialog("edit", Number(editButton.dataset.day), Number(editButton.dataset.meal));
+    return;
+  }
+
+  if (editableRow && !favoriteButton && !deleteButton) {
+    openMealDialog("edit", Number(editableRow.dataset.editDay), Number(editableRow.dataset.editMeal));
     return;
   }
 

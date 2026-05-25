@@ -6508,8 +6508,36 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   background: linear-gradient(180deg, rgba(17, 28, 46, 0.96), rgba(14, 23, 39, 0.98));
 }
 
+#meals .meal-prep-panel > summary {
+  list-style: none;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(73, 88, 113, 0.35);
+}
+
+#meals .meal-prep-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
 #meals .meal-prep-list {
   display: grid;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+#meals .meal-prep-day {
+  border: 1px solid rgba(73, 88, 113, 0.3);
+  border-radius: 10px;
+  margin: 0 10px;
+  overflow: hidden;
+  background: rgba(13, 21, 36, 0.64);
+}
+
+#meals .meal-prep-day-head {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(73, 88, 113, 0.3);
+  font-size: 12px;
+  font-weight: 800;
+  color: #b8c6e3;
 }
 
 #meals .meal-prep-item {
@@ -6519,7 +6547,7 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   gap: 9px;
   min-height: 46px;
   padding: 9px 12px;
-  border-bottom: 1px solid rgba(73, 88, 113, 0.35);
+  border-bottom: 1px solid rgba(73, 88, 113, 0.25);
 }
 
 #meals .meal-prep-item:last-child {
@@ -6547,6 +6575,10 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 #meals .meal-prep-item.is-done strong {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+#meals .meal-row-editable {
+  cursor: pointer;
 }
 
 @media (max-width: 430px) {
