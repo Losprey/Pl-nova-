@@ -7143,7 +7143,7 @@ body[data-sync-loading="on"] #meals .day-card > *,
 body[data-sync-loading="on"] #shopping .shopping-category > *,
 body[data-sync-loading="on"] #tasks .classic-task-card > *,
 body[data-sync-loading="on"] #more .settings-details > * {
-  opacity: 0.12;
+  opacity: 0.55;
 }
 
 body[data-sync-loading="on"] #home .dashboard-hero::after,
@@ -7175,6 +7175,39 @@ body[data-sync-loading="on"] #more .settings-details::after {
 }
 
 @media (max-width: 430px) {
+  #home .today-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: unset;
+  }
+
+  #home .today-card > div:last-child {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  #home .today-card p {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  #home .today-card h3 {
+    font-size: 28px;
+    line-height: 1.08;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  #home .today-card span {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  #home .home-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
   .sync-inline-status {
     position: absolute;
     right: 64px;

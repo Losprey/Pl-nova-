@@ -448,6 +448,7 @@ const cloud = {
   enabled: false,
   ready: false,
   syncing: false,
+  syncGuardTimer: null,
   flushingQueue: false,
   user: null,
   auth: null,
@@ -1156,32 +1157,47 @@ async function listenToHousehold(householdId) {
   cloud.presenceUnsubscribe = null;
   cloud.presence = {};
   cloud.syncing = true;
+  clearTimeout(cloud.syncGuardTimer);
+  cloud.syncGuardTimer = setTimeout(() => {
+    cloud.syncing = false;
+    renderCloudStatus();
+  }, 4500);
   renderCloudStatus();
   cloud.householdId = householdId;
   state.settings.householdId = householdId;
   saveAllLocalOnly();
 
-  const { doc, getDoc, setDoc, onSnapshot } = cloud.api;
-  const ref = doc(cloud.db, "households", householdId);
-  const snapshot = await getDoc(ref);
-  if (!snapshot.exists()) {
-    await setDoc(ref, bundleState(), { merge: true });
-  }
+  try {
+    const { doc, getDoc, setDoc, onSnapshot } = cloud.api;
+    const ref = doc(cloud.db, "households", householdId);
+    const snapshot = await getDoc(ref);
+    if (!snapshot.exists()) {
+      await setDoc(ref, bundleState(), { merge: true });
+    }
 
-  cloud.unsubscribe = onSnapshot(ref, (nextSnapshot) => {
-    if (!nextSnapshot.exists()) return;
-    applyRemoteBundle(nextSnapshot.data());
-    cloud.syncing = false;
-    renderCloudStatus();
-    flushCloudQueue();
-  }, (error) => {
+    cloud.unsubscribe = onSnapshot(ref, (nextSnapshot) => {
+      if (!nextSnapshot.exists()) return;
+      clearTimeout(cloud.syncGuardTimer);
+      applyRemoteBundle(nextSnapshot.data());
+      cloud.syncing = false;
+      renderCloudStatus();
+      flushCloudQueue();
+    }, (error) => {
+      console.error(error);
+      clearTimeout(cloud.syncGuardTimer);
+      cloud.syncing = false;
+      renderCloudStatus();
+      showToast("Realtime spojenie sa nepodarilo načítať.");
+    });
+    listenToPresence(householdId);
+    startPresenceHeartbeat();
+  } catch (error) {
     console.error(error);
+    clearTimeout(cloud.syncGuardTimer);
     cloud.syncing = false;
     renderCloudStatus();
-    showToast("Realtime spojenie sa nepodarilo načítať.");
-  });
-  listenToPresence(householdId);
-  startPresenceHeartbeat();
+    showToast("Načítanie domácnosti zlyhalo. Skús obnoviť appku.");
+  }
 }
 
 async function handleAuthUser(user) {
