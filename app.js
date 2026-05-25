@@ -3040,7 +3040,8 @@ function renderCurrentView() {
 }
 
 function setActiveTab(tab) {
-  state.activeTab = tab;
+  const safeTab = ["home", "meals", "shopping", "tasks", "more"].includes(tab) ? tab : "home";
+  state.activeTab = safeTab;
   const tabTitles = {
     home: "Domov",
     tasks: "Úlohy",
@@ -3054,9 +3055,11 @@ function setActiveTab(tab) {
     item.classList.toggle("is-active", item.dataset.tab === state.activeTab);
   });
 
+  let matchedActiveView = false;
   document.querySelectorAll(".view").forEach((view) => {
     const isKnown = ["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab);
     const isActive = view.dataset.view === state.activeTab || (view.dataset.view === "placeholder" && !isKnown);
+    if (isActive) matchedActiveView = true;
 
     view.hidden = !isActive;
     view.classList.toggle("is-active", isActive);
@@ -3065,6 +3068,18 @@ function setActiveTab(tab) {
       requestAnimationFrame(() => view.classList.add("tab-enter"));
     }
   });
+
+  // Self-healing fallback: if a browser/event race hides all views, force Home visible.
+  if (!matchedActiveView) {
+    const homeView = document.querySelector('.view[data-view="home"]');
+    if (homeView) {
+      homeView.hidden = false;
+      homeView.classList.add("is-active");
+      state.activeTab = "home";
+      const homeTab = document.querySelector('.bottom-nav [data-tab="home"]');
+      homeTab?.classList.add("is-active");
+    }
+  }
 
   if (!["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {
     const labels = {
@@ -3088,6 +3103,15 @@ function jumpToTab(tab) {
   if (!["home", "tasks", "shopping", "meals", "more"].includes(tab)) return;
   setActiveTab(tab);
   requestAnimationFrame(() => setActiveTab(tab));
+}
+
+function ensureOneVisibleView() {
+  const views = [...document.querySelectorAll(".view")];
+  if (!views.length) return;
+  const hasVisible = views.some((view) => !view.hidden);
+  if (!hasVisible) {
+    setActiveTab("home");
+  }
 }
 
 function fillFormOptions() {
@@ -4269,6 +4293,10 @@ homeNextList?.addEventListener("touchend", (event) => {
   event.stopPropagation();
   jumpToTab(button.dataset.jumpTab);
 }, { passive: false });
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) ensureOneVisibleView();
+});
 
 homeActionList?.addEventListener("click", (event) => {
   const button = event.target.closest(".action-row[data-jump-tab]");
