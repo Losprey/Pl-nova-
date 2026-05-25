@@ -322,6 +322,17 @@
             </section>
           </section>
 
+          <section class="meal-top-summary" aria-label="Súhrn jedálnička">
+            <div class="meal-summary-pill">
+              <span>Jedlá</span>
+              <strong id="mealTotalCount">0</strong>
+            </div>
+            <div class="meal-summary-pill">
+              <span>Dni s plánom</span>
+              <strong id="mealPlannedDaysCount">0/7</strong>
+            </div>
+          </section>
+
           <section class="meal-audience-panel" aria-label="Typ jedálnička">
             <div>
               <p>Jedálniček</p>
@@ -348,21 +359,21 @@
             </button>
           </section>
 
-          <section class="favorite-library" aria-label="Knižnica obľúbených jedál">
-            <div class="mini-header">
+          <details class="favorite-library" aria-label="Knižnica obľúbených jedál">
+            <summary class="mini-header">
               <h3>Naše stálice</h3>
               <span id="favoriteLibraryCount">0 jedál</span>
-            </div>
+            </summary>
             <div id="favoriteQuickList" class="favorite-quick-list"></div>
-          </section>
+          </details>
 
-          <section class="pantry-cook" aria-label="Tipy zo špajze">
-            <div class="mini-header">
+          <details class="pantry-cook" aria-label="Tipy zo špajze">
+            <summary class="mini-header">
               <h3>Tipy zo špajze</h3>
               <span id="pantryCookHint">Podľa zásob</span>
-            </div>
+            </summary>
             <div id="pantryCookList" class="pantry-cook-list"></div>
-          </section>
+          </details>
 
           <section id="mealPlan" class="meal-plan" aria-label="Týždenný jedálniček"></section>
         </section>

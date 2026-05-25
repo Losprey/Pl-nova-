@@ -110,6 +110,8 @@ const state = {
 };
 
 const mealPlan = document.querySelector("#mealPlan");
+const mealTotalCount = document.querySelector("#mealTotalCount");
+const mealPlannedDaysCount = document.querySelector("#mealPlannedDaysCount");
 const weekLabel = document.querySelector("#weekLabel");
 const weekRange = document.querySelector("#weekRange");
 const mealDialog = document.querySelector("#mealDialog");
@@ -2463,6 +2465,10 @@ function renderPlan() {
   const plan = currentPlan();
   weekLabel.textContent = plan.label;
   weekRange.textContent = plan.range;
+  const totalMeals = plan.days.reduce((sum, day) => sum + day.meals.length, 0);
+  const plannedDays = plan.days.filter((day) => day.meals.length > 0).length;
+  if (mealTotalCount) mealTotalCount.textContent = String(totalMeals);
+  if (mealPlannedDaysCount) mealPlannedDaysCount.textContent = `${plannedDays}/7`;
 
   mealPlan.innerHTML = plan.days
     .map((day, dayIndex) => {

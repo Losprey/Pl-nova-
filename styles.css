@@ -4919,6 +4919,75 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+/* Meals view clarity overrides */
+#meals .meal-top-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+
+#meals .meal-summary-pill {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(53, 66, 89, 0.72);
+  border-radius: 12px;
+  background: rgba(23, 34, 54, 0.72);
+}
+
+#meals .meal-summary-pill span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+#meals .meal-summary-pill strong {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+#meals .meal-plan {
+  gap: 10px;
+}
+
+#meals .day-card {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+#meals .day-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(53, 66, 89, 0.64);
+}
+
+#meals .meal-row {
+  grid-template-columns: 28px 88px 1fr auto auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+#meals .meal-name {
+  font-weight: 800;
+}
+
+#meals .favorite-library,
+#meals .pantry-cook {
+  border-radius: 12px;
+}
+
+#meals .favorite-library > summary,
+#meals .pantry-cook > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+#meals .favorite-library > summary::-webkit-details-marker,
+#meals .pantry-cook > summary::-webkit-details-marker {
+  display: none;
+}
+
 .home-quick-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
