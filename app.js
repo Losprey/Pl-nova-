@@ -212,7 +212,6 @@ const pantryCookHint = document.querySelector("#pantryCookHint");
 const pantryCookList = document.querySelector("#pantryCookList");
 const mealPrepCount = document.querySelector("#mealPrepCount");
 const mealPrepList = document.querySelector("#mealPrepList");
-const simpleMealsButton = document.querySelector("#simpleMealsButton");
 const shoppingProgressText = document.querySelector("#shoppingProgressText");
 const shoppingProgressBar = document.querySelector("#shoppingProgressBar");
 const hideDoneShoppingButton = document.querySelector("#hideDoneShoppingButton");
@@ -670,9 +669,6 @@ function applyNotePreference() {
 
 function applyMealMode() {
   document.body.dataset.mealMode = state.settings.simpleMeals ? "simple" : "full";
-  simpleMealsButton?.classList.toggle("is-active", state.settings.simpleMeals);
-  const label = simpleMealsButton?.querySelector("span");
-  if (label) label.textContent = state.settings.simpleMeals ? "Plný režim" : "Jednoducho";
 }
 
 function setActiveSetting(buttons, dataName, value) {
@@ -2828,18 +2824,6 @@ homeAddShoppingCta?.addEventListener("click", () => {
 
 homeQuickEntryButton?.addEventListener("click", () => {
   openQuickEntry("task");
-});
-
-document.querySelector("#resetPlanButton").addEventListener("click", () => {
-  state.plans = normalizePlans(starterPlans);
-  savePlans();
-  renderCurrentView();
-});
-
-simpleMealsButton.addEventListener("click", () => {
-  state.settings.simpleMeals = !state.settings.simpleMeals;
-  saveSettingsState();
-  applyMealMode();
 });
 
 document.querySelector(".sync-button").addEventListener("click", () => {
