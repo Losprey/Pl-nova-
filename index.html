@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-0100">
+    <link rel="stylesheet" href="styles.css?v=20260525-0200">
   </head>
   <body>
     <div class="app-shell">
@@ -39,6 +39,43 @@
       <main class="content">
         <section class="view is-active" id="home" data-view="home">
           <section class="home-dashboard" aria-label="Domáci prehľad">
+            <section class="home-soft-hero" aria-label="Stav domácnosti">
+              <p id="homeHeroEyebrow">Domáci rytmus</p>
+              <h2 id="homeHeroTitle">Dnes držíme rytmus</h2>
+              <span id="homeHeroSubtitle">Všetko dôležité máš pod kontrolou.</span>
+              <em id="homeHeroHint">Najbližšie: večera alebo nákup</em>
+            </section>
+
+            <section class="home-smart-card" aria-label="Dnes doma">
+              <div class="mini-header">
+                <h3>Dnes doma</h3>
+                <span id="homeCalmScore">Pokoj 0%</span>
+              </div>
+              <p id="homeSmartSummary">Zatiaľ je tu pokojný štart.</p>
+              <div class="home-smart-list">
+                <div class="home-smart-item">
+                  <strong id="homeSmartTasks">Úlohy čakajú.</strong>
+                  <span id="homeSmartTasksDetail"></span>
+                </div>
+                <div class="home-smart-item">
+                  <strong id="homeSmartMeals">Jedlá zatiaľ chýbajú.</strong>
+                  <span id="homeSmartMealsDetail"></span>
+                </div>
+                <div class="home-smart-item">
+                  <strong id="homeSmartShopping">Nákup je pokojný.</strong>
+                  <span id="homeSmartShoppingDetail"></span>
+                </div>
+              </div>
+              <i class="home-calm-meter" aria-hidden="true"><b id="homeCalmMeter"></b></i>
+            </section>
+
+            <section class="home-next" aria-label="Najbližšie">
+              <div class="mini-header">
+                <h3>Najbližšie</h3>
+              </div>
+              <div id="homeNextList" class="mini-list"></div>
+            </section>
+
             <div class="dashboard-hero">
               <div>
                 <p id="homeEyebrow">Domáci Rytmus</p>
@@ -324,6 +361,15 @@
                 </div>
                 <div id="homeFavoritesList" class="mini-list"></div>
               </section>
+            </div>
+
+            <div class="home-fab-wrap">
+              <button class="home-fab" type="button" id="homeFabButton" aria-label="Pridať">+ Pridať</button>
+              <div class="home-fab-menu" id="homeFabMenu" hidden>
+                <button type="button" data-fab-add="meal">Jedlo</button>
+                <button type="button" data-fab-add="task">Úloha</button>
+                <button type="button" data-fab-add="shopping">Nákup</button>
+              </div>
             </div>
           </section>
         </section>
@@ -1147,6 +1193,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-0100"></script>
+    <script src="app.js?v=20260525-0200"></script>
   </body>
 </html>

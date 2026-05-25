@@ -1,9 +1,9 @@
-const CACHE_NAME = "domaci-rytmus-v11";
+const CACHE_NAME = "domaci-rytmus-v12";
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=20260525-0100",
-  "./app.js?v=20260525-0100",
+  "./styles.css?v=20260525-0200",
+  "./app.js?v=20260525-0200",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

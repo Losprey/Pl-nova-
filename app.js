@@ -169,6 +169,22 @@ const homeShoppingCount = document.querySelector("#homeShoppingCount");
 const homeMealsHint = document.querySelector("#homeMealsHint");
 const homeTasksHint = document.querySelector("#homeTasksHint");
 const homeShoppingHint = document.querySelector("#homeShoppingHint");
+const homeHeroEyebrow = document.querySelector("#homeHeroEyebrow");
+const homeHeroTitle = document.querySelector("#homeHeroTitle");
+const homeHeroSubtitle = document.querySelector("#homeHeroSubtitle");
+const homeHeroHint = document.querySelector("#homeHeroHint");
+const homeCalmScore = document.querySelector("#homeCalmScore");
+const homeSmartSummary = document.querySelector("#homeSmartSummary");
+const homeSmartTasks = document.querySelector("#homeSmartTasks");
+const homeSmartTasksDetail = document.querySelector("#homeSmartTasksDetail");
+const homeSmartMeals = document.querySelector("#homeSmartMeals");
+const homeSmartMealsDetail = document.querySelector("#homeSmartMealsDetail");
+const homeSmartShopping = document.querySelector("#homeSmartShopping");
+const homeSmartShoppingDetail = document.querySelector("#homeSmartShoppingDetail");
+const homeCalmMeter = document.querySelector("#homeCalmMeter");
+const homeNextList = document.querySelector("#homeNextList");
+const homeFabButton = document.querySelector("#homeFabButton");
+const homeFabMenu = document.querySelector("#homeFabMenu");
 const homeMealsList = document.querySelector("#homeMealsList");
 const homeTasksList = document.querySelector("#homeTasksList");
 const homeShoppingList = document.querySelector("#homeShoppingList");
@@ -2668,6 +2684,16 @@ function renderHome() {
   const plan = currentPlan();
   const mood = currentMood();
   const isEmptyHome = !meals.length && !tasks.length && !shopping.length;
+  const hour = new Date().getHours();
+  const weekday = new Date().getDay();
+  const isWeekend = weekday === 0 || weekday === 6;
+  const heroTitle = isWeekend
+    ? "Víkendový režim"
+    : hour < 11
+      ? "Dobré ráno, domácnosť sa prebúdza"
+      : hour < 18
+        ? "Dnes držíme rytmus"
+        : "Pokojný večer doma";
 
   homeEyebrow.textContent = plan.label;
   homeTitle.textContent = plan.range;
@@ -2678,6 +2704,18 @@ function renderHome() {
   homeMealsHint.textContent = meals.length === 1 ? "jedlo v pláne" : "jedál v pláne";
   homeTasksHint.textContent = openTasks.length === 1 ? "otvorený krok" : "otvorených krokov";
   homeShoppingHint.textContent = openShopping.length === 1 ? "položka chýba" : "položiek chýba";
+  if (homeHeroEyebrow) homeHeroEyebrow.textContent = isWeekend ? "Domáci rytmus • víkend" : "Domáci rytmus";
+  if (homeHeroTitle) homeHeroTitle.textContent = heroTitle;
+  const heroSubtitle = openTasks.length
+    ? `Zostávajú ${openTasks.length} ${openTasks.length === 1 ? "vec" : "veci"} na dokončenie`
+    : "Všetko dôležité máš pod kontrolou";
+  if (homeHeroSubtitle) homeHeroSubtitle.textContent = heroSubtitle;
+  const heroHint = openShopping.length
+    ? "Najbližšie: nákup alebo domáci krok"
+    : meals.length
+      ? "Najbližšie: jedlo z plánu"
+      : "Najbližšie: pridaj prvý pokojný krok";
+  if (homeHeroHint) homeHeroHint.textContent = heroHint;
   homeMealVisualValue.textContent = String(meals.length);
   homeTaskVisualValue.textContent = `${doneTasks}/${tasks.length || 0}`;
   homeShoppingVisualValue.textContent = `${shopping.length - openShopping.length}/${shopping.length || 0}`;
@@ -2694,6 +2732,84 @@ function renderHome() {
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderBudget();
   renderSmartTips(meals, tasks, shopping, openShopping);
+  const calmScore = Math.round(
+    ((tasks.length ? doneTasks / tasks.length : 1) * 0.45
+      + (shopping.length ? (shopping.length - openShopping.length) / shopping.length : 1) * 0.35
+      + (Math.min(meals.length, 21) / 21) * 0.2) * 100
+  );
+  if (homeCalmScore) homeCalmScore.textContent = `Pokoj ${calmScore}%`;
+  if (homeCalmMeter) homeCalmMeter.style.width = `${calmScore}%`;
+  if (homeSmartSummary) {
+    homeSmartSummary.textContent = openTasks.length
+      ? `Dnes čakajú ${openTasks.length} ${openTasks.length === 1 ? "úloha" : "úlohy"}.`
+      : "Dnes je pokojný deň, kroky sú vybavené.";
+  }
+  if (homeSmartTasks) {
+    homeSmartTasks.textContent = openTasks.length
+      ? `Dnes čakajú ${openTasks.length} ${openTasks.length === 1 ? "úloha" : "úlohy"}`
+      : "Úlohy sú hotové";
+  }
+  if (homeSmartTasksDetail) {
+    homeSmartTasksDetail.textContent = openTasks.length
+      ? "Jedna malá vec teraz udrží deň pokojný."
+      : "Môžeš ísť ďalej bez tlaku.";
+  }
+  if (homeSmartMeals) {
+    homeSmartMeals.textContent = meals.length
+      ? `V jedálničku je ${meals.length} ${meals.length === 1 ? "jedlo" : "jedál"}`
+      : "Jedálniček je zatiaľ prázdny";
+  }
+  if (homeSmartMealsDetail) {
+    homeSmartMealsDetail.textContent = meals.length
+      ? "Plán drží rytmus na najbližšie dni."
+      : "Pridaj prvé jedlo a appka sa rozbehne.";
+  }
+  if (homeSmartShopping) {
+    homeSmartShopping.textContent = openShopping.length
+      ? `V nákupe chýba ${openShopping.length} ${openShopping.length === 1 ? "položka" : "položiek"}`
+      : "Nákupný zoznam je vybavený";
+  }
+  if (homeSmartShoppingDetail) {
+    homeSmartShoppingDetail.textContent = openShopping.length
+      ? "Skús vybaviť aspoň jednu vec po ceste."
+      : "Zoznam je zatiaľ pokojný.";
+  }
+
+  if (homeNextList) {
+    const nextItems = [];
+    const nextTask = openTasks[0];
+    if (nextTask) {
+      nextItems.push({ icon: "✓", title: nextTask.title, detail: "Najbližšia úloha", tab: "tasks" });
+    }
+    const lastShopping = openShopping[0];
+    if (lastShopping) {
+      nextItems.push({ icon: "🛒", title: lastShopping.name, detail: "Posledná položka nákupu", tab: "shopping" });
+    }
+    const nextMeal = meals[0];
+    if (nextMeal) {
+      nextItems.push({ icon: nextMeal.type.icon, title: nextMeal.name, detail: `${nextMeal.dayName} · ${nextMeal.type.label}`, tab: "meals" });
+    }
+    if (openTasks.length > 2) {
+      nextItems.push({ icon: "•", title: "Rozdeľte kroky doma", detail: "Krátke rozdelenie zníži tlak na večer.", tab: "tasks" });
+    }
+    if (nextItems.length === 0) {
+      homeNextList.innerHTML = `
+        <div class="mini-empty home-next-empty">
+          Zatiaľ je tu pokoj. Pridaj prvú vec do dnešného rytmu.
+        </div>
+      `;
+    } else {
+      homeNextList.innerHTML = nextItems.slice(0, 5).map((item) => `
+        <button class="mini-row home-next-item" type="button" data-jump-tab="${item.tab}">
+          <span class="mini-icon" aria-hidden="true">${item.icon}</span>
+          <span>
+            <strong>${escapeHtml(item.title)}</strong>
+            <span>${escapeHtml(item.detail)}</span>
+          </span>
+        </button>
+      `).join("");
+    }
+  }
 
   const today = todaySummary(meals, openTasks, openShopping);
   homeTodayLabel.textContent = today.label;
@@ -3234,6 +3350,29 @@ homeAddShoppingCta?.addEventListener("click", () => {
 
 homeQuickEntryButton?.addEventListener("click", () => {
   openQuickEntry("task");
+});
+
+homeFabButton?.addEventListener("click", () => {
+  const isOpen = homeFabMenu && !homeFabMenu.hidden;
+  if (!homeFabMenu) return;
+  homeFabMenu.hidden = isOpen;
+  homeFabButton.classList.toggle("is-open", !isOpen);
+});
+
+homeFabMenu?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-fab-add]");
+  if (!button) return;
+  if (button.dataset.fabAdd === "meal") openMealDialog("add");
+  if (button.dataset.fabAdd === "task") {
+    setActiveTab("tasks");
+    taskName?.focus();
+  }
+  if (button.dataset.fabAdd === "shopping") {
+    setActiveTab("shopping");
+    shoppingName?.focus();
+  }
+  homeFabMenu.hidden = true;
+  homeFabButton?.classList.remove("is-open");
 });
 
 homeAutopilotCta?.addEventListener("click", () => {
@@ -3887,6 +4026,13 @@ onboardingInstallButton?.addEventListener("click", async () => {
 
 settingsInstallButton?.addEventListener("click", async () => {
   await handleInstallAction(settingsInstallButton);
+});
+
+document.addEventListener("click", (event) => {
+  if (homeFabMenu && !homeFabMenu.hidden && !event.target.closest(".home-fab-wrap")) {
+    homeFabMenu.hidden = true;
+    homeFabButton?.classList.remove("is-open");
+  }
 });
 
 document.addEventListener("click", (event) => {
