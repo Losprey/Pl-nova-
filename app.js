@@ -187,6 +187,10 @@ const homeAutopilotCta = document.querySelector("#homeAutopilotCta");
 const homeQuickEntryButton = document.querySelector("#homeQuickEntryButton");
 const homeActionList = document.querySelector("#homeActionList");
 const smartTipList = document.querySelector("#smartTipList");
+const weekendRitualCount = document.querySelector("#weekendRitualCount");
+const weekendRitualHint = document.querySelector("#weekendRitualHint");
+const weekendRitualList = document.querySelector("#weekendRitualList");
+const startWeekendRitualButton = document.querySelector("#startWeekendRitualButton");
 const weekPrepCount = document.querySelector("#weekPrepCount");
 const weekModeButtons = document.querySelectorAll("[data-week-mode] button");
 const cookingModeButtons = document.querySelectorAll("[data-cooking-mode] button");
@@ -291,6 +295,11 @@ const onboardingInstallButton = document.querySelector("#onboardingInstallButton
 const settingsInstallTitle = document.querySelector("#settingsInstallTitle");
 const settingsInstallHint = document.querySelector("#settingsInstallHint");
 const settingsInstallButton = document.querySelector("#settingsInstallButton");
+const conflictDialog = document.querySelector("#conflictDialog");
+const conflictMeta = document.querySelector("#conflictMeta");
+const conflictDetails = document.querySelector("#conflictDetails");
+const conflictLoadRemoteButton = document.querySelector("#conflictLoadRemoteButton");
+const conflictKeepLocalButton = document.querySelector("#conflictKeepLocalButton");
 const brandTitle = document.querySelector("#brandTitle");
 const petForm = document.querySelector("#petForm");
 const petName = document.querySelector("#petName");
@@ -995,6 +1004,33 @@ function renderCloudStatus() {
   if (settingsStatus) settingsStatus.textContent = cloudStatusText();
 }
 
+function openConflictDialog() {
+  if (!conflictDialog || !cloud.conflict) return;
+  const c = cloud.conflict;
+  if (conflictMeta) {
+    const when = c.remoteUpdatedAt
+      ? new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(c.remoteUpdatedAt))
+      : "";
+    conflictMeta.textContent = `Cloud upravil ${c.remoteBy || "člen domácnosti"}${when ? ` · ${when}` : ""}`;
+  }
+  if (conflictDetails) {
+    const local = c.localPayload || {};
+    const remote = c.remotePayload || {};
+    const localMeals = Object.values(local.plans || {}).flatMap((aud) => Object.values(aud || {}).flatMap((w) => (w.days || []).flatMap((d) => d.meals || []))).length;
+    const remoteMeals = Object.values(remote.plans || {}).flatMap((aud) => Object.values(aud || {}).flatMap((w) => (w.days || []).flatMap((d) => d.meals || []))).length;
+    const localTasks = Object.values(local.tasks?.family || {}).flat().length || 0;
+    const remoteTasks = Object.values(remote.tasks?.family || {}).flat().length || 0;
+    const localShop = Object.values(local.shopping?.manual || {}).flat().length || 0;
+    const remoteShop = Object.values(remote.shopping?.manual || {}).flat().length || 0;
+    conflictDetails.innerHTML = `
+      <div>Jedlá: moje ${localMeals} · cloud ${remoteMeals}</div>
+      <div>Kroky: moje ${localTasks} · cloud ${remoteTasks}</div>
+      <div>Nákup: moje ${localShop} · cloud ${remoteShop}</div>
+    `;
+  }
+  conflictDialog.showModal();
+}
+
 function scheduleCloudSave() {
   if (!cloud.ready || !cloud.user || !cloud.householdId || cloud.applyingRemote || cloud.conflict) return;
   clearTimeout(cloud.saveTimer);
@@ -1011,15 +1047,16 @@ async function saveCloudNow(payloadOverride = null, skipConflictCheck = false) {
       const latest = await getDoc(ref);
       const remoteUpdatedAt = latest.exists() ? latest.data()?.updatedAt || "" : "";
       if (remoteUpdatedAt && cloud.lastSeenUpdatedAt && remoteUpdatedAt !== cloud.lastSeenUpdatedAt) {
+        const latestData = latest.data() || {};
         cloud.conflict = {
           remoteUpdatedAt,
-          remoteBy: latest.data()?.updatedBy?.name || "člen domácnosti",
+          remoteBy: latestData.updatedBy?.name || "člen domácnosti",
           localUpdatedAt: payload.updatedAt,
+          localPayload: payload,
+          remotePayload: latestData,
         };
         renderCloudStatus();
-        showToast("Konflikt zmien. Načítať najnovšie dáta?", "Načítať", () => {
-          pullLatestHousehold();
-        });
+        openConflictDialog();
         return false;
       }
     }
@@ -2550,6 +2587,59 @@ function renderFamilyHandoff(openTasks, openShopping) {
   }
 }
 
+function weekendRitualData() {
+  const next = planForWeek("next");
+  const totalMeals = next.days.reduce((sum, day) => sum + day.meals.length, 0);
+  const openNextTasks = (state.tasks.family?.next || []).filter((task) => !task.done).length;
+  const nextWeekly = state.weekly["family:next"] || {};
+  const categories = nextWeekly.autopilotCategories || [];
+  const checked = new Set(nextWeekly.autopilotChecked || []);
+  return [
+    {
+      key: "meals",
+      title: "Doplniť jedlá na budúci týždeň",
+      detail: `${totalMeals} jedál v pláne`,
+      done: totalMeals >= 14,
+      tab: "meals",
+    },
+    {
+      key: "tasks",
+      title: "Rozdeliť domáce kroky",
+      detail: `${openNextTasks} otvorených krokov`,
+      done: openNextTasks >= 3,
+      tab: "tasks",
+    },
+    {
+      key: "shopping",
+      title: "Skontrolovať nákupné kategórie",
+      detail: `${checked.size}/${categories.length} skontrolované`,
+      done: categories.length > 0 && checked.size >= Math.min(3, categories.length),
+      tab: "shopping",
+    },
+  ];
+}
+
+function renderWeekendRitual() {
+  if (!weekendRitualList || !weekendRitualCount || !weekendRitualHint) return;
+  const steps = weekendRitualData();
+  const done = steps.filter((step) => step.done).length;
+  weekendRitualCount.textContent = `${done}/${steps.length}`;
+  weekendRitualHint.textContent = done === steps.length
+    ? "Rituál je hotový. Týždeň je pripravený."
+    : "3 krátke kroky a týždeň je pripravený.";
+  weekendRitualList.innerHTML = steps
+    .map((step) => `
+      <button class="action-row ${step.done ? "calm" : "shopping"}" type="button" data-jump-tab="${step.tab}">
+        <span class="action-icon" aria-hidden="true">${step.done ? "✓" : "•"}</span>
+        <span>
+          <strong>${escapeHtml(step.title)}</strong>
+          <span>${escapeHtml(step.detail)}</span>
+        </span>
+      </button>
+    `)
+    .join("");
+}
+
 function renderHome() {
   const meals = allMeals();
   const tasks = currentTasks();
@@ -2582,6 +2672,7 @@ function renderHome() {
     homeStatsGrid.hidden = isEmptyHome;
   }
   renderFamilyHandoff(openTasks, openShopping);
+  renderWeekendRitual();
   renderWeeklyCompass(meals, tasks, shopping, openShopping);
   renderBudget();
   renderSmartTips(meals, tasks, shopping, openShopping);
@@ -3121,6 +3212,14 @@ homeAutopilotCta?.addEventListener("click", () => {
   openAutopilotDialog();
 });
 
+startWeekendRitualButton?.addEventListener("click", () => {
+  state.week = "next";
+  setActiveButton(".switch-option", "week", state.week);
+  setActiveTab("meals");
+  renderCurrentView();
+  showToast("Rituál spustený. Najprv jedlá na budúci týždeň.");
+});
+
 document.querySelector(".sync-button").addEventListener("click", () => {
   if (cloud.user) {
     saveCloudNow();
@@ -3152,10 +3251,32 @@ autopilotDialog?.addEventListener("click", (event) => {
   if (event.target === autopilotDialog) autopilotDialog.close();
 });
 
+conflictDialog?.addEventListener("click", (event) => {
+  if (event.target === conflictDialog) conflictDialog.close();
+});
+
 autopilotForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   applyAutopilot();
   autopilotDialog.close();
+});
+
+conflictLoadRemoteButton?.addEventListener("click", async () => {
+  conflictDialog?.close();
+  await pullLatestHousehold();
+  showToast("Načítané najnovšie cloud dáta.");
+});
+
+conflictKeepLocalButton?.addEventListener("click", async () => {
+  const payload = cloud.conflict?.localPayload;
+  conflictDialog?.close();
+  if (!payload) return;
+  const ok = await saveCloudNow(payload, true);
+  if (ok) {
+    cloud.conflict = null;
+    renderCloudStatus();
+    showToast("Tvoje zmeny boli uložené do cloudu.");
+  }
 });
 
 mealDialog.addEventListener("click", (event) => {

@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-2202">
+    <link rel="stylesheet" href="styles.css?v=20260525-2244">
   </head>
   <body>
     <div class="app-shell">
@@ -222,6 +222,16 @@
               <span id="homeFocusDetail">Nemáš nič súrne na vybavenie.</span>
               </div>
               <button type="button" id="homeFocusButton" data-jump-tab="tasks">Otvoriť</button>
+            </section>
+
+            <section class="weekend-ritual" aria-label="Víkendový rituál">
+              <div class="mini-header">
+                <h3>Víkendový rituál</h3>
+                <span id="weekendRitualCount">0/3</span>
+              </div>
+              <span id="weekendRitualHint">3 krátke kroky a týždeň je pripravený.</span>
+              <div id="weekendRitualList" class="smart-tip-list"></div>
+              <button class="ghost-action" type="button" id="startWeekendRitualButton">Spustiť rituál</button>
             </section>
 
             <section class="home-quick-actions" aria-label="Rýchle akcie">
@@ -892,6 +902,23 @@
       </form>
     </dialog>
 
+    <dialog class="meal-dialog" id="conflictDialog">
+      <form class="meal-form" method="dialog">
+        <div class="form-header">
+          <div>
+            <p>Synchronizácia</p>
+            <h2>Konflikt zmien</h2>
+            <span id="conflictMeta">Dvaja členovia upravili dáta naraz.</span>
+          </div>
+        </div>
+        <div id="conflictDetails" class="empty-state">Porovnávam zmeny…</div>
+        <div class="form-actions">
+          <button class="ghost-action" type="button" id="conflictLoadRemoteButton">Načítať cloud</button>
+          <button class="primary-action" type="button" id="conflictKeepLocalButton">Ponechať moje</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog class="meal-dialog quick-entry-dialog" id="quickEntryDialog">
       <form class="meal-form" id="quickEntryForm" method="dialog">
         <div class="form-header">
@@ -1162,6 +1189,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-2202"></script>
+    <script src="app.js?v=20260525-2244"></script>
   </body>
 </html>

@@ -2320,6 +2320,27 @@ body[data-cloud="signed-in"] #syncStatusDot {
   font-weight: 700;
 }
 
+.weekend-ritual {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(82, 98, 127, 0.56);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(34, 47, 70, 0.95), rgba(29, 41, 61, 0.92));
+}
+
+.weekend-ritual > span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#conflictDetails {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+
 .settings-list {
   display: grid;
 }
