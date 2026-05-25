@@ -2821,36 +2821,43 @@ function renderHome() {
   }
 
   const today = todaySummary(meals, openTasks, openShopping);
-  homeTodayLabel.textContent = today.label;
-  homeTodayTitle.textContent = today.title;
-  homeTodayDetail.textContent = today.detail;
+  if (homeTodayLabel) homeTodayLabel.textContent = today.label;
+  if (homeTodayTitle) homeTodayTitle.textContent = today.title;
+  if (homeTodayDetail) homeTodayDetail.textContent = today.detail;
 
   const actions = buildDashboardActions(meals, openTasks, openShopping);
   const focus = actions[0];
 
-  homeFocusIcon.textContent = focus.icon;
-  homeFocusLabel.textContent = mood === "tired"
-    ? "Stačí jeden malý krok"
-    : focus.tone === "urgent"
-      ? "Najdôležitejšie teraz"
-      : "Najbližší krok";
-  homeFocusTitle.textContent = focus.title;
-  homeFocusDetail.textContent = focus.detail;
-  homeFocusButton.dataset.jumpTab = focus.tab;
-  homeFocusButton.textContent = focus.tab === "home" ? "Hotovo" : "Otvoriť";
+  if (homeFocusIcon) homeFocusIcon.textContent = focus.icon;
+  if (homeFocusLabel) {
+    homeFocusLabel.textContent = mood === "tired"
+      ? "Stačí jeden malý krok"
+      : focus.tone === "urgent"
+        ? "Najdôležitejšie teraz"
+        : "Najbližší krok";
+  }
+  if (homeFocusTitle) homeFocusTitle.textContent = focus.title;
+  if (homeFocusDetail) homeFocusDetail.textContent = focus.detail;
+  if (homeFocusButton) {
+    homeFocusButton.dataset.jumpTab = focus.tab;
+    homeFocusButton.textContent = focus.tab === "home" ? "Hotovo" : "Otvoriť";
+  }
 
-  homeActionList.innerHTML = actions
-    .map((action) => `
-      <button class="action-row ${action.tone}" type="button" data-jump-tab="${action.tab}">
-        <span class="action-icon" aria-hidden="true">${action.icon}</span>
-        <span>
-          <strong>${escapeHtml(action.title)}</strong>
-          <span>${escapeHtml(action.detail)}</span>
-        </span>
-      </button>
-    `)
-    .join("");
-  homeActionList.closest(".next-actions").hidden = !homeActionList.children.length;
+  if (homeActionList) {
+    homeActionList.innerHTML = actions
+      .map((action) => `
+        <button class="action-row ${action.tone}" type="button" data-jump-tab="${action.tab}">
+          <span class="action-icon" aria-hidden="true">${action.icon}</span>
+          <span>
+            <strong>${escapeHtml(action.title)}</strong>
+            <span>${escapeHtml(action.detail)}</span>
+          </span>
+        </button>
+      `)
+      .join("");
+    const nextActions = homeActionList.closest(".next-actions");
+    if (nextActions) nextActions.hidden = !homeActionList.children.length;
+  }
   renderCheckin();
 
   homeMealsList.innerHTML = meals.length
