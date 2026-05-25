@@ -2327,6 +2327,7 @@ body[data-cloud="signed-in"] #syncStatusDot {
   border: 1px solid rgba(82, 98, 127, 0.56);
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(34, 47, 70, 0.95), rgba(29, 41, 61, 0.92));
+  order: 2;
 }
 
 .weekend-ritual > span {
@@ -2339,6 +2340,19 @@ body[data-cloud="signed-in"] #syncStatusDot {
   display: grid;
   gap: 8px;
   font-size: 14px;
+}
+
+#home .dashboard-hero {
+  order: 1;
+}
+
+.smart-tips > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.smart-tips > summary::-webkit-details-marker {
+  display: none;
 }
 
 .settings-list {
@@ -5136,7 +5150,7 @@ body[data-visual="playful"] {
   }
 
   #home .dashboard-hero h2 {
-    font-size: 24px;
+    font-size: 21px;
   }
 
   #home .today-card h3 {

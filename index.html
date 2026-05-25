@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-2244">
+    <link rel="stylesheet" href="styles.css?v=20260525-2310">
   </head>
   <body>
     <div class="app-shell">
@@ -285,12 +285,12 @@
               <div id="homeActionList" class="action-list"></div>
             </section>
 
-            <section class="smart-tips" aria-label="Smart tipy" hidden>
-              <div class="mini-header">
+            <details class="smart-tips" id="smartTipsPanel" aria-label="Smart tipy" hidden>
+              <summary class="mini-header">
                 <h3>Smart tipy</h3>
-              </div>
+              </summary>
               <div id="smartTipList" class="smart-tip-list"></div>
-            </section>
+            </details>
 
             <div class="dashboard-grid" hidden>
               <section class="mini-panel">
@@ -1189,6 +1189,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-2244"></script>
+    <script src="app.js?v=20260525-2310"></script>
   </body>
 </html>

@@ -187,6 +187,7 @@ const homeAutopilotCta = document.querySelector("#homeAutopilotCta");
 const homeQuickEntryButton = document.querySelector("#homeQuickEntryButton");
 const homeActionList = document.querySelector("#homeActionList");
 const smartTipList = document.querySelector("#smartTipList");
+const smartTipsPanel = document.querySelector("#smartTipsPanel");
 const weekendRitualCount = document.querySelector("#weekendRitualCount");
 const weekendRitualHint = document.querySelector("#weekendRitualHint");
 const weekendRitualList = document.querySelector("#weekendRitualList");
@@ -560,6 +561,7 @@ function loadSettingsState() {
     visualStyle: "home",
     backdrop: "soft",
     defaultShoppingCategory: "Ostatné",
+    smartTipsCollapsed: false,
     onboardingDone: false,
     householdId: localStorage.getItem(householdStorageKey) || "",
     cloudUser: null,
@@ -769,6 +771,7 @@ function ensureFamilySettings() {
   state.settings.defaultShoppingCategory ||= "Ostatné";
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
   if (state.settings.onboardingDone === undefined) state.settings.onboardingDone = false;
+  if (state.settings.smartTipsCollapsed === undefined) state.settings.smartTipsCollapsed = false;
 }
 
 function isFirebaseConfigured() {
@@ -2773,7 +2776,12 @@ function renderHome() {
         `)
         .join("")
     : emptyMiniRow("Označ hviezdičkou jedlá, ku ktorým sa chcete vracať.");
-  smartTipList.closest(".smart-tips").hidden = !smartTipList.children.length;
+  if (smartTipsPanel) {
+    smartTipsPanel.hidden = !smartTipList.children.length;
+    if (!smartTipsPanel.dataset.userSet) {
+      smartTipsPanel.open = !state.settings.smartTipsCollapsed;
+    }
+  }
 }
 
 function escapeHtml(value) {
@@ -4088,6 +4096,12 @@ document.addEventListener("click", (event) => {
     setActiveTab("tasks");
     taskName?.focus();
   }
+});
+
+smartTipsPanel?.addEventListener("toggle", () => {
+  smartTipsPanel.dataset.userSet = "yes";
+  state.settings.smartTipsCollapsed = !smartTipsPanel.open;
+  saveSettingsState();
 });
 
 document.querySelector(".bottom-nav").addEventListener("click", (event) => {
