@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-0900">
+    <link rel="stylesheet" href="styles.css?v=20260525-1000">
   </head>
   <body>
     <div class="app-shell">
@@ -1090,86 +1090,8 @@
     </div>
 
     <script>
-      (function () {
-        var knownTabs = ["home", "tasks", "shopping", "meals", "more"];
-
-        function activateTab(tab) {
-          if (knownTabs.indexOf(tab) === -1) return;
-
-          var titles = {
-            home: "Domov",
-            tasks: "Úlohy",
-            shopping: "Nákup",
-            meals: "Jedálniček",
-            more: "Viac"
-          };
-          var title = document.querySelector("#brandTitle");
-          if (title) title.textContent = titles[tab] || "Domáci Rytmus";
-
-          document.querySelectorAll(".bottom-nav [data-tab]").forEach(function (button) {
-            button.classList.toggle("is-active", button.dataset.tab === tab);
-          });
-
-          document.querySelectorAll(".view").forEach(function (view) {
-            var active = view.dataset.view === tab;
-            view.hidden = !active;
-            view.classList.toggle("is-active", active);
-          });
-        }
-
-        window.setActiveTab = window.setActiveTab || activateTab;
-
-        document.addEventListener("click", function (event) {
-          var button = event.target.closest && event.target.closest(".bottom-nav [data-tab], [data-jump-tab]");
-          if (!button) return;
-          activateTab(button.dataset.tab || button.dataset.jumpTab);
-        }, true);
-
-        document.addEventListener("touchstart", function (event) {
-          var button = event.target.closest && event.target.closest(".bottom-nav [data-tab]");
-          if (!button) return;
-          activateTab(button.dataset.tab);
-        }, true);
-
-        function formatDate(date) {
-          return new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "long" }).format(date);
-        }
-
-        function mondayFor(offsetWeeks) {
-          var today = new Date();
-          var day = today.getDay() || 7;
-          var monday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-          monday.setDate(monday.getDate() - day + 1 + (offsetWeeks * 7));
-          return monday;
-        }
-
-        function updateWeekShell(week) {
-          var start = mondayFor(week === "next" ? 1 : 0);
-          var end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          document.querySelectorAll(".switch-option").forEach(function (button) {
-            button.classList.toggle("is-active", button.dataset.week === week);
-          });
-          var label = document.querySelector("#weekLabel");
-          var range = document.querySelector("#weekRange");
-          if (label) label.textContent = week === "next" ? "Budúci týždeň" : "Tento týždeň";
-          if (range) range.textContent = formatDate(start) + " - " + formatDate(end);
-        }
-
-        function updateAudienceShell(audience) {
-          document.querySelectorAll(".audience-toggle button").forEach(function (button) {
-            button.classList.toggle("is-active", button.dataset.audience === audience);
-          });
-        }
-
-        document.addEventListener("click", function (event) {
-          var weekButton = event.target.closest && event.target.closest(".switch-option[data-week]");
-          if (weekButton) updateWeekShell(weekButton.dataset.week);
-
-          var audienceButton = event.target.closest && event.target.closest(".audience-toggle button[data-audience]");
-          if (audienceButton) updateAudienceShell(audienceButton.dataset.audience);
-        }, true);
-      }());
+      // Navigation and tab rendering are handled in app.js.
+      // Keep this block intentionally minimal to avoid duplicate tab routers.
     </script>
     <script>
       window.__DR_BOOT_ERRORS = [];
@@ -1193,6 +1115,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-0900"></script>
+    <script src="app.js?v=20260525-1000"></script>
   </body>
 </html>

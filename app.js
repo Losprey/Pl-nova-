@@ -3095,6 +3095,10 @@ function setActiveTab(tab) {
     state.settings.lastActiveTab = state.activeTab;
     saveSettingsState();
   }
+
+  // Prevent "blank screen" illusion on mobile when switching from long to short tabs.
+  // Browsers keep previous scroll offset, which can place the new view below visible content.
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 }
 
 window.setActiveTab = setActiveTab;
