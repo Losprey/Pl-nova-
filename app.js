@@ -247,13 +247,10 @@ const moodButtons = document.querySelectorAll("[data-mood]");
 const rhythmButtons = document.querySelectorAll("[data-rhythm]");
 const dailyNote = document.querySelector("#dailyNote");
 const themeToggle = document.querySelector("#themeToggle");
-const densityToggle = document.querySelector("#densityToggle");
-const noteToggle = document.querySelector("#noteToggle");
+const resumeTabToggle = document.querySelector("#resumeTabToggle");
+const startTabSelect = document.querySelector("#startTabSelect");
 const scaleRange = document.querySelector("#scaleRange");
 const scaleValue = document.querySelector("#scaleValue");
-const displayDensityButtons = document.querySelectorAll("[data-density-value]");
-const visualStyleButtons = document.querySelectorAll("[data-visual-value]");
-const backdropButtons = document.querySelectorAll("[data-backdrop-value]");
 const familyProfileButtons = document.querySelectorAll("[data-profile-value]");
 const memberForm = document.querySelector("#memberForm");
 const memberName = document.querySelector("#memberName");
@@ -559,9 +556,9 @@ function loadSettingsState() {
     familyCode: "",
     monthlyBudget: 0,
     scale: 100,
-    displayDensity: "cozy",
-    visualStyle: "home",
-    backdrop: "soft",
+    startTab: "home",
+    resumeLastTab: true,
+    lastActiveTab: "home",
     defaultShoppingCategory: "Ostatné",
     smartTipsCollapsed: false,
     onboardingDone: false,
@@ -698,13 +695,11 @@ function applyTheme() {
 function applyDensity() {
   state.settings.density ||= "compact";
   document.body.dataset.density = state.settings.density;
-  if (densityToggle) densityToggle.checked = state.settings.density === "compact";
 }
 
 function applyNotePreference() {
   state.settings.showNote ??= true;
   document.body.dataset.note = state.settings.showNote ? "show" : "hide";
-  if (noteToggle) noteToggle.checked = state.settings.showNote;
 }
 
 function applyMealMode() {
@@ -720,20 +715,14 @@ function setActiveSetting(buttons, dataName, value) {
 function applyPersonalization() {
   state.settings.scale ||= 100;
   state.settings.scale = Math.max(80, Math.min(130, Number(state.settings.scale)));
-  state.settings.displayDensity ||= "cozy";
-  state.settings.visualStyle ||= "home";
-  state.settings.backdrop ||= "soft";
-
+  state.settings.startTab ||= "home";
+  if (state.settings.resumeLastTab === undefined) state.settings.resumeLastTab = true;
   document.body.style.setProperty("--ui-scale", String(state.settings.scale / 100));
-  document.body.dataset.displayDensity = state.settings.displayDensity;
-  document.body.dataset.visual = state.settings.visualStyle;
-  document.body.dataset.backdrop = state.settings.backdrop;
 
   if (scaleRange) scaleRange.value = String(state.settings.scale);
   if (scaleValue) scaleValue.textContent = `${state.settings.scale}%`;
-  setActiveSetting(displayDensityButtons, "densityValue", state.settings.displayDensity);
-  setActiveSetting(visualStyleButtons, "visualValue", state.settings.visualStyle);
-  setActiveSetting(backdropButtons, "backdropValue", state.settings.backdrop);
+  if (startTabSelect) startTabSelect.value = state.settings.startTab;
+  if (resumeTabToggle) resumeTabToggle.checked = !!state.settings.resumeLastTab;
 }
 
 function applyMoreSectionState() {
@@ -774,6 +763,9 @@ function ensureFamilySettings() {
   state.settings.monthlyBudget = Number(state.settings.monthlyBudget || 0);
   if (state.settings.onboardingDone === undefined) state.settings.onboardingDone = false;
   if (state.settings.smartTipsCollapsed === undefined) state.settings.smartTipsCollapsed = false;
+  state.settings.startTab ||= "home";
+  if (state.settings.resumeLastTab === undefined) state.settings.resumeLastTab = true;
+  state.settings.lastActiveTab ||= "home";
 }
 
 function isFirebaseConfigured() {
@@ -2946,6 +2938,11 @@ function setActiveTab(tab) {
     placeholderEyebrow.textContent = "Domáci Rytmus";
     placeholderTitle.textContent = `${labels[state.activeTab] || state.activeTab} sa pripravuje`;
   }
+
+  if (["home", "meals", "shopping", "tasks", "more"].includes(state.activeTab)) {
+    state.settings.lastActiveTab = state.activeTab;
+    saveSettingsState();
+  }
 }
 
 window.setActiveTab = setActiveTab;
@@ -3762,20 +3759,6 @@ themeToggle?.addEventListener("change", () => {
   renderCurrentView();
 });
 
-densityToggle?.addEventListener("change", () => {
-  state.settings.density = densityToggle.checked ? "compact" : "full";
-  saveSettingsState();
-  applyDensity();
-  settingsStatus.textContent = densityToggle.checked ? "Kompaktný prehľad" : "Plný prehľad";
-});
-
-noteToggle?.addEventListener("change", () => {
-  state.settings.showNote = noteToggle.checked;
-  saveSettingsState();
-  applyNotePreference();
-  settingsStatus.textContent = noteToggle.checked ? "Poznámka zobrazená" : "Poznámka skrytá";
-});
-
 scaleRange?.addEventListener("input", () => {
   state.settings.scale = Number(scaleRange.value);
   saveSettingsState();
@@ -3783,31 +3766,16 @@ scaleRange?.addEventListener("input", () => {
   settingsStatus.textContent = `Veľkosť ${state.settings.scale}%`;
 });
 
-displayDensityButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.settings.displayDensity = button.dataset.densityValue;
-    saveSettingsState();
-    applyPersonalization();
-    settingsStatus.textContent = "Hustota upravená";
-  });
+startTabSelect?.addEventListener("change", () => {
+  state.settings.startTab = startTabSelect.value;
+  saveSettingsState();
+  settingsStatus.textContent = "Predvolená sekcia uložená";
 });
 
-visualStyleButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.settings.visualStyle = button.dataset.visualValue;
-    saveSettingsState();
-    applyPersonalization();
-    settingsStatus.textContent = "Štýl upravený";
-  });
-});
-
-backdropButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.settings.backdrop = button.dataset.backdropValue;
-    saveSettingsState();
-    applyPersonalization();
-    settingsStatus.textContent = "Pozadie upravené";
-  });
+resumeTabToggle?.addEventListener("change", () => {
+  state.settings.resumeLastTab = !!resumeTabToggle.checked;
+  saveSettingsState();
+  settingsStatus.textContent = state.settings.resumeLastTab ? "Obnova sekcie zapnutá" : "Obnova sekcie vypnutá";
 });
 
 familyProfileButtons.forEach((button) => {
@@ -4054,8 +4022,6 @@ resetAllButton.addEventListener("click", () => {
   state.tasks = clone(starterTasks);
   state.settings = {
     theme: "dark",
-    density: "compact",
-    showNote: true,
     simpleMeals: false,
     hideDoneShopping: false,
     familyProfile: "calm",
@@ -4066,10 +4032,11 @@ resetAllButton.addEventListener("click", () => {
     familyCode: "",
     monthlyBudget: 0,
     scale: 100,
-    displayDensity: "cozy",
-    visualStyle: "home",
-    backdrop: "soft",
+    startTab: "home",
+    resumeLastTab: true,
+    lastActiveTab: "home",
     defaultShoppingCategory: "Ostatné",
+    smartTipsCollapsed: false,
     onboardingDone: false,
     householdId: currentHouseholdId(),
     cloudUser: state.settings.cloudUser || null,
@@ -4173,6 +4140,9 @@ window.addEventListener("appinstalled", () => {
   showToast("Appka je nainštalovaná.");
 });
 
+const knownTabs = ["home", "meals", "shopping", "tasks", "more"];
+const preferredStartTab = state.settings.resumeLastTab ? state.settings.lastActiveTab : state.settings.startTab;
+if (knownTabs.includes(preferredStartTab)) state.activeTab = preferredStartTab;
 renderCurrentView();
 applyMoreSectionState();
 setActiveTab(state.activeTab);

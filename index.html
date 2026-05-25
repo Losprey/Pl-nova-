@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-0012">
+    <link rel="stylesheet" href="styles.css?v=20260525-0042">
   </head>
   <body>
     <div class="app-shell">
@@ -633,28 +633,6 @@
 
                 <div class="settings-row">
                   <div>
-                    <strong>Kompaktný dashboard</strong>
-                    <span>Zobrazí pokojnejší prehľad bez zbytočných panelov.</span>
-                  </div>
-                  <label class="switch-control">
-                    <input id="densityToggle" type="checkbox" aria-label="Kompaktný dashboard">
-                    <span></span>
-                  </label>
-                </div>
-
-                <div class="settings-row">
-                  <div>
-                    <strong>Poznámka na dashboarde</strong>
-                    <span>Nechaj ju zapnutú len vtedy, keď ju doma používate často.</span>
-                  </div>
-                  <label class="switch-control">
-                    <input id="noteToggle" type="checkbox" aria-label="Poznámka na dashboarde">
-                    <span></span>
-                  </label>
-                </div>
-
-                <div class="settings-row setting-stack">
-                  <div>
                     <strong>Veľkosť rozhrania</strong>
                     <span>Upraví veľkosť textov, kariet a ovládacích prvkov v celej appke.</span>
                   </div>
@@ -666,47 +644,27 @@
 
                 <div class="settings-row setting-stack">
                   <div>
-                    <strong>Hustota zobrazenia</strong>
-                    <span>Vyber, koľko informácií má byť vidieť naraz.</span>
+                    <strong>Predvolená sekcia po otvorení</strong>
+                    <span>Vyber, čo sa má otvoriť hneď po spustení appky.</span>
                   </div>
-                  <div class="segmented-control" data-setting-density>
-                    <button type="button" data-density-value="air">Vzdušne</button>
-                    <button type="button" data-density-value="cozy">Bežne</button>
-                    <button type="button" data-density-value="tight">Husto</button>
-                  </div>
+                  <select id="startTabSelect" aria-label="Predvolená sekcia">
+                    <option value="home">Domov</option>
+                    <option value="tasks">Úlohy</option>
+                    <option value="shopping">Nákup</option>
+                    <option value="meals">Jedálniček</option>
+                    <option value="more">Viac</option>
+                  </select>
                 </div>
 
-                <div class="settings-row setting-stack">
+                <div class="settings-row">
                   <div>
-                    <strong>Vizuálny štýl</strong>
-                    <span>Zmení akcenty, aby appka nepôsobila stále rovnako.</span>
+                    <strong>Pokračovať tam, kde si skončil</strong>
+                    <span>Po otvorení appky obnoví poslednú sekciu.</span>
                   </div>
-                  <div class="theme-cards" data-visual-style>
-                    <button type="button" data-visual-value="home">
-                      <i class="theme-swatch home"></i>
-                      <strong>Domov</strong>
-                    </button>
-                    <button type="button" data-visual-value="fresh">
-                      <i class="theme-swatch fresh"></i>
-                      <strong>Sviežo</strong>
-                    </button>
-                    <button type="button" data-visual-value="playful">
-                      <i class="theme-swatch playful"></i>
-                      <strong>Hravé</strong>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="settings-row setting-stack">
-                  <div>
-                    <strong>Pozadie</strong>
-                    <span>Vyber, či má byť appka pokojná alebo viac grafická.</span>
-                  </div>
-                  <div class="segmented-control" data-backdrop-style>
-                    <button type="button" data-backdrop-value="plain">Čisté</button>
-                    <button type="button" data-backdrop-value="soft">Mäkké</button>
-                    <button type="button" data-backdrop-value="graphic">Grafické</button>
-                  </div>
+                  <label class="switch-control">
+                    <input id="resumeTabToggle" type="checkbox" aria-label="Pokračovať na poslednej sekcii">
+                    <span></span>
+                  </label>
                 </div>
                 </section>
               </details>
@@ -1189,6 +1147,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-0012"></script>
+    <script src="app.js?v=20260525-0042"></script>
   </body>
 </html>
