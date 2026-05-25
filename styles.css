@@ -193,6 +193,16 @@ svg {
   height: 21px;
 }
 
+.sync-inline-status {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0.92;
+  animation: syncPulse 0.9s ease-in-out infinite alternate;
+}
+
 #syncStatusDot {
   position: absolute;
   right: 7px;
@@ -7087,6 +7097,20 @@ body[data-sync-loading="on"] #more .settings-details::after {
 @keyframes skeletonShimmer {
   to {
     transform: translateX(100%);
+  }
+}
+
+@keyframes syncPulse {
+  from { opacity: 0.52; }
+  to { opacity: 0.95; }
+}
+
+@media (max-width: 430px) {
+  .sync-inline-status {
+    position: absolute;
+    right: 64px;
+    top: 58px;
+    font-size: 11px;
   }
 }
 

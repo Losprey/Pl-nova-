@@ -300,6 +300,7 @@ const contactList = document.querySelector("#contactList");
 const contactsTileMeta = document.querySelector("#contactsTileMeta");
 const historyList = document.querySelector("#historyList");
 const syncStatusDot = document.querySelector("#syncStatusDot");
+const syncInlineStatus = document.querySelector("#syncInlineStatus");
 const googleLoginButton = document.querySelector("#googleLoginButton");
 const googleLogoutButton = document.querySelector("#googleLogoutButton");
 const accountEyebrow = document.querySelector("#accountEyebrow");
@@ -917,6 +918,7 @@ function renderCloudStatus() {
   document.body.dataset.cloud = cloud.user ? "signed-in" : cloud.enabled ? "ready" : "off";
   document.body.dataset.syncLoading = cloud.syncing ? "on" : "off";
   if (syncStatusDot) syncStatusDot.title = cloudStatusText();
+  if (syncInlineStatus) syncInlineStatus.hidden = !cloud.syncing;
   if (googleLoginButton) {
     googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
     googleLoginButton.hidden = Boolean(cloud.user);
