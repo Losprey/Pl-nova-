@@ -429,6 +429,7 @@ const roleCopy = {
 const cloud = {
   enabled: false,
   ready: false,
+  syncing: false,
   user: null,
   auth: null,
   db: null,
@@ -914,6 +915,7 @@ function ensureSignedInMember() {
 function renderCloudStatus() {
   const signedInName = cloud.user?.displayName || cloud.user?.email || "";
   document.body.dataset.cloud = cloud.user ? "signed-in" : cloud.enabled ? "ready" : "off";
+  document.body.dataset.syncLoading = cloud.syncing ? "on" : "off";
   if (syncStatusDot) syncStatusDot.title = cloudStatusText();
   if (googleLoginButton) {
     googleLoginButton.disabled = !cloud.enabled || !cloud.ready;
@@ -1013,6 +1015,8 @@ async function listenToHousehold(householdId) {
   cloud.presenceUnsubscribe?.();
   cloud.presenceUnsubscribe = null;
   cloud.presence = {};
+  cloud.syncing = true;
+  renderCloudStatus();
   cloud.householdId = householdId;
   state.settings.householdId = householdId;
   saveAllLocalOnly();
@@ -1027,9 +1031,12 @@ async function listenToHousehold(householdId) {
   cloud.unsubscribe = onSnapshot(ref, (nextSnapshot) => {
     if (!nextSnapshot.exists()) return;
     applyRemoteBundle(nextSnapshot.data());
+    cloud.syncing = false;
     renderCloudStatus();
   }, (error) => {
     console.error(error);
+    cloud.syncing = false;
+    renderCloudStatus();
     showToast("Realtime spojenie sa nepodarilo načítať.");
   });
   listenToPresence(householdId);
@@ -1046,6 +1053,7 @@ async function handleAuthUser(user) {
     cloud.unsubscribe?.();
     cloud.unsubscribe = null;
     cloud.householdId = "";
+    cloud.syncing = false;
     renderCloudStatus();
     return;
   }

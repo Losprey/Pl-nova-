@@ -7036,6 +7036,60 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   }
 }
 
+/* Realtime skeleton loading */
+body[data-sync-loading="on"] .view.is-active {
+  pointer-events: none;
+}
+
+body[data-sync-loading="on"] #home .dashboard-hero,
+body[data-sync-loading="on"] #home .today-card,
+body[data-sync-loading="on"] #home .family-handoff,
+body[data-sync-loading="on"] #home .stat-tile,
+body[data-sync-loading="on"] #meals .meal-summary-pill,
+body[data-sync-loading="on"] #meals .day-card,
+body[data-sync-loading="on"] #shopping .shopping-category,
+body[data-sync-loading="on"] #tasks .classic-task-card,
+body[data-sync-loading="on"] #more .settings-details {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(106, 122, 151, 0.5) !important;
+}
+
+body[data-sync-loading="on"] #home .dashboard-hero > *,
+body[data-sync-loading="on"] #home .today-card > *,
+body[data-sync-loading="on"] #home .family-handoff > *,
+body[data-sync-loading="on"] #home .stat-tile > *,
+body[data-sync-loading="on"] #meals .meal-summary-pill > *,
+body[data-sync-loading="on"] #meals .day-card > *,
+body[data-sync-loading="on"] #shopping .shopping-category > *,
+body[data-sync-loading="on"] #tasks .classic-task-card > *,
+body[data-sync-loading="on"] #more .settings-details > * {
+  opacity: 0.12;
+}
+
+body[data-sync-loading="on"] #home .dashboard-hero::after,
+body[data-sync-loading="on"] #home .today-card::after,
+body[data-sync-loading="on"] #home .family-handoff::after,
+body[data-sync-loading="on"] #home .stat-tile::after,
+body[data-sync-loading="on"] #meals .meal-summary-pill::after,
+body[data-sync-loading="on"] #meals .day-card::after,
+body[data-sync-loading="on"] #shopping .shopping-category::after,
+body[data-sync-loading="on"] #tasks .classic-task-card::after,
+body[data-sync-loading="on"] #more .settings-details::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0) 35%, rgba(170, 186, 220, 0.24) 50%, rgba(255, 255, 255, 0) 65%);
+  transform: translateX(-100%);
+  animation: skeletonShimmer 1.2s linear infinite;
+}
+
+@keyframes skeletonShimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 body[data-visual="fresh"] {
   --purple: #207fda;
   --purple-2: #31a1e8;
