@@ -2725,7 +2725,7 @@ function renderHome() {
   homeStartEmpty.hidden = !isEmptyHome;
   if (homeGlance) homeGlance.hidden = isEmptyHome;
   if (homeStatsGrid) {
-    homeStatsGrid.hidden = isEmptyHome;
+    homeStatsGrid.hidden = true;
   }
   renderFamilyHandoff(openTasks, openShopping);
   renderWeekendRitual();
@@ -2737,7 +2737,7 @@ function renderHome() {
       + (shopping.length ? (shopping.length - openShopping.length) / shopping.length : 1) * 0.35
       + (Math.min(meals.length, 21) / 21) * 0.2) * 100
   );
-  if (homeCalmScore) homeCalmScore.textContent = `Pokoj ${calmScore}%`;
+  if (homeCalmScore) homeCalmScore.textContent = `Dnešný rytmus ${calmScore}%`;
   if (homeCalmMeter) homeCalmMeter.style.width = `${calmScore}%`;
   if (homeSmartSummary) {
     homeSmartSummary.textContent = openTasks.length
@@ -3357,6 +3357,12 @@ homeFabButton?.addEventListener("click", () => {
   if (!homeFabMenu) return;
   homeFabMenu.hidden = isOpen;
   homeFabButton.classList.toggle("is-open", !isOpen);
+});
+
+window.addEventListener("scroll", () => {
+  if (!homeFabButton) return;
+  const compact = window.scrollY > 140;
+  homeFabButton.classList.toggle("is-scrolled", compact);
 });
 
 homeFabMenu?.addEventListener("click", (event) => {
