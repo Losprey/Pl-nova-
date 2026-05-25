@@ -6484,6 +6484,53 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   border-bottom: 1px solid rgba(73, 88, 113, 0.35);
 }
 
+#meals .meal-prep-panel {
+  border: 1px solid rgba(82, 97, 124, 0.4);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(17, 28, 46, 0.96), rgba(14, 23, 39, 0.98));
+}
+
+#meals .meal-prep-list {
+  display: grid;
+}
+
+#meals .meal-prep-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(73, 88, 113, 0.35);
+}
+
+#meals .meal-prep-item:last-child {
+  border-bottom: 0;
+}
+
+#meals .meal-prep-item input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+}
+
+#meals .meal-prep-item strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+#meals .meal-prep-item span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#meals .meal-prep-item.is-done strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
 @media (max-width: 430px) {
   #meals .meal-week-panel,
   #meals .meal-audience-panel {

@@ -210,6 +210,8 @@ const quickMealHint = document.querySelector("#quickMealHint");
 const quickMealList = document.querySelector("#quickMealList");
 const pantryCookHint = document.querySelector("#pantryCookHint");
 const pantryCookList = document.querySelector("#pantryCookList");
+const mealPrepCount = document.querySelector("#mealPrepCount");
+const mealPrepList = document.querySelector("#mealPrepList");
 const simpleMealsButton = document.querySelector("#simpleMealsButton");
 const shoppingProgressText = document.querySelector("#shoppingProgressText");
 const shoppingProgressBar = document.querySelector("#shoppingProgressBar");
@@ -1313,6 +1315,7 @@ function weeklyContext() {
   state.weekly[key].cooking ||= "normal";
   state.weekly[key].busyDays ||= [];
   state.weekly[key].prep ||= [];
+  state.weekly[key].mealPrep ||= [];
   state.weekly[key].stock ||= [];
   return state.weekly[key];
 }
@@ -1976,6 +1979,42 @@ function renderPantryCookIdeas() {
     : `<div class="empty-state">Pridaj do špajze ryžu, vajcia, zeleninu alebo cestoviny a appka navrhne jedlá.</div>`;
 }
 
+function mealPrepEntries() {
+  const plan = currentPlan();
+  return plan.days.flatMap((day, dayIndex) =>
+    day.meals.map((meal, mealIndex) => ({
+      key: `prep:${dayIndex}:${mealIndex}:${slug(meal.name)}`,
+      dayName: day.name,
+      name: meal.name,
+      typeLabel: mealTypeFor(meal.typeKey).label,
+    })),
+  );
+}
+
+function renderMealPrep() {
+  if (!mealPrepList || !mealPrepCount) return;
+  const entries = mealPrepEntries();
+  const weekly = weeklyContext();
+  weekly.mealPrep ||= [];
+  const done = new Set(weekly.mealPrep);
+  const doneCount = entries.filter((entry) => done.has(entry.key)).length;
+
+  mealPrepCount.textContent = `${doneCount}/${entries.length}`;
+  mealPrepList.innerHTML = entries.length
+    ? entries
+        .map((entry) => `
+          <label class="meal-prep-item ${done.has(entry.key) ? "is-done" : ""}">
+            <input type="checkbox" data-meal-prep="${entry.key}" ${done.has(entry.key) ? "checked" : ""}>
+            <div>
+              <strong>${escapeHtml(entry.name)}</strong>
+              <span>${escapeHtml(entry.dayName)} · ${escapeHtml(entry.typeLabel)}</span>
+            </div>
+          </label>
+        `)
+        .join("")
+    : `<div class="empty-state">Najprv pridaj jedlá do týždňa a potom ich označ na prípravu vopred.</div>`;
+}
+
 function addQuickMeal(name, typeKey) {
   const dayIndex = nextOpenMealSlot(typeKey);
   currentPlan().days[dayIndex].meals.push({ typeKey, name });
@@ -2530,6 +2569,7 @@ function renderCurrentView() {
     renderFavoriteLibrary();
     renderQuickMealIdeas();
     renderPantryCookIdeas();
+    renderMealPrep();
     renderQuickTaskIdeas();
     renderFamilySettings();
     renderBudget();
@@ -2731,6 +2771,21 @@ weekPrepList.addEventListener("change", (event) => {
   weekly.prep = [...prep];
   saveWeeklyState();
   renderWeeklyPlanner();
+});
+
+mealPrepList?.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-meal-prep]");
+  if (!checkbox) return;
+  const weekly = weeklyContext();
+  const prep = new Set(weekly.mealPrep || []);
+  if (checkbox.checked) {
+    prep.add(checkbox.dataset.mealPrep);
+  } else {
+    prep.delete(checkbox.dataset.mealPrep);
+  }
+  weekly.mealPrep = [...prep];
+  saveWeeklyState();
+  renderMealPrep();
 });
 
 document.querySelector("#addMealButton").addEventListener("click", () => {
