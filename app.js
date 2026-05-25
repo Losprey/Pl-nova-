@@ -1345,34 +1345,6 @@ function slug(value) {
     .replace(/(^-|-$)/g, "");
 }
 
-function generatedShoppingItems() {
-  const items = new Map();
-
-  currentPlan().days.forEach((day) => {
-    day.meals.forEach((meal) => {
-      const mealName = meal.name.toLowerCase();
-
-      ingredientRules.forEach((rule) => {
-        if (rule.match.some((term) => mealName.includes(term))) {
-          rule.items.forEach(([item, category]) => {
-            if (!items.has(item)) {
-              items.set(item, {
-                id: `auto:${slug(item)}`,
-                name: item,
-                category,
-                source: "Z jedálnička",
-                automatic: true,
-              });
-            }
-          });
-        }
-      });
-    });
-  });
-
-  return [...items.values()];
-}
-
 function manualShoppingItems() {
   return (state.shopping.manual[contextKey()] || []).map((item) => ({
     category: item.category || "Ostatné",
@@ -1381,7 +1353,7 @@ function manualShoppingItems() {
 }
 
 function shoppingItems() {
-  return [...generatedShoppingItems(), ...manualShoppingItems()];
+  return manualShoppingItems();
 }
 
 function checkedShoppingIds() {
@@ -1463,7 +1435,7 @@ function renderShopping() {
           </section>
         `)
         .join("")
-    : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj jedlo alebo položku ručne."}<button type="button" data-empty-fill="shopping">Pridať položku</button></div>`;
+    : `<div class="empty-state">${items.length ? "Hotové položky sú skryté. Nákup vyzerá čisto." : "Zatiaľ tu nič nie je. Pridaj položku ručne."}<button type="button" data-empty-fill="shopping">Pridať položku</button></div>`;
 }
 
 function renderPantry() {
