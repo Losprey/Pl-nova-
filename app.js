@@ -162,6 +162,7 @@ const tasksBadge = document.querySelector("#tasksBadge");
 const homeEyebrow = document.querySelector("#homeEyebrow");
 const homeTitle = document.querySelector("#homeTitle");
 const homeAudience = document.querySelector("#homeAudience");
+const homeGlance = document.querySelector(".home-glance");
 const homeMealsCount = document.querySelector("#homeMealsCount");
 const homeTasksCount = document.querySelector("#homeTasksCount");
 const homeShoppingCount = document.querySelector("#homeShoppingCount");
@@ -2687,6 +2688,7 @@ function renderHome() {
   homeTaskMeter.style.width = `${progressPercent(doneTasks, tasks.length)}%`;
   homeShoppingMeter.style.width = `${progressPercent(shopping.length - openShopping.length, shopping.length)}%`;
   homeStartEmpty.hidden = !isEmptyHome;
+  if (homeGlance) homeGlance.hidden = isEmptyHome;
   if (homeStatsGrid) {
     homeStatsGrid.hidden = isEmptyHome;
   }
