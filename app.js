@@ -4245,7 +4245,19 @@ resetAllButton.addEventListener("click", () => {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-jump-tab]");
   if (!button) return;
-  setActiveTab(button.dataset.jumpTab);
+  const targetTab = button.dataset.jumpTab;
+  if (!["home", "tasks", "shopping", "meals", "more"].includes(targetTab)) return;
+  setActiveTab(targetTab);
+  // Ensure target section is freshly rendered when jumping from Home cards/feed.
+  renderCurrentView();
+});
+
+document.addEventListener("pointerup", (event) => {
+  const button = event.target.closest?.("[data-jump-tab]");
+  if (!button) return;
+  const targetTab = button.dataset.jumpTab;
+  if (!["home", "tasks", "shopping", "meals", "more"].includes(targetTab)) return;
+  setActiveTab(targetTab);
 });
 
 document.addEventListener("click", (event) => {
