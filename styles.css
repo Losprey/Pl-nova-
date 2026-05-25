@@ -4919,6 +4919,24 @@ body[data-visual="playful"] {
   --green: #42d99d;
 }
 
+.meal-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 92px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(20, 29, 48, 0.82);
+  color: var(--text);
+  padding: 12px 13px;
+  font: inherit;
+}
+
+.meal-form textarea:focus {
+  outline: none;
+  border-color: rgba(109, 91, 255, 0.62);
+  box-shadow: 0 0 0 1px rgba(109, 91, 255, 0.35);
+}
+
 /* Global UX polish: cleaner visual rhythm and predictable controls */
 :root {
   --ux-space-1: 8px;

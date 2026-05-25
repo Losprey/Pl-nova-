@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#12182b">
     <title>Domáci Rytmus</title>
-    <link rel="stylesheet" href="styles.css?v=20260524-2055">
+    <link rel="stylesheet" href="styles.css?v=20260525-1815">
   </head>
   <body>
     <div class="app-shell">
@@ -218,6 +218,10 @@
             </section>
 
             <section class="home-quick-actions" aria-label="Rýchle akcie">
+              <button class="ghost-action" type="button" id="homeAutopilotCta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M3 12h3M18 12h3M4.9 19.1 7 17M17 7l2.1-2.1M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"></path></svg>
+                <span>Autopilot víkendu</span>
+              </button>
               <button class="primary-action" type="button" id="homeAddMealCta">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M19.5 3c-2.2 1.5-3.5 4.2-3.5 7.2 0 1.8 1.1 3.2 2.6 3.2"></path></svg>
                 <span>Pridať jedlo</span>
@@ -928,6 +932,36 @@
       </form>
     </dialog>
 
+    <dialog class="meal-dialog quick-entry-dialog" id="autopilotDialog">
+      <form class="meal-form" id="autopilotForm" method="dialog">
+        <header>
+          <p>Domáci autopilot</p>
+          <h2 id="autopilotTitle">Návrh na budúci týždeň</h2>
+          <span>Uprav riadky a potvrď. Nákup sa nepridáva automaticky.</span>
+        </header>
+
+        <label>
+          Jedlá (večere)
+          <textarea id="autopilotMealsInput" rows="7" maxlength="600" placeholder="Jedno jedlo na riadok"></textarea>
+        </label>
+
+        <label>
+          Kroky pre domácnosť
+          <textarea id="autopilotTasksInput" rows="5" maxlength="500" placeholder="Jeden krok na riadok"></textarea>
+        </label>
+
+        <label>
+          Nákupné kategórie na kontrolu
+          <textarea id="autopilotCategoriesInput" rows="3" maxlength="220" placeholder="Napr. Ovocie a zelenina, Mliečne"></textarea>
+        </label>
+
+        <menu>
+          <button class="ghost-action" type="button" id="cancelAutopilotButton">Zrušiť</button>
+          <button class="primary-action" type="submit">Použiť návrh</button>
+        </menu>
+      </form>
+    </dialog>
+
     <dialog class="meal-dialog" id="onboardingDialog">
       <form class="meal-form" id="onboardingForm" method="dialog">
         <div class="form-header">
@@ -1089,6 +1123,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260524-2055"></script>
+    <script src="app.js?v=20260525-1815"></script>
   </body>
 </html>

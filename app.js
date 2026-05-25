@@ -137,6 +137,12 @@ const quickEntryMealDay = document.querySelector("#quickEntryMealDay");
 const quickEntryMealType = document.querySelector("#quickEntryMealType");
 const closeQuickEntryButton = document.querySelector("#closeQuickEntryButton");
 const cancelQuickEntryButton = document.querySelector("#cancelQuickEntryButton");
+const autopilotDialog = document.querySelector("#autopilotDialog");
+const autopilotForm = document.querySelector("#autopilotForm");
+const autopilotMealsInput = document.querySelector("#autopilotMealsInput");
+const autopilotTasksInput = document.querySelector("#autopilotTasksInput");
+const autopilotCategoriesInput = document.querySelector("#autopilotCategoriesInput");
+const cancelAutopilotButton = document.querySelector("#cancelAutopilotButton");
 const shoppingList = document.querySelector("#shoppingList");
 const shoppingForm = document.querySelector("#shoppingForm");
 const shoppingName = document.querySelector("#shoppingName");
@@ -175,6 +181,7 @@ const homeFocusButton = document.querySelector("#homeFocusButton");
 const homeAddMealCta = document.querySelector("#homeAddMealCta");
 const homeAddTaskCta = document.querySelector("#homeAddTaskCta");
 const homeAddShoppingCta = document.querySelector("#homeAddShoppingCta");
+const homeAutopilotCta = document.querySelector("#homeAutopilotCta");
 const homeQuickEntryButton = document.querySelector("#homeQuickEntryButton");
 const homeActionList = document.querySelector("#homeActionList");
 const smartTipList = document.querySelector("#smartTipList");
@@ -2695,6 +2702,108 @@ function openQuickEntry(type = "task") {
   quickEntryName.focus();
 }
 
+function autopilotDraft() {
+  const nextPlan = planForWeek("next");
+  const alreadyPlanned = new Set(nextPlan.days.flatMap((day) => day.meals.map((meal) => meal.name.toLowerCase())));
+  const mealPool = [
+    ...state.favorites,
+    ...mealIdeaBank[state.audience].map((item) => item.name),
+    "Pečená zelenina s ryžou",
+    "Cestoviny s paradajkovou omáčkou",
+    "Domáca polievka s pečivom",
+  ];
+  const mealLines = mealPool
+    .filter((name) => {
+      const key = name.toLowerCase();
+      if (alreadyPlanned.has(key)) return false;
+      alreadyPlanned.add(key);
+      return true;
+    })
+    .slice(0, 7);
+
+  const taskLines = [
+    "Skontrolovať špajzu a chladničku",
+    "Rozdeliť úlohy na týždeň",
+    "Nastaviť 1 veľký nákup",
+    "Pripraviť 2 jedlá vopred",
+  ];
+  const knownCategories = [...new Set(manualShoppingItems().map((item) => item.category).filter(Boolean))];
+  const categoryLines = (knownCategories.length ? knownCategories : ["Ovocie a zelenina", "Mliečne", "Suché potraviny"]).slice(0, 4);
+
+  return {
+    meals: mealLines.join("\n"),
+    tasks: taskLines.join("\n"),
+    categories: categoryLines.join(", "),
+  };
+}
+
+function openAutopilotDialog() {
+  if (!autopilotDialog || !autopilotForm) return;
+  const draft = autopilotDraft();
+  autopilotMealsInput.value = draft.meals;
+  autopilotTasksInput.value = draft.tasks;
+  autopilotCategoriesInput.value = draft.categories;
+  autopilotDialog.showModal();
+  autopilotMealsInput.focus();
+}
+
+function parseAutopilotLines(value) {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function applyAutopilot() {
+  const mealLines = parseAutopilotLines(autopilotMealsInput?.value || "").slice(0, 7);
+  const taskLines = parseAutopilotLines(autopilotTasksInput?.value || "").slice(0, 6);
+  const categoryLines = (autopilotCategoriesInput?.value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+
+  const nextPlan = planForWeek("next");
+  let addedMeals = 0;
+  mealLines.forEach((name, dayIndex) => {
+    const day = nextPlan.days[dayIndex];
+    if (!day) return;
+    if (day.meals.some((meal) => meal.typeKey === "dinner")) return;
+    day.meals.push({ typeKey: "dinner", name });
+    addedMeals += 1;
+  });
+
+  state.tasks.family.next ||= [];
+  const existingTasks = new Set(state.tasks.family.next.map((task) => task.title.toLowerCase()));
+  let addedTasks = 0;
+  taskLines.forEach((title) => {
+    const key = title.toLowerCase();
+    if (existingTasks.has(key)) return;
+    state.tasks.family.next.push({
+      id: `task:auto:${Date.now()}:${slug(title)}`,
+      title,
+      priority: "normal",
+      due: "",
+      repeat: "",
+      done: false,
+    });
+    existingTasks.add(key);
+    addedTasks += 1;
+  });
+
+  state.weekly["family:next"] ||= {};
+  state.weekly["family:next"].autopilotCategories = categoryLines;
+
+  savePlans();
+  saveTasksState();
+  saveWeeklyState();
+  state.week = "next";
+  setActiveButton(".switch-option", "week", state.week);
+  setActiveTab("meals");
+  renderCurrentView();
+  showToast(`Autopilot hotový: +${addedMeals} večerí, +${addedTasks} krokov.`);
+}
+
 function setActiveButton(selector, dataName, value) {
   document.querySelectorAll(selector).forEach((button) => {
     button.classList.toggle("is-active", button.dataset[dataName] === value);
@@ -2798,6 +2907,10 @@ homeQuickEntryButton?.addEventListener("click", () => {
   openQuickEntry("task");
 });
 
+homeAutopilotCta?.addEventListener("click", () => {
+  openAutopilotDialog();
+});
+
 document.querySelector(".sync-button").addEventListener("click", () => {
   if (cloud.user) {
     saveCloudNow();
@@ -2821,6 +2934,18 @@ cancelQuickEntryButton?.addEventListener("click", () => quickEntryDialog.close()
 
 quickEntryDialog?.addEventListener("click", (event) => {
   if (event.target === quickEntryDialog) quickEntryDialog.close();
+});
+
+cancelAutopilotButton?.addEventListener("click", () => autopilotDialog?.close());
+
+autopilotDialog?.addEventListener("click", (event) => {
+  if (event.target === autopilotDialog) autopilotDialog.close();
+});
+
+autopilotForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  applyAutopilot();
+  autopilotDialog.close();
 });
 
 mealDialog.addEventListener("click", (event) => {
