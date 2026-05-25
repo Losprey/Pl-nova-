@@ -6395,7 +6395,7 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 }
 
 #meals .meal-row {
-  grid-template-columns: 24px minmax(0, 1fr) 28px 28px 28px;
+  grid-template-columns: 24px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 6px;
   padding: 9px 10px;
@@ -6409,10 +6409,11 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
 #meals .meal-name {
   min-width: 0;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
   line-height: 1.25;
   font-size: 15px;
+  width: 100%;
 }
 
 #meals .meal-emoji {
@@ -6443,15 +6444,20 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
   }
 
   #meals .meal-row {
-    grid-template-columns: 20px minmax(0, 1fr) 26px 26px;
+    grid-template-columns: 20px minmax(0, 1fr) 26px;
   }
 
   #meals .favorite-meal {
     display: none;
   }
 
+  #meals .edit-meal {
+    display: none;
+  }
+
   #meals .meal-name {
     font-size: 14px;
+    line-height: 1.3;
   }
 }
 
