@@ -11,7 +11,7 @@
     <title>Domáci Rytmus</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260525-2135">
+    <link rel="stylesheet" href="styles.css?v=20260525-2202">
   </head>
   <body>
     <div class="app-shell">
@@ -594,6 +594,19 @@
                 </section>
               </details>
 
+              <details class="settings-details" id="installSettings" open>
+                <summary>Inštalácia appky</summary>
+                <section class="settings-group" aria-label="Inštalácia PWA">
+                  <div class="settings-row setting-stack">
+                    <div>
+                      <strong id="settingsInstallTitle">Pridaj appku na plochu</strong>
+                      <span id="settingsInstallHint">Po inštalácii sa appka spúšťa rýchlejšie a funguje stabilnejšie.</span>
+                    </div>
+                    <button class="ghost-action" type="button" id="settingsInstallButton">Nainštalovať appku</button>
+                  </div>
+                </section>
+              </details>
+
               <details class="settings-details" id="appearanceSettings" open>
                 <summary>Vzhľad</summary>
                 <section class="settings-group" aria-label="Vzhľad aplikácie">
@@ -1149,6 +1162,6 @@
       });
     </script>
     <script src="firebase-config.js?v=20260524-2055"></script>
-    <script src="app.js?v=20260525-2135"></script>
+    <script src="app.js?v=20260525-2202"></script>
   </body>
 </html>

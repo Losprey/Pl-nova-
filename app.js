@@ -288,6 +288,9 @@ const onboardingSteps = Array.from(document.querySelectorAll("[data-onboarding-s
 const onboardingInstallTitle = document.querySelector("#onboardingInstallTitle");
 const onboardingInstallHint = document.querySelector("#onboardingInstallHint");
 const onboardingInstallButton = document.querySelector("#onboardingInstallButton");
+const settingsInstallTitle = document.querySelector("#settingsInstallTitle");
+const settingsInstallHint = document.querySelector("#settingsInstallHint");
+const settingsInstallButton = document.querySelector("#settingsInstallButton");
 const brandTitle = document.querySelector("#brandTitle");
 const petForm = document.querySelector("#petForm");
 const petName = document.querySelector("#petName");
@@ -2340,6 +2343,34 @@ function renderOnboardingInstallGuide() {
   onboardingInstallButton.dataset.canPrompt = guide.canPrompt ? "yes" : "no";
 }
 
+function renderSettingsInstallGuide() {
+  if (!settingsInstallTitle || !settingsInstallHint || !settingsInstallButton) return;
+  const guide = installGuideContent();
+  settingsInstallTitle.textContent = guide.title;
+  settingsInstallHint.textContent = guide.hint;
+  settingsInstallButton.textContent = guide.cta;
+  settingsInstallButton.disabled = false;
+  settingsInstallButton.dataset.canPrompt = guide.canPrompt ? "yes" : "no";
+}
+
+async function handleInstallAction(button) {
+  if (!button) return;
+  if (button.dataset.canPrompt !== "yes" || !deferredInstallPrompt) {
+    showToast("Použi menu prehliadača: Pridať na plochu.");
+    return;
+  }
+  try {
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    deferredInstallPrompt = null;
+    renderOnboardingInstallGuide();
+    renderSettingsInstallGuide();
+  }
+}
+
 function renderOnboardingStep() {
   onboardingSteps.forEach((section) => {
     section.hidden = Number(section.dataset.onboardingStep) !== state.onboardingStep;
@@ -2751,6 +2782,7 @@ function renderCurrentView() {
     applyNotePreference();
     applyMealMode();
     applyPersonalization();
+    renderSettingsInstallGuide();
     if (settingsStatus) {
       settingsStatus.textContent = cloud.enabled ? cloudStatusText() : state.settings.theme === "light" ? "Svetlá téma" : "Tmavá téma";
     }
@@ -3730,19 +3762,11 @@ onboardingNextButton?.addEventListener("click", () => {
 });
 
 onboardingInstallButton?.addEventListener("click", async () => {
-  if (onboardingInstallButton.dataset.canPrompt !== "yes" || !deferredInstallPrompt) {
-    showToast("Použi menu prehliadača: Pridať na plochu.");
-    return;
-  }
-  try {
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-  } catch (error) {
-    console.error(error);
-  } finally {
-    deferredInstallPrompt = null;
-    renderOnboardingInstallGuide();
-  }
+  await handleInstallAction(onboardingInstallButton);
+});
+
+settingsInstallButton?.addEventListener("click", async () => {
+  await handleInstallAction(settingsInstallButton);
 });
 
 document.addEventListener("click", (event) => {
@@ -3987,10 +4011,12 @@ window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   deferredInstallPrompt = event;
   renderOnboardingInstallGuide();
+  renderSettingsInstallGuide();
 });
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   renderOnboardingInstallGuide();
+  renderSettingsInstallGuide();
   showToast("Appka je nainštalovaná.");
 });
 
