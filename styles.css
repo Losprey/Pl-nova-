@@ -6369,6 +6369,92 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
     linear-gradient(180deg, #ffffff 0%, #eef3f7 44%);
 }
 
+/* Final mobile-first fix for meals readability */
+#meals .planner-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#meals .planner-actions button {
+  min-height: 42px;
+  padding: 0 8px;
+}
+
+#meals .planner-actions span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#meals .day-card {
+  border-radius: 12px;
+}
+
+#meals .day-header p {
+  font-size: 12px;
+}
+
+#meals .meal-row {
+  grid-template-columns: 24px minmax(0, 1fr) 28px 28px 28px;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+}
+
+#meals .meal-row .meal-type,
+#meals .meal-row .plate {
+  display: none;
+}
+
+#meals .meal-name {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.25;
+  font-size: 15px;
+}
+
+#meals .meal-emoji {
+  width: 20px;
+  font-size: 15px;
+}
+
+#meals .favorite-meal,
+#meals .edit-meal,
+#meals .delete-meal {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 430px) {
+  #meals .meal-week-panel,
+  #meals .meal-audience-panel {
+    padding: 10px 11px;
+  }
+
+  #meals .meal-top-summary {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  #meals .day-header {
+    padding: 10px 11px;
+  }
+
+  #meals .meal-row {
+    grid-template-columns: 20px minmax(0, 1fr) 26px 26px;
+  }
+
+  #meals .favorite-meal {
+    display: none;
+  }
+
+  #meals .meal-name {
+    font-size: 14px;
+  }
+}
+
 body[data-visual="fresh"] {
   --purple: #207fda;
   --purple-2: #31a1e8;
