@@ -2025,6 +2025,15 @@ function showToast(message, actionLabel = "", actionHandler = null) {
   }, 2200);
 }
 
+function microFeedback(selector) {
+  const target = typeof selector === "string" ? document.querySelector(selector) : selector;
+  if (!target) return;
+  target.classList.remove("micro-pop");
+  void target.offsetWidth;
+  target.classList.add("micro-pop");
+  setTimeout(() => target.classList.remove("micro-pop"), 260);
+}
+
 function progressPercent(done, total) {
   if (!total) return 100;
   return Math.max(0, Math.min(100, Math.round((done / total) * 100)));
@@ -3571,6 +3580,7 @@ shoppingForm.addEventListener("submit", (event) => {
   saveSettingsState();
   saveShoppingState();
   renderShopping();
+  microFeedback("#shopping .shopping-panel");
 });
 
 quickEntryForm?.addEventListener("submit", (event) => {
@@ -3590,6 +3600,7 @@ quickEntryForm?.addEventListener("submit", (event) => {
     saveTasksState();
     setActiveTab("tasks");
     showToast("Krok je pridaný.");
+    microFeedback("#tasks .tasks-panel");
   } else if (quickEntryType.value === "shopping") {
     const key = contextKey();
     const selectedCategory = quickEntryCategory?.value || "Ostatné";
@@ -3607,6 +3618,7 @@ quickEntryForm?.addEventListener("submit", (event) => {
     saveShoppingState();
     setActiveTab("shopping");
     showToast("Položka je pridaná do nákupu.");
+    microFeedback("#shopping .shopping-panel");
   } else {
     const selectedWeek = quickEntryMealWeek?.value || state.week;
     const plan = planForWeek(selectedWeek);
@@ -3705,6 +3717,7 @@ shoppingList.addEventListener("change", (event) => {
   renderShopping();
   renderHome();
   if (checkbox.checked) showToast("Hotovo. O kúsok ľahší deň.");
+  microFeedback(checkbox.closest(".shopping-item"));
 });
 
 shoppingList.addEventListener("click", (event) => {
@@ -3808,6 +3821,7 @@ taskForm.addEventListener("submit", (event) => {
   saveTasksState();
   renderTasks();
   renderHome();
+  microFeedback("#tasks .tasks-panel");
 });
 
 quickTaskList.addEventListener("click", (event) => {
@@ -3828,6 +3842,7 @@ taskList.addEventListener("change", (event) => {
   renderTasks();
   renderHome();
   if (checkbox.checked) showToast(createdRepeat ? "Hotovo. Ďalší výskyt je pripravený." : "Zapísané ako hotové. Pekne.");
+  microFeedback(checkbox.closest(".classic-task-card"));
 });
 
 taskList.addEventListener("click", (event) => {

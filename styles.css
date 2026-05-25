@@ -2788,6 +2788,59 @@ body[data-cloud="signed-in"] #syncStatusDot {
   }
 }
 
+/* Soft unify for Tasks + Shopping */
+#tasks .tasks-panel,
+#shopping .shopping-panel {
+  display: grid;
+  gap: 14px;
+}
+
+#tasks .task-form,
+#shopping .shopping-form,
+#shopping .shopping-progress,
+#shopping .shopping-mode {
+  border: 1px solid rgba(90, 107, 137, 0.34);
+  border-radius: 18px;
+  background: rgba(27, 40, 62, 0.54);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 26px rgba(4, 9, 21, 0.18);
+}
+
+#tasks .classic-task-card,
+#shopping .shopping-category,
+#shopping .stock-panel,
+#shopping .pantry-panel {
+  border-color: rgba(94, 111, 141, 0.34);
+  border-radius: 18px;
+  background: rgba(24, 36, 56, 0.74);
+  box-shadow: 0 10px 22px rgba(5, 10, 22, 0.16);
+}
+
+#tasks .classic-task-card:hover,
+#shopping .shopping-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(8, 15, 30, 0.2);
+}
+
+#shopping .shopping-item {
+  border-bottom-color: rgba(96, 113, 142, 0.3);
+}
+
+#shopping .shopping-item .mini-icon,
+#tasks .task-dot {
+  box-shadow: 0 0 12px rgba(106, 120, 246, 0.18);
+}
+
+.micro-pop {
+  animation: microPop 0.24s ease;
+}
+
+@keyframes microPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
 @media (max-width: 360px) {
   .meal-row {
     grid-template-columns: 34px 58px 36px minmax(0, 1fr) 28px 28px 28px;
