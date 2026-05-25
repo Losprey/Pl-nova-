@@ -2518,31 +2518,40 @@ function renderPlan() {
     .map((day, dayIndex) => {
       const dayDate = dateKey(addDays(start, dayIndex));
       const isToday = dayDate === today;
-      const rows = day.meals.length
-        ? day.meals
-            .map((meal, mealIndex) => {
-              const type = mealTypeFor(meal.typeKey);
+      const rows = mealTypes
+        .map((type) => {
+          const mealIndex = day.meals.findIndex((meal) => meal.typeKey === type.key);
+          const meal = mealIndex === -1 ? null : day.meals[mealIndex];
 
-              return `
-                <div class="meal-row">
-                  <span class="meal-emoji" aria-hidden="true">${type.icon}</span>
-                  <span class="meal-type">${type.label}</span>
-                  <span class="plate" aria-hidden="true">🍽️</span>
-                  <span class="meal-name">${escapeHtml(meal.name)}</span>
-                  <button class="favorite-meal ${isFavoriteMeal(meal.name) ? "is-active" : ""}" type="button" data-meal-name="${escapeHtml(meal.name)}" aria-label="Obľúbené jedlo ${escapeHtml(meal.name)}">
-                    ${buttonIcon("favorite")}
-                  </button>
-                  <button class="edit-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Upraviť ${type.label.toLowerCase()}">
-                    ${buttonIcon("edit")}
-                  </button>
-                  <button class="delete-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Odstrániť ${type.label.toLowerCase()}">
-                    ${buttonIcon("delete")}
-                  </button>
-                </div>
-              `;
-            })
-            .join("")
-        : `<div class="empty-state">Tento deň zatiaľ nemá žiadne jedlá.</div>`;
+          if (!meal) {
+            return `
+              <button class="meal-row meal-row-add" type="button" data-add-day="${dayIndex}" data-add-type="${type.key}" aria-label="Pridať ${type.label.toLowerCase()}">
+                <span class="meal-emoji" aria-hidden="true">${type.icon}</span>
+                <span class="meal-type">${type.label}</span>
+                <span class="meal-name">Pridať ${type.label.toLowerCase()}</span>
+              </button>
+            `;
+          }
+
+          return `
+            <div class="meal-row">
+              <span class="meal-emoji" aria-hidden="true">${type.icon}</span>
+              <span class="meal-type">${type.label}</span>
+              <span class="plate" aria-hidden="true">🍽️</span>
+              <span class="meal-name">${escapeHtml(meal.name)}</span>
+              <button class="favorite-meal ${isFavoriteMeal(meal.name) ? "is-active" : ""}" type="button" data-meal-name="${escapeHtml(meal.name)}" aria-label="Obľúbené jedlo ${escapeHtml(meal.name)}">
+                ${buttonIcon("favorite")}
+              </button>
+              <button class="edit-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Upraviť ${type.label.toLowerCase()}">
+                ${buttonIcon("edit")}
+              </button>
+              <button class="delete-meal" type="button" data-day="${dayIndex}" data-meal="${mealIndex}" aria-label="Odstrániť ${type.label.toLowerCase()}">
+                ${buttonIcon("delete")}
+              </button>
+            </div>
+          `;
+        })
+        .join("");
 
       return `
         <article class="day-card ${isToday ? "is-today" : ""}">
@@ -2788,10 +2797,6 @@ mealPrepList?.addEventListener("change", (event) => {
   renderMealPrep();
 });
 
-document.querySelector("#addMealButton").addEventListener("click", () => {
-  openMealDialog("add");
-});
-
 homeAddMealCta?.addEventListener("click", () => {
   openMealDialog("add");
 });
@@ -2876,6 +2881,13 @@ mealForm.addEventListener("submit", (event) => {
 });
 
 mealPlan.addEventListener("click", (event) => {
+  const addButton = event.target.closest("[data-add-day][data-add-type]");
+  if (addButton) {
+    openMealDialog("add", Number(addButton.dataset.addDay));
+    mealType.value = addButton.dataset.addType;
+    return;
+  }
+
   const favoriteButton = event.target.closest(".favorite-meal");
   const editButton = event.target.closest(".edit-meal");
   const deleteButton = event.target.closest(".delete-meal");
