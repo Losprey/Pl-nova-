@@ -3105,8 +3105,12 @@ window.setActiveTab = setActiveTab;
 
 function jumpToTab(tab) {
   if (!["home", "tasks", "shopping", "meals", "more"].includes(tab)) return;
+  renderCurrentView();
   setActiveTab(tab);
-  requestAnimationFrame(() => setActiveTab(tab));
+  requestAnimationFrame(() => {
+    renderCurrentView();
+    setActiveTab(tab);
+  });
 }
 
 function ensureOneVisibleView() {
