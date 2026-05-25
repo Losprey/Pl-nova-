@@ -6604,10 +6604,6 @@ body[data-theme="light"][data-backdrop="graphic"] .app-shell {
     display: none;
   }
 
-  #meals .edit-meal {
-    display: none;
-  }
-
   #meals .meal-name {
     font-size: 14px;
     line-height: 1.3;

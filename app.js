@@ -2895,7 +2895,7 @@ mealForm.addEventListener("submit", (event) => {
   closeMealDialog();
 });
 
-mealPlan.addEventListener("click", (event) => {
+function handleMealPlanClick(event) {
   const addButton = event.target.closest("[data-add-day][data-add-type]");
   if (addButton) {
     openMealDialog("add", Number(addButton.dataset.addDay));
@@ -2943,7 +2943,9 @@ mealPlan.addEventListener("click", (event) => {
       renderCurrentView();
     });
   }
-});
+}
+
+mealPlan.addEventListener("click", handleMealPlanClick);
 
 favoriteQuickList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-favorite-add]");
