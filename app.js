@@ -142,6 +142,7 @@ const autopilotForm = document.querySelector("#autopilotForm");
 const autopilotMealsInput = document.querySelector("#autopilotMealsInput");
 const autopilotTasksInput = document.querySelector("#autopilotTasksInput");
 const autopilotCategoriesInput = document.querySelector("#autopilotCategoriesInput");
+const autopilotOverwrite = document.querySelector("#autopilotOverwrite");
 const cancelAutopilotButton = document.querySelector("#cancelAutopilotButton");
 const shoppingList = document.querySelector("#shoppingList");
 const shoppingForm = document.querySelector("#shoppingForm");
@@ -226,6 +227,8 @@ const clearDoneShoppingButton = document.querySelector("#clearDoneShoppingButton
 const clearAllShoppingButton = document.querySelector("#clearAllShoppingButton");
 const stockCount = document.querySelector("#stockCount");
 const stockList = document.querySelector("#stockList");
+const autopilotCategoryCount = document.querySelector("#autopilotCategoryCount");
+const autopilotCategoryList = document.querySelector("#autopilotCategoryList");
 const pantryCount = document.querySelector("#pantryCount");
 const pantryForm = document.querySelector("#pantryForm");
 const pantryName = document.querySelector("#pantryName");
@@ -1507,6 +1510,24 @@ function renderStockCheck() {
     .join("");
 }
 
+function renderAutopilotCategories() {
+  if (!autopilotCategoryList || !autopilotCategoryCount) return;
+  const nextWeekly = state.weekly["family:next"] || {};
+  const categories = nextWeekly.autopilotCategories || [];
+  const checked = new Set(nextWeekly.autopilotChecked || []);
+  autopilotCategoryCount.textContent = `${checked.size}/${categories.length}`;
+  autopilotCategoryList.innerHTML = categories.length
+    ? categories
+        .map((item) => `
+          <label class="stock-item">
+            <input type="checkbox" data-autopilot-category="${escapeHtml(item)}" ${checked.has(item) ? "checked" : ""}>
+            <span>${escapeHtml(item)}</span>
+          </label>
+        `)
+        .join("")
+    : `<div class="empty-state">Autopilot zatiaľ nemá kategórie. Spusti ho z Domova.</div>`;
+}
+
 function buildSmartTips(meals, tasks, shopping, openShopping) {
   const tips = [];
   const dinners = meals.filter((meal) => meal.typeKey === "dinner").length;
@@ -2560,6 +2581,7 @@ function renderCurrentView() {
   try {
     renderPlan();
     renderShopping();
+    renderAutopilotCategories();
     renderStockCheck();
     renderPantry();
     renderExtras();
@@ -2743,6 +2765,7 @@ function openAutopilotDialog() {
   autopilotMealsInput.value = draft.meals;
   autopilotTasksInput.value = draft.tasks;
   autopilotCategoriesInput.value = draft.categories;
+  if (autopilotOverwrite) autopilotOverwrite.checked = false;
   autopilotDialog.showModal();
   autopilotMealsInput.focus();
 }
@@ -2764,6 +2787,12 @@ function applyAutopilot() {
     .slice(0, 6);
 
   const nextPlan = planForWeek("next");
+  const overwrite = !!autopilotOverwrite?.checked;
+  if (overwrite) {
+    nextPlan.days.forEach((day) => {
+      day.meals = day.meals.filter((meal) => meal.typeKey !== "dinner");
+    });
+  }
   let addedMeals = 0;
   mealLines.forEach((name, dayIndex) => {
     const day = nextPlan.days[dayIndex];
@@ -2793,6 +2822,7 @@ function applyAutopilot() {
 
   state.weekly["family:next"] ||= {};
   state.weekly["family:next"].autopilotCategories = categoryLines;
+  state.weekly["family:next"].autopilotChecked = [];
 
   savePlans();
   saveTasksState();
@@ -3251,6 +3281,22 @@ stockList.addEventListener("change", (event) => {
   weekly.stock = [...stock];
   saveWeeklyState();
   renderStockCheck();
+});
+
+autopilotCategoryList?.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-autopilot-category]");
+  if (!checkbox) return;
+  state.weekly["family:next"] ||= {};
+  const selected = new Set(state.weekly["family:next"].autopilotChecked || []);
+  const key = checkbox.dataset.autopilotCategory;
+  if (checkbox.checked) {
+    selected.add(key);
+  } else {
+    selected.delete(key);
+  }
+  state.weekly["family:next"].autopilotChecked = [...selected];
+  saveWeeklyState();
+  renderAutopilotCategories();
 });
 
 smartTipList.addEventListener("click", (event) => {

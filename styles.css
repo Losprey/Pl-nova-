@@ -4937,6 +4937,21 @@ body[data-visual="playful"] {
   box-shadow: 0 0 0 1px rgba(109, 91, 255, 0.35);
 }
 
+.autopilot-overwrite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.autopilot-overwrite input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--purple);
+}
+
 /* Global UX polish: cleaner visual rhythm and predictable controls */
 :root {
   --ux-space-1: 8px;
