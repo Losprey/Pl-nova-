@@ -2328,7 +2328,7 @@ function addQuickTask(title, priority) {
   showToast("Krok pridaný.");
 }
 
-function todaySummary(meals, openTasks, openShopping) {
+function todaySummary(meals, openTasks, openShopping, weekKey = state.week) {
   if (openTasks.length) {
     return {
       label: "Dnes doma",
@@ -2343,7 +2343,7 @@ function todaySummary(meals, openTasks, openShopping) {
       detail: `V zozname chýba ešte ${openShopping.length} položiek.`,
     };
   }
-  const firstMeal = nextMealByTime(meals);
+  const firstMeal = nextMealByTime(meals, weekKey);
   if (firstMeal) {
     return {
       label: "Dnes doma",
@@ -2890,7 +2890,7 @@ function renderHome() {
     }
   }
 
-  const today = todaySummary(meals, openTasks, openShopping);
+  const today = todaySummary(meals, openTasks, openShopping, mealWeekKey);
   if (homeTodayLabel) homeTodayLabel.textContent = today.label;
   if (homeTodayTitle) homeTodayTitle.textContent = today.title;
   if (homeTodayDetail) homeTodayDetail.textContent = today.detail;
