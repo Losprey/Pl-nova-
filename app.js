@@ -1961,6 +1961,12 @@ function allMeals() {
   );
 }
 
+function allMealsForWeek(weekKey) {
+  return planForWeek(weekKey).days.flatMap((day, dayIndex) =>
+    day.meals.map((meal) => ({ ...meal, dayIndex, dayName: day.name, type: mealTypeFor(meal.typeKey) }))
+  );
+}
+
 function emptyMiniRow(text) {
   return `<div class="empty-state">${text}</div>`;
 }
@@ -2496,9 +2502,9 @@ function nextMealSlot() {
   return { dayIndex: safeDayIndex, typeKey: type.key };
 }
 
-function nextUpcomingMeal(meals) {
+function nextUpcomingMeal(meals, weekKey = state.week) {
   if (!meals.length) return null;
-  const start = weekMeta(state.week).start;
+  const start = weekMeta(weekKey).start;
   const today = dateKey();
   const withDates = meals
     .map((meal) => {
@@ -2520,9 +2526,9 @@ function currentMealSlotKey() {
   return "dinner";
 }
 
-function nextMealByTime(meals) {
+function nextMealByTime(meals, weekKey = state.week) {
   if (!meals.length) return null;
-  const start = weekMeta(state.week).start;
+  const start = weekMeta(weekKey).start;
   const today = dateKey();
   const slotOrder = ["breakfast", "snack", "lunch", "afternoon", "dinner"];
   const preferredSlot = currentMealSlotKey();
@@ -2533,7 +2539,7 @@ function nextMealByTime(meals) {
     absoluteDate: dateKey(addDays(start, meal.dayIndex)),
   }));
   const todaysMeals = withDates.filter((meal) => meal.absoluteDate === today);
-  if (!todaysMeals.length) return nextUpcomingMeal(meals);
+  if (!todaysMeals.length) return nextUpcomingMeal(meals, weekKey);
 
   for (let i = preferredIndex; i < slotOrder.length; i += 1) {
     const match = todaysMeals.find((meal) => meal.typeKey === slotOrder[i]);
@@ -2733,12 +2739,20 @@ function renderWeekendRitual() {
 }
 
 function renderHome() {
-  const meals = allMeals();
-  const tasks = currentTasks();
+  const homeWeek = "current";
+  const mealsCurrent = allMealsForWeek(homeWeek);
+  const mealsFallback = allMealsForWeek("next");
+  const meals = mealsCurrent.length ? mealsCurrent : mealsFallback;
+  const mealWeekKey = mealsCurrent.length ? "current" : "next";
+  const tasks = (state.tasks.family?.[homeWeek] || []).slice();
   const openTasks = tasks.filter((task) => !task.done);
   const doneTasks = tasks.length - openTasks.length;
-  const checked = new Set(checkedShoppingIds());
-  const shopping = shoppingItems();
+  const shoppingKey = `family:${homeWeek}`;
+  const checked = new Set(state.shopping.checked[shoppingKey] || []);
+  const shopping = (state.shopping.manual[shoppingKey] || []).map((item) => ({
+    category: item.category || "Ostatné",
+    ...item,
+  }));
   const openShopping = shopping.filter((item) => !checked.has(item.id));
   const plan = currentPlan();
   const mood = currentMood();
@@ -2844,9 +2858,15 @@ function renderHome() {
     if (lastShopping) {
       nextItems.push({ icon: "🛒", title: lastShopping.name, detail: "Posledná položka nákupu", tab: "shopping" });
     }
-    const nextMeal = nextMealByTime(meals);
+    const nextMeal = nextMealByTime(meals, mealWeekKey);
     if (nextMeal) {
-      nextItems.push({ icon: nextMeal.type.icon, title: nextMeal.name, detail: `${nextMeal.dayName} · ${nextMeal.type.label}`, tab: "meals" });
+      const mealDate = addDays(weekMeta(mealWeekKey).start, nextMeal.dayIndex);
+      nextItems.push({
+        icon: nextMeal.type.icon,
+        title: nextMeal.name,
+        detail: `${formatDayName(mealDate)} · ${nextMeal.type.label}`,
+        tab: "meals",
+      });
     }
     if (openTasks.length > 2) {
       nextItems.push({ icon: "•", title: "Rozdeľte kroky doma", detail: "Krátke rozdelenie zníži tlak na večer.", tab: "tasks" });
