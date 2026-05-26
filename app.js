@@ -3126,14 +3126,13 @@ function forceTabDomState(tab) {
 
 function jumpToTab(tab) {
   if (!["home", "tasks", "shopping", "meals", "more"].includes(tab)) return;
-  renderCurrentView();
+  const navButton = document.querySelector(`.bottom-nav [data-tab="${tab}"]`);
+  if (navButton) {
+    navButton.click();
+    return;
+  }
   setActiveTab(tab);
   forceTabDomState(tab);
-  requestAnimationFrame(() => {
-    renderCurrentView();
-    setActiveTab(tab);
-    forceTabDomState(tab);
-  });
 }
 
 function ensureOneVisibleView() {
