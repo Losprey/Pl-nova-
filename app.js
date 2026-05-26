@@ -2337,7 +2337,7 @@ function todaySummary(meals, openTasks, openShopping) {
       detail: `V zozname chýba ešte ${openShopping.length} položiek.`,
     };
   }
-  const firstMeal = meals[0];
+  const firstMeal = nextMealByTime(meals);
   if (firstMeal) {
     return {
       label: "Dnes doma",
@@ -2509,6 +2509,41 @@ function nextUpcomingMeal(meals) {
 
   const upcoming = withDates.find((meal) => meal.absoluteDate >= today);
   return upcoming || withDates[0];
+}
+
+function currentMealSlotKey() {
+  const hour = new Date().getHours();
+  if (hour < 10) return "breakfast";
+  if (hour < 12) return "snack";
+  if (hour < 15) return "lunch";
+  if (hour < 18) return "afternoon";
+  return "dinner";
+}
+
+function nextMealByTime(meals) {
+  if (!meals.length) return null;
+  const start = weekMeta(state.week).start;
+  const today = dateKey();
+  const slotOrder = ["breakfast", "snack", "lunch", "afternoon", "dinner"];
+  const preferredSlot = currentMealSlotKey();
+  const preferredIndex = Math.max(0, slotOrder.indexOf(preferredSlot));
+
+  const withDates = meals.map((meal) => ({
+    ...meal,
+    absoluteDate: dateKey(addDays(start, meal.dayIndex)),
+  }));
+  const todaysMeals = withDates.filter((meal) => meal.absoluteDate === today);
+  if (!todaysMeals.length) return nextUpcomingMeal(meals);
+
+  for (let i = preferredIndex; i < slotOrder.length; i += 1) {
+    const match = todaysMeals.find((meal) => meal.typeKey === slotOrder[i]);
+    if (match) return match;
+  }
+  for (let i = 0; i < preferredIndex; i += 1) {
+    const match = todaysMeals.find((meal) => meal.typeKey === slotOrder[i]);
+    if (match) return match;
+  }
+  return todaysMeals[0];
 }
 
 function addFavoriteToPlan(name) {
@@ -2809,7 +2844,7 @@ function renderHome() {
     if (lastShopping) {
       nextItems.push({ icon: "🛒", title: lastShopping.name, detail: "Posledná položka nákupu", tab: "shopping" });
     }
-    const nextMeal = nextUpcomingMeal(meals);
+    const nextMeal = nextMealByTime(meals);
     if (nextMeal) {
       nextItems.push({ icon: nextMeal.type.icon, title: nextMeal.name, detail: `${nextMeal.dayName} · ${nextMeal.type.label}`, tab: "meals" });
     }
