@@ -1956,8 +1956,8 @@ function renderTasks() {
 }
 
 function allMeals() {
-  return currentPlan().days.flatMap((day) =>
-    day.meals.map((meal) => ({ ...meal, dayName: day.name, type: mealTypeFor(meal.typeKey) }))
+  return currentPlan().days.flatMap((day, dayIndex) =>
+    day.meals.map((meal) => ({ ...meal, dayIndex, dayName: day.name, type: mealTypeFor(meal.typeKey) }))
   );
 }
 
@@ -2496,6 +2496,21 @@ function nextMealSlot() {
   return { dayIndex: safeDayIndex, typeKey: type.key };
 }
 
+function nextUpcomingMeal(meals) {
+  if (!meals.length) return null;
+  const start = weekMeta(state.week).start;
+  const today = dateKey();
+  const withDates = meals
+    .map((meal) => {
+      const absoluteDate = dateKey(addDays(start, meal.dayIndex));
+      return { ...meal, absoluteDate };
+    })
+    .sort((a, b) => a.absoluteDate.localeCompare(b.absoluteDate));
+
+  const upcoming = withDates.find((meal) => meal.absoluteDate >= today);
+  return upcoming || withDates[0];
+}
+
 function addFavoriteToPlan(name) {
   const slot = nextMealSlot();
   currentPlan().days[slot.dayIndex].meals.push({ typeKey: slot.typeKey, name });
@@ -2794,7 +2809,7 @@ function renderHome() {
     if (lastShopping) {
       nextItems.push({ icon: "🛒", title: lastShopping.name, detail: "Posledná položka nákupu", tab: "shopping" });
     }
-    const nextMeal = meals[0];
+    const nextMeal = nextUpcomingMeal(meals);
     if (nextMeal) {
       nextItems.push({ icon: nextMeal.type.icon, title: nextMeal.name, detail: `${nextMeal.dayName} · ${nextMeal.type.label}`, tab: "meals" });
     }
